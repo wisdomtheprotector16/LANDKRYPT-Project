@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-06-27T15:07:59.340Z",
+  "recipient": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC",
+  "total": 6,
+  "successful": 0,
+  "failed": 6,
+  "results": [],
+  "errors": [
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.26_a97c5884.jpg",
+      "tokenId": 1,
+      "error": "Cannot read properties of undefined (reading 'JsonRpcProvider')"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.26_ccd45142.jpg",
+      "tokenId": 2,
+      "error": "Cannot read properties of undefined (reading 'JsonRpcProvider')"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_21c4e115.jpg",
+      "tokenId": 3,
+      "error": "Cannot read properties of undefined (reading 'JsonRpcProvider')"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_237a5395.jpg",
+      "tokenId": 4,
+      "error": "Cannot read properties of undefined (reading 'JsonRpcProvider')"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_66f033c1.jpg",
+      "tokenId": 5,
+      "error": "Cannot read properties of undefined (reading 'JsonRpcProvider')"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_a96643cc.jpg",
+      "tokenId": 6,
+      "error": "Cannot read properties of undefined (reading 'JsonRpcProvider')"
+    }
+  ]
+}
