@@ -5,18 +5,20 @@ import React from "react";
 import { MapPin, Users, Share2, Heart, TrendingUp, Target } from "lucide-react";
 import Link from "next/link";
 import { GradientButton } from "@/components/GradientButton";
+import IpfsImage from "@/components/IpfsImage";
+import { convertIpfsToHttp } from "@/utils/ipfs";
 
 const NFTCard = ({ item, likedItems, toggleLike, onStakeClick }) => {
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group">
       <div className="relative overflow-hidden">
-        <div className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800">
-          <img
-            src={item.image}
-            alt={item.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <IpfsImage
+          src={item.image || item.tokenURI || item.tokenUrl}
+          alt={item.title}
+          className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800"
+          placeholder="/images/nft-placeholder.jpg"
+          showLoadingSpinner={true}
+        />
         <div className="absolute top-3 left-3">
           <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
             {item.tag}

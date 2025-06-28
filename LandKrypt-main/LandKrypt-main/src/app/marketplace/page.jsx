@@ -28,6 +28,8 @@ import SwapModal from "@/components/SwapModal";
 import { GradientButton } from "@/components/GradientButton";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useContractOperations } from "@/hooks/useContractOperations";
+import IpfsImage from "@/components/IpfsImage";
+import { convertIpfsToHttp, fetchTokenMetadata } from "@/utils/ipfs";
 import marketplaceData from "../../../data/marketplace-listings.json";
 
 const VotingModal = ({
@@ -176,16 +178,33 @@ const NFTMarketplace = () => {
     { value: "digital asset", label: "Digital Asset" },
   ];
 
-  // Load NFT data from database
-  const nftItems = marketplaceData.map(item => ({
-    ...item,
-    // Use tokenURI for images, fallback to image field if needed
-    image: item.tokenURI || item.tokenUrl || item.image,
-    // Format price for display
-    price: `${parseFloat(item.price).toLocaleString()} LKRYPT staked`,
-    // Add staking contract address (this should come from your contract deployment data)
-    stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a", // Replace with actual contract address
-  }));
+  // Load NFT data from database with IPFS image conversion
+  const nftItems = marketplaceData.map(item => {
+    // Extract image URL from tokenURI or use direct image field
+    let imageUrl = item.image;
+    
+    // If we have a tokenURI, prioritize that for metadata
+    if (item.tokenURI) {
+      // For now, assume tokenURI points to metadata JSON with image field
+      // In a real app, you'd fetch the metadata to get the image URL
+      imageUrl = item.tokenURI;
+    } else if (item.tokenUrl) {
+      imageUrl = item.tokenUrl;
+    }
+    
+    // Convert IPFS URLs to HTTP URLs for better compatibility
+    const httpImageUrl = convertIpfsToHttp(imageUrl) || imageUrl;
+    
+    return {
+      ...item,
+      image: httpImageUrl,
+      originalImageUrl: imageUrl, // Keep original for IPFS component
+      // Format price for display
+      price: `${parseFloat(item.price).toLocaleString()} LKRYPT staked`,
+      // Add staking contract address (this should come from your contract deployment data)
+      stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a", // Replace with actual contract address
+    };
+  });
 
   // Filter and search logic
   const filteredItems = useMemo(() => {
@@ -268,20 +287,13 @@ const NFTMarketplace = () => {
         <Link href={`/marketplace/property/${item.id}`} passHref legacyBehavior>
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group cursor-pointer">
             <div className="relative overflow-hidden">
-              <div className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800">
-              <img
-                src={item.image.startsWith('ipfs://') ? 
-                  `https://ipfs.io/ipfs/${item.image.replace('ipfs://', '')}` : 
-                  item.image
-                }
+              <IpfsImage
+                src={item.originalImageUrl || item.image}
                 alt={item.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  // Fallback to placeholder if IPFS image fails
-                  e.target.src = '/nfts/placeholder.jpg';
-                }}
+                className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800"
+                placeholder="/images/nft-placeholder.jpg"
+                showLoadingSpinner={true}
               />
-              </div>
               <div className="absolute top-3 left-3">
                 <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                   {item.tag}

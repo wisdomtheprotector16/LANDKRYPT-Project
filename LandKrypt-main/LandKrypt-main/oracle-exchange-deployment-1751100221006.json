@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-06-28T08:43:39.422Z",
+  "network": "sepolia",
+  "chainId": 11155111,
+  "deployer": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC",
+  "gasPrice": "3632665",
+  "contracts": {
+    "oracle": {
+      "address": "0x164833417fe9D9b1B97EC1b381D1Ece8f8FAcAf9",
+      "chainlinkFeed": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
+      "deploymentHash": "0x8f5a9758dd460a769cbe932eb258934bd2c5b2ad1e2b2c41bdcee1ae91ab76e0"
+    },
+    "exchange": {
+      "address": "0x5D1ABE4139938AE3c78fda44D761d4d665F97816",
+      "lkusdAddress": "0xE7158DAFc5e5cEE12491393d7491d887B450b184",
+      "oracleAddress": "0x164833417fe9D9b1B97EC1b381D1Ece8f8FAcAf9",
+      "feeRate": 50,
+      "deploymentHash": "0x5d7afe1acc2b9f2eb3f8f6d71bab2c08209b90a1247c993245b040171b99938a"
+    }
+  },
+  "minterStatus": {
+    "exchangeAddedAsMinter": true
+  },
+  "environmentFiles": {
+    "updated": 2,
+    "addresses": {
+      "NEXT_PUBLIC_ORACLE_ADDRESS": "0x164833417fe9D9b1B97EC1b381D1Ece8f8FAcAf9",
+      "NEXT_PUBLIC_EXCHANGE_ADDRESS": "0x5D1ABE4139938AE3c78fda44D761d4d665F97816"
+    }
+  }
+}
