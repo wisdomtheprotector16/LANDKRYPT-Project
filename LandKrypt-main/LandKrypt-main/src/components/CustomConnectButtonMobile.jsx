@@ -2,6 +2,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useDisconnect } from "wagmi";
 import { GradientButton2 } from "./GradientButton2";
 import { useState, useRef, useEffect } from "react";
+import ClientOnlyWrapper from "./ClientOnlyWrapper";
 
 const CustomConnectButtonMobile = ({ onDisconnect, className = "" }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -203,4 +204,17 @@ const CustomConnectButtonMobile = ({ onDisconnect, className = "" }) => {
   );
 };
 
-export default CustomConnectButtonMobile;
+// Wrapped version to prevent SSR issues
+const WrappedCustomConnectButtonMobile = ({ onDisconnect, className = "" }) => {
+  return (
+    <ClientOnlyWrapper fallback={
+      <div className="bg-gray-700 rounded-2xl p-6 shadow-xl animate-pulse">
+        <div className="text-white text-center">Loading wallet...</div>
+      </div>
+    }>
+      <CustomConnectButtonMobile onDisconnect={onDisconnect} className={className} />
+    </ClientOnlyWrapper>
+  );
+};
+
+export default WrappedCustomConnectButtonMobile;

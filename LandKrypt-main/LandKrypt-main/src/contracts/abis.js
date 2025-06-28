@@ -22,15 +22,27 @@ export const NFT_STAKING_ABI = [
     "type": "function"
   },
   {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "balanceOf",
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "stakers",
+    "outputs": [
+      {"internalType": "uint256", "name": "amount", "type": "uint256"},
+      {"internalType": "uint256", "name": "lastClaimDay", "type": "uint256"},
+      {"internalType": "uint256", "name": "accumulatedRewards", "type": "uint256"},
+      {"internalType": "uint256", "name": "finalRewardEligibleAmount", "type": "uint256"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "stakerAddress", "type": "address"}],
+    "name": "calculatePendingDailyRewards",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "earned",
+    "inputs": [{"internalType": "address", "name": "stakerAddress", "type": "address"}],
+    "name": "getTotalClaimableRewards",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
@@ -52,16 +64,6 @@ export const NFT_STAKING_ABI = [
   {
     "inputs": [],
     "name": "returnTokenId",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {"internalType": "address", "name": "owner", "type": "address"},
-      {"internalType": "address", "name": "spender", "type": "address"}
-    ],
-    "name": "allowance",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
@@ -182,6 +184,27 @@ export const NFT_MARKETPLACE_ABI = [
 ];
 
 export const NFTDAO_ABI = [
+  {
+    "inputs": [],
+    "name": "registerDeveloper",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "registeredDevelopers",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "developerFee",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
   {
     "inputs": [
       {"internalType": "uint256", "name": "proposalId", "type": "uint256"},
@@ -317,6 +340,16 @@ export const LANDKRYPT_STABLECOIN_ABI = [
   },
   {
     "inputs": [
+      {"internalType": "address", "name": "owner", "type": "address"},
+      {"internalType": "address", "name": "spender", "type": "address"}
+    ],
+    "name": "allowance",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {"internalType": "address", "name": "to", "type": "address"},
       {"internalType": "uint256", "name": "amount", "type": "uint256"}
     ],
@@ -332,6 +365,28 @@ export const LANDKRYPT_STABLECOIN_ABI = [
     ],
     "name": "burn",
     "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
+// Staking Factory ABI
+export const STAKING_FACTORY_ABI = [
+  {
+    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "getStakingContractForNFT",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "uint256", "name": "tokenId", "type": "uint256"},
+      {"internalType": "uint256", "name": "targetAmount", "type": "uint256"},
+      {"internalType": "uint256", "name": "listingPrice", "type": "uint256"}
+    ],
+    "name": "createStakingContract",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
     "stateMutability": "nonpayable",
     "type": "function"
   }

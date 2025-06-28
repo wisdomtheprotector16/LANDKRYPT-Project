@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -25,140 +25,33 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import Header from "@/components/Header";
 import SwapModal from "@/components/SwapModal";
+import StakingModal from "@/components/StakingModal";
 import { GradientButton } from "@/components/GradientButton";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useReadContract } from "wagmi";
 import { useContractOperations } from "@/hooks/useContractOperations";
+import { CONTRACT_ADDRESSES, STAKING_FACTORY_ABI } from "@/contracts/abis";
 import IpfsImage from "@/components/IpfsImage";
 import { convertIpfsToHttp, fetchTokenMetadata } from "@/utils/ipfs";
 import { useMarketplaceMetadata } from "@/hooks/useNftMetadata";
 import { useUserActiveStakes, useNftAnalytics } from "@/hooks/useDatabaseActions";
 import marketplaceData from "../../../data/marketplace-listings.json";
 
-const VotingModal = ({
-  isOpen,
-  onClose,
-  property,
-  availableTokens = 36.61,
-}) => {
-  const [stakeAmount, setStakeAmount] = useState("");
-  const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { stakeTokens, approveToken, isLoading, error } = useContractOperations();
+// Hook to get staking contract address for an NFT
+const useStakingContractAddress = (tokenId) => {
+  const { data: stakingContract } = useReadContract({
+    address: CONTRACT_ADDRESSES.STAKING_FACTORY,
+    abi: STAKING_FACTORY_ABI,
+    functionName: 'getStakingContractForNFT',
+    args: tokenId ? [tokenId] : undefined,
+    query: {
+      enabled: !!tokenId,
+      refetchInterval: 30000,
+    },
+  });
 
-  if (!isOpen) return null;
-
-  const handleModalClick = (e) => {
-    e.stopPropagation(); // Prevent click from bubbling to overlay
-  };
-
-  const handleStakeSubmit = async () => {
-    if (!isConnected) {
-      // Connect wallet first
-      const connector = connectors[0]; // Use first available connector
-      if (connector) {
-        connect({ connector });
-      }
-      return;
-    }
-
-    if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
-      alert("Please enter a valid stake amount");
-      return;
-    }
-
-    try {
-      // First approve tokens, then stake
-      const approveResult = await approveToken({
-        spender: property.stakingContract, // Assuming this is in the property data
-        amount: stakeAmount,
-      });
-
-      if (approveResult.success) {
-        const stakeResult = await stakeTokens({
-          tokenId: property.id,
-          amount: stakeAmount,
-        });
-
-        if (stakeResult.success) {
-          alert(`Successfully staked ${stakeAmount} LKST on ${property.title}!`);
-          onClose();
-        }
-      }
-    } catch (err) {
-      console.error("Staking failed:", err);
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      onClick={onClose} // Close when clicking outside
-    >
-      <div
-        className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-700"
-        onClick={handleModalClick}
-      >
-        <h3 className="text-white font-semibold text-xl mb-4">
-          {property.title}
-        </h3>
-        <p className="text-gray-300 mb-6">
-          Staking on this land NFT earns you governance tokens (LKST) and a
-          share of future returns.
-        </p>
-
-        <div className="mb-6">
-          <h4 className="text-white font-medium mb-2">Stake Amount (LKST)</h4>
-          <input
-            type="number"
-            placeholder="Enter amount to stake"
-            value={stakeAmount}
-            onChange={(e) => setStakeAmount(e.target.value)}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white mb-2"
-            disabled={isLoading}
-          />
-          <p className="text-gray-400 text-sm">
-            Available: {availableTokens} LKST
-          </p>
-          {error && (
-            <p className="text-red-400 text-sm mt-2">
-              Error: {error}
-            </p>
-          )}
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition"
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleStakeSubmit}
-            disabled={isLoading || (!isConnected && !stakeAmount)}
-            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {!isConnected ? "Connect & Stake" : "Stake Now"}
-          </button>
-        </div>
-        <div className="mt-8 flex gap-1 text-white bg-neutral-800/30 rounded-2xl p-3">
-          <div>
-            <ShieldQuestion className="" />
-          </div>
-          <div>
-            {/* <h4 className="text font-medium mb-3">
-            What documents are accepted?
-          </h4> */}
-            <p className="text-gray-400 text-sm">
-              Staking rewards: <strong>7% APR</strong> in LKST tokens
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return stakingContract && stakingContract !== '0x0000000000000000000000000000000000000000' 
+    ? stakingContract 
+    : null;
 };
 
 const NFTMarketplace = () => {
@@ -168,11 +61,24 @@ const NFTMarketplace = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [likedItems, setLikedItems] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
-  const [showVotingModal, setShowVotingModal] = useState(false);
+  const [showStakingModal, setShowStakingModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
   
-  // Wallet and contract integration
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  // Wallet and contract integration - always call hooks
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
+  
+  // Use mounted state to determine when to actually use the values
+  const safeAddress = isMounted ? address : null;
+  const safeIsConnected = isMounted ? isConnected : false;
+  const safeConnect = isMounted ? connect : () => {};
+  const safeConnectors = isMounted ? connectors : [];
 
   const filterOptions = [
     { value: "all", label: "All" },
@@ -197,13 +103,15 @@ const NFTMarketplace = () => {
       image: item.processedImageUrl || item.image,
       originalImageUrl: item.processedImageUrl || item.image,
       // Format price for display
-      price: `${parseFloat(item.price).toLocaleString()} LKRYPT staked`,
-      // Add staking contract address
-      stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a",
+      price: `${parseFloat(item.originalPrice || item.price || 0).toLocaleString()} LKUSD target`,
+      // Use the staking contract from data or resolve it dynamically
+      stakingContract: item.stakingContract,
       // Add user stake information
       userStaked: userStake ? parseFloat(userStake.amount) : 0,
       hasUserStake: !!userStake,
-      userStakeDate: userStake ? userStake.created_at : null
+      userStakeDate: userStake ? userStake.created_at : null,
+      // Add token ID for contract resolution
+      tokenId: item.tokenId || item.id
     };
   });
 
@@ -253,10 +161,14 @@ const NFTMarketplace = () => {
   };
 
   const NFTCard = ({ item }) => {
-    const [showVoteModal, setShowVoteModal] = useState(false);
-    const { address, isConnected } = useAccount();
-    const { connect, connectors } = useConnect();
+    // Always call hooks - use the safe values from parent component
     const { analytics } = useNftAnalytics(item.id);
+    
+    // Get the actual staking contract address from the factory
+    const dynamicStakingContract = useStakingContractAddress(item.tokenId);
+    
+    // Use dynamic contract address if available, fallback to static data
+    const stakingContractAddress = dynamicStakingContract || item.stakingContract;
 
     const handleButtonClick = (e, action) => {
       e.stopPropagation(); // Prevent the card click from firing
@@ -272,15 +184,21 @@ const NFTMarketplace = () => {
         });
       } else if (action === "stake") {
         // Check wallet connection before showing modal
-        if (!isConnected) {
+        if (!safeIsConnected) {
           // Auto-connect if not connected
-          const connector = connectors[0];
+          const connector = safeConnectors[0];
           if (connector) {
-            connect({ connector });
+            safeConnect({ connector });
           }
           return;
         }
-        setShowVoteModal(true);
+        // Set the selected property with the correct staking contract
+        const propertyWithContract = {
+          ...item,
+          stakingContract: stakingContractAddress
+        };
+        setSelectedProperty(propertyWithContract);
+        setShowStakingModal(true);
       }
     };
 
@@ -376,18 +294,31 @@ const NFTMarketplace = () => {
               <button
                 onClick={(e) => handleButtonClick(e, "stake")}
                 className="w-full z-10 relative"
+                disabled={!stakingContractAddress}
               >
-                <GradientButton>{!isConnected ? "Connect & Stake" : "Start Staking"}</GradientButton>
+                <GradientButton>
+                  {!stakingContractAddress 
+                    ? "Staking Contract Not Found"
+                    : !safeIsConnected 
+                    ? "Connect & Stake" 
+                    : "Start Staking"
+                  }
+                </GradientButton>
               </button>
+              
+              {/* Debug info for staking contract */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-500 mt-1">
+                  Contract: {stakingContractAddress ? 
+                    `${stakingContractAddress.slice(0,8)}...${stakingContractAddress.slice(-6)}` : 
+                    'Not deployed'
+                  }
+                </div>
+              )}
             </div>
           </div>
         </Link>
 
-        <VotingModal
-          isOpen={showVoteModal}
-          onClose={() => setShowVoteModal(false)}
-          property={item}
-        />
       </>
     );
   };
@@ -411,19 +342,19 @@ const NFTMarketplace = () => {
           
           {/* Wallet Connection Status */}
           <div className="mb-8">
-            {isConnected ? (
+            {safeIsConnected ? (
               <div className="flex items-center justify-center gap-2 text-green-400">
                 <Wallet className="w-5 h-5" />
                 <span className="text-sm">
-                  Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                  Connected: {safeAddress?.slice(0, 6)}...{safeAddress?.slice(-4)}
                 </span>
               </div>
             ) : (
               <button
                 onClick={() => {
-                  const connector = connectors[0];
+                  const connector = safeConnectors[0];
                   if (connector) {
-                    connect({ connector });
+                    safeConnect({ connector });
                   }
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
@@ -614,6 +545,19 @@ const NFTMarketplace = () => {
           )}
         </div>
       </section>
+
+      {/* Staking Modal */}
+      {selectedProperty && (
+        <StakingModal
+          isOpen={showStakingModal}
+          onClose={() => {
+            setShowStakingModal(false);
+            setSelectedProperty(null);
+          }}
+          property={selectedProperty}
+          stakingContractAddress={selectedProperty.stakingContract}
+        />
+      )}
 
       {/* Footer */}
       <Footer />

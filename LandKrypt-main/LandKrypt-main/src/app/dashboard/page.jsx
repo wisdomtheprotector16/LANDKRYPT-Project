@@ -33,8 +33,10 @@ import {
 } from "./components/DashboardComponents";
 import { useDashboardData } from "@/hooks/useDashboard";
 import CustomConnectButton from "@/components/CustomConnectButton";
+import ClientOnlyWrapper from "@/components/ClientOnlyWrapper";
 
-export default function Dashboard() {
+// Main dashboard component that uses Wagmi hooks
+function DashboardContent() {
   const { address, isConnected } = useAccount();
   const { dashboardData, dashboardStats, isLoading, error, refetch } = useDashboardData();
   const [activeTab, setActiveTab] = useState("overview");
@@ -272,5 +274,33 @@ export default function Dashboard() {
       {/* Footer */}
       <Footer />
     </div>
+  );
+}
+
+// SSR-safe Dashboard export
+export default function Dashboard() {
+  return (
+    <ClientOnlyWrapper 
+      fallback={
+        <div className="min-h-screen bg-neutral-900 text-white">
+          <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 my-3 px-5">
+            <Header />
+          </div>
+          <main className="py-28 px-4">
+            <div className="max-w-4xl mx-auto text-center py-20">
+              <div className="space-y-6">
+                <div className="w-16 h-16 bg-gray-700 rounded-full animate-pulse mx-auto"></div>
+                <div className="h-8 bg-gray-700 rounded animate-pulse w-64 mx-auto"></div>
+                <div className="h-4 bg-gray-700 rounded animate-pulse w-96 mx-auto"></div>
+                <div className="h-10 bg-gray-700 rounded animate-pulse w-32 mx-auto"></div>
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      }
+    >
+      <DashboardContent />
+    </ClientOnlyWrapper>
   );
 }

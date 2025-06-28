@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Clock, CheckCircle, Plus, Building2, FileText } from "lucide-react";
+import { Users, Clock, CheckCircle, Plus, Building2, FileText, Shield, AlertTriangle } from "lucide-react";
 import { GradientButton } from "@/components/GradientButton";
 import { useContractWriteCustom, useContractReadData, useWallet } from "../../../hooks/useContractInteraction";
 import { NFTDAO_ABI, LANDKRYPT_STAKING_TOKEN_ABI, CONTRACT_ADDRESSES } from "../../../contracts/abis";
 import { useProposalsList, useNftsReadyForProposals, useProposals } from "@/hooks/useProposals";
 import { useDatabaseActions } from "@/hooks/useDatabaseActions";
+import { useDeveloperStatus } from "@/hooks/useDeveloperStatus";
+import { useContractOperations } from "@/hooks/useContractOperations";
 import { toast } from "react-hot-toast";
 import { parseAmount } from "../../../hooks/useContractInteraction";
 import marketplaceData from "../../../../data/marketplace-listings.json";
@@ -20,6 +22,17 @@ const ProposalsSection = () => {
   
   // Wagmi hooks
   const { address, isConnected } = useWallet();
+  
+  // Developer registration status
+  const { 
+    isRegisteredDeveloper, 
+    developerFee, 
+    isCheckingStatus, 
+    refetchStatus 
+  } = useDeveloperStatus();
+  
+  // Contract operations
+  const { registerDeveloper } = useContractOperations();
   
   // Database hooks
   const { proposals: activeProposals, isLoading: loadingActive, refetch: refetchActive } = useProposalsList('active');
@@ -373,15 +386,52 @@ const ProposalsSection = () => {
                       </div>
                     </div>
                     
-                    <GradientButton
-                      onClick={() => setShowCreateModal(nft)}
-                      className="w-full"
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Plus className="w-4 h-4" />
-                        <span>Create Proposal</span>
-                      </div>
-                    </GradientButton>
+                    {/* Developer Registration Check */}
+                    {!isConnected ? (
+                      <GradientButton className="w-full" disabled>
+                        <div className="flex items-center justify-center gap-2">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>Connect Wallet</span>
+                        </div>
+                      </GradientButton>
+                    ) : isCheckingStatus ? (
+                      <GradientButton className="w-full" disabled>
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Checking Status...</span>
+                        </div>
+                      </GradientButton>
+                    ) : !isRegisteredDeveloper ? (
+                      <GradientButton 
+                        onClick={async () => {
+                          try {
+                            await registerDeveloper();
+                            toast.success('Registration submitted! Please wait for confirmation.');
+                            setTimeout(() => refetchStatus(), 5000);
+                          } catch (error) {
+                            toast.error('Registration failed. Please try again.');
+                          }
+                        }}
+                        className="w-full"
+                        gradientFrom="bg-gradient-to-r from-purple-500"
+                        gradientTo="to-purple-700"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          <span>Register as Developer</span>
+                        </div>
+                      </GradientButton>
+                    ) : (
+                      <GradientButton
+                        onClick={() => setShowCreateModal(nft)}
+                        className="w-full"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <Plus className="w-4 h-4" />
+                          <span>Create Proposal</span>
+                        </div>
+                      </GradientButton>
+                    )}
                   </motion.div>
                 );
               })}

@@ -1,3 +1,5 @@
+// Import SSR polyfills first to handle browser API issues
+import "../lib/ssr-polyfills";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Geist, Geist_Mono } from "next/font/google";

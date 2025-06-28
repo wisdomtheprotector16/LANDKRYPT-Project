@@ -25,7 +25,10 @@ export const TABLES = {
   PROPOSALS: 'proposals',
   USERS: 'users',
   NFTS: 'nfts',
-  MARKETPLACE_LISTINGS: 'marketplace_listings'
+  MARKETPLACE_LISTINGS: 'marketplace_listings',
+  DEVELOPERS: 'developers',
+  PROPERTY_VERIFICATIONS: 'property_verifications',
+  ANTHOS_SUBMISSIONS: 'anthos_submissions'
 };
 
 // Action types
@@ -132,6 +135,71 @@ export class DatabaseService {
           no_votes DECIMAL(36,18) DEFAULT 0,
           tx_hash VARCHAR(66),
           metadata JSONB,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `,
+      // Developers table
+      `
+        CREATE TABLE IF NOT EXISTS ${TABLES.DEVELOPERS} (
+          id BIGSERIAL PRIMARY KEY,
+          wallet_address VARCHAR(42) UNIQUE NOT NULL,
+          company_name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          phone VARCHAR(50),
+          business_license VARCHAR(255),
+          years_experience INTEGER,
+          specialization TEXT[],
+          portfolio_url VARCHAR(500),
+          verified BOOLEAN DEFAULT FALSE,
+          verification_documents JSONB,
+          status VARCHAR(20) DEFAULT 'pending',
+          metadata JSONB,
+          registered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          verified_at TIMESTAMP WITH TIME ZONE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `,
+      // Property verifications table
+      `
+        CREATE TABLE IF NOT EXISTS ${TABLES.PROPERTY_VERIFICATIONS} (
+          id BIGSERIAL PRIMARY KEY,
+          submission_id BIGSERIAL REFERENCES ${TABLES.ANTHOS_SUBMISSIONS}(id),
+          property_title VARCHAR(500) NOT NULL,
+          property_location VARCHAR(500) NOT NULL,
+          property_size VARCHAR(100),
+          estimated_value DECIMAL(18,2),
+          property_description TEXT,
+          owner_address VARCHAR(42) NOT NULL,
+          verification_status VARCHAR(20) DEFAULT 'pending',
+          verification_notes TEXT,
+          verified_by VARCHAR(42),
+          token_id INTEGER,
+          nft_minted BOOLEAN DEFAULT FALSE,
+          listed_on_marketplace BOOLEAN DEFAULT FALSE,
+          metadata JSONB,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          verified_at TIMESTAMP WITH TIME ZONE,
+          minted_at TIMESTAMP WITH TIME ZONE,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `,
+      // Anthos submissions table
+      `
+        CREATE TABLE IF NOT EXISTS ${TABLES.ANTHOS_SUBMISSIONS} (
+          id BIGSERIAL PRIMARY KEY,
+          user_address VARCHAR(42) NOT NULL,
+          step_1_files JSONB,
+          step_2_data JSONB,
+          current_step INTEGER DEFAULT 1,
+          status VARCHAR(20) DEFAULT 'in_progress',
+          submission_hash VARCHAR(66),
+          ipfs_metadata_uri TEXT,
+          verification_id BIGSERIAL REFERENCES ${TABLES.PROPERTY_VERIFICATIONS}(id),
+          metadata JSONB,
+          started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          completed_at TIMESTAMP WITH TIME ZONE,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
