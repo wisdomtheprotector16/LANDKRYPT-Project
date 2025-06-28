@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import './DAO.css';
 import { ChevronDown, Twitter, Instagram, Linkedin, Shield, AlertTriangle } from "lucide-react";
 import Header, { Logo } from "@/components/Header";
 import ProposalsSection from "./components/Proposals";
@@ -54,7 +55,7 @@ const GovernanceDAO = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#07000b] via-[#06000b] to-black overflow-x-hidden text-white relative">
       {/* Header */}
-      <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 my-3 px-5">
+      <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 px-5 py-3 backdrop-blur-md bg-opacity-80">
         <Header />
       </div>
 
@@ -62,10 +63,10 @@ const GovernanceDAO = () => {
       <main className="px-6 py-28">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
             Governance DAO
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Participate in decentralized decision making for land development
           </p>
           
@@ -80,13 +81,13 @@ const GovernanceDAO = () => {
                   </div>
                 </div>
               ) : !isRegisteredDeveloper ? (
-                <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+                <div className="bg-purple-900/20 border border-purple-500/50 rounded-xl p-6 shadow-lg backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-purple-400" />
+                      <Shield className="w-6 h-6 text-purple-400" />
                       <div className="text-left">
-                        <h3 className="text-white font-semibold">Register as Developer</h3>
-                        <p className="text-gray-400 text-sm">
+                        <h3 className="text-white font-semibold text-lg">Register as Developer</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">
                           Registration required to create proposals • Fee: {developerFee ? formatEther(developerFee) : '0.01'} ETH
                         </p>
                       </div>
@@ -95,7 +96,7 @@ const GovernanceDAO = () => {
                       onClick={handleDeveloperRegistration}
                       gradientFrom="bg-gradient-to-r from-purple-500"
                       gradientTo="to-purple-700"
-                      className="px-4 py-2 text-sm"
+                      className="px-6 py-3 text-sm font-medium rounded-full hover:shadow-lg transform transition-transform hover:-translate-y-1"
                     >
                       Register Now
                     </GradientButton>
@@ -140,12 +141,12 @@ const GovernanceDAO = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {features.map((feature) => (
-              <div key={feature.id} className="bg-gray-800 p-6 rounded-lg space-y-1">
-                <div className="text-orange-400 text-sm font-semibold mb-4 bg-neutral-900/40 inline p-2 rounded-md">
+              <div key={feature.id} className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 group">
+                <div className="text-orange-400 text-sm font-semibold mb-4 bg-gradient-to-r from-orange-400 to-yellow-400 text-white px-3 py-1 rounded-full inline-block">
                   {feature.id}
                 </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-3 group-hover:text-orange-400 transition-colors">{feature.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>

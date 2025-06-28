@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import './Marketplace.css';
 import {
   Search,
   Filter,
@@ -203,8 +204,7 @@ const NFTMarketplace = () => {
     };
 
     return (
-      <>
-        <Link href={`/marketplace/property/${item.id}`} passHref legacyBehavior>
+      <Link href={`/marketplace/property/${item.id}`} passHref legacyBehavior>
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group cursor-pointer">
             <div className="relative overflow-hidden">
               <IpfsImage
@@ -318,15 +318,15 @@ const NFTMarketplace = () => {
             </div>
           </div>
         </Link>
-
-      </>
     );
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-[#07000b] via-[#06000b] to-black overflow-x-hidden">
+    <div className="min-h-screen relative bg-gradient-to-b from-[#07000b] via-[#06000b] to-black overflow-x-hidden"
+    >
       {/* Header */}
-      <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 my-3 px-5">
+      <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 px-5 py-3 backdrop-blur-md bg-opacity-80"
+    >
         <Header />
       </div>
 
@@ -350,15 +350,15 @@ const NFTMarketplace = () => {
                 </span>
               </div>
             ) : (
-              <button
+<button
                 onClick={() => {
                   const connector = safeConnectors[0];
                   if (connector) {
                     safeConnect({ connector });
                   }
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-              >
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:to-pink-500 text-white rounded-full shadow-lg transform transition-transform hover:-translate-y-1"
+    >
                 <Wallet className="w-4 h-4" />
                 Connect Wallet to Start Staking
               </button>
