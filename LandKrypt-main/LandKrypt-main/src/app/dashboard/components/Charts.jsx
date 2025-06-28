@@ -11,32 +11,26 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const Charts = () => {
+const Charts = ({ dashboardStats, isLoading }) => {
   const [timeframe, setTimeframe] = useState("Last 6 months");
 
-  // Hardcoded demo data representing API response
-  const stakingData = {
-    accountSummary: {
-      accountId: "0x0e8f...0000",
-      totalStaked: "110,000 USD",
-      stakingRewards: "186 x 18 Hug",
-      totalReturns: "5,500 LKST",
-      stakedNFTs: 3,
-      annualYield: "15.2%",
-    },
-    returnsData: [
-      { month: "Jan", value: 100, date: "Jan 2024" },
-      { month: "Feb", value: 150, date: "Feb 2024" },
-      { month: "Mar", value: 250, date: "Mar 2024" },
-      { month: "Apr", value: 400, date: "Apr 2024" },
-      { month: "May", value: 680, date: "May 2024" },
-      { month: "Jun", value: 520, date: "Jun 2024" },
-      { month: "Jul", value: 400, date: "Jul 2024" },
-      { month: "Aug", value: 350, date: "Aug 2024" },
-      { month: "Sep", value: 320, date: "Sep 2024" },
-    ],
-    peakValue: { value: 680, date: "Thursday, Nov 4, 2024", amount: "$38M" },
-  };
+  // Use real data from dashboard stats or fallback to demo data
+  const returnsData = dashboardStats?.activity?.returnsData || [
+    { month: "Jan", value: 100, date: "Jan 2024" },
+    { month: "Feb", value: 150, date: "Feb 2024" },
+    { month: "Mar", value: 250, date: "Mar 2024" },
+    { month: "Apr", value: 400, date: "Apr 2024" },
+    { month: "May", value: 680, date: "May 2024" },
+    { month: "Jun", value: 520, date: "Jun 2024" },
+    { month: "Jul", value: 400, date: "Jul 2024" },
+    { month: "Aug", value: 350, date: "Aug 2024" },
+    { month: "Sep", value: 320, date: "Sep 2024" },
+  ];
+
+  const peakValue = returnsData.reduce((peak, current) => 
+    current.value > peak.value ? current : peak, 
+    { value: 0, date: "N/A", amount: "$0" }
+  );
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -53,7 +47,7 @@ const Charts = () => {
 
   const CustomDot = (props) => {
     const { cx, cy, payload } = props;
-    if (payload.value === stakingData.peakValue.value) {
+    if (payload.value === peakValue.value) {
       return (
         <g>
           <circle
@@ -72,15 +66,15 @@ const Charts = () => {
   };
 
   const PeakValueLabel = () => {
-    const peakDataPoint = stakingData.returnsData.find(
-      (d) => d.value === stakingData.peakValue.value
+    const peakDataPoint = returnsData.find(
+      (d) => d.value === peakValue.value
     );
     if (!peakDataPoint) return null;
 
     return (
       <div className="absolute top-4 left-20 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-lg">
-        <div className="text-xs opacity-90">{stakingData.peakValue.date}</div>
-        <div className="font-bold">{stakingData.peakValue.amount}</div>
+        <div className="text-xs opacity-90">{peakValue.date}</div>
+        <div className="font-bold">${peakValue.value}</div>
         <div className="absolute -bottom-1 left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
       </div>
     );
@@ -108,7 +102,7 @@ const Charts = () => {
             <PeakValueLabel />
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={stakingData.returnsData}
+                data={returnsData}
                 margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
               >
                 <defs>

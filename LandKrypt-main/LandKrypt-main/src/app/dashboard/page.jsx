@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import {
   BarChart3,
   TrendingUp,
@@ -12,12 +14,61 @@ import {
   Linkedin,
   Lock,
   Shield,
+  Loader2,
+  AlertCircle,
+  RefreshCw
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAccount } from 'wagmi';
+import { toast } from 'react-hot-toast';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Charts from "./components/Charts";
+import { 
+  BalanceCards, 
+  AccountSummary, 
+  RecentActivity, 
+  StakedNFTs, 
+  PortfolioPerformance 
+} from "./components/DashboardComponents";
+import { useDashboardData } from "@/hooks/useDashboard";
+import CustomConnectButton from "@/components/CustomConnectButton";
 
 export default function Dashboard() {
+  const { address, isConnected } = useAccount();
+  const { dashboardData, dashboardStats, isLoading, error, refetch } = useDashboardData();
+  const [activeTab, setActiveTab] = useState("overview");
+  // Handle wallet connection state
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen bg-neutral-900 text-white">
+        <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 my-3 px-5">
+          <Header />
+        </div>
+        <main className="py-28 px-4">
+          <div className="max-w-4xl mx-auto text-center py-20">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <Wallet className="w-16 h-16 text-orange-400 mx-auto" />
+              <h1 className="text-4xl font-bold">Connect Your Wallet</h1>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Connect your wallet to access your dashboard and view your staking rewards, 
+                NFT portfolio, and recent activity.
+              </p>
+              <div className="pt-6">
+                <CustomConnectButton />
+              </div>
+            </motion.div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
       {/* Header */}
@@ -27,142 +78,198 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="py-28 px-4">
-        {/* Dashboard Title */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-          <p className="text-gray-400">
-            Track your balance, monitor investments, view staking rewards, and
-            manage your digital real estate, all in one place.
-          </p>
-        </div>
-
-        <div className="w-full py-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4  mx-auto">
-            {/* LKST Balance Card */}
-            <div className="bg-gradient-to-br flex gap-1.5 from-blue-500 to-blue-600 p-6 rounded-2xl text-white relative overflow-hidden">
-              {/* <div className="bg-white p-4 rounded-lg shadow-sm"> */}
-              <div className="flex items-center justify-between mb-1">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Wallet className="w-6 h-6 opacity-80 text-blue-600" />
-                </div>
-              </div>
-              {/* </div> */}
+        <div className="max-w-7xl mx-auto">
+          {/* Dashboard Title */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <div className="text-xs font-medium opacity-80 mb-1 tracking-wide">
-                  LKST BALANCE
-                </div>
-                <div className="text-4xl font-bold mb-3">21.97</div>
-                <div className="text-xs opacity-70 leading-tight">
-                  Governance tokens for voting on
-                  <br />
-                  proposals
-                </div>
+                <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
+                <p className="text-gray-400">
+                  Track your balance, monitor investments, view staking rewards, and manage your digital real estate.
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                {error && (
+                  <motion.button
+                    onClick={refetch}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 bg-red-500/20 text-red-400 px-4 py-2 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    Error - Retry
+                  </motion.button>
+                )}
+                <motion.button
+                  onClick={refetch}
+                  whileHover={{ scale: 1.05, rotate: 180 }}
+                  whileTap={{ scale: 0.95 }}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </motion.button>
               </div>
             </div>
+          </motion.div>
 
-            {/* LKUSD Balance Card */}
-            <div className="bg-gradient-to-br  flex gap-1.5 from-orange-400 to-orange-500 p-6 rounded-2xl text-white relative overflow-hidden">
-              <div className="flex items-center justify-between mb-1">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Lock className="w-6 h-6 opacity-80 text-blue-600" />
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium opacity-80 mb-1 tracking-wide">
-                  LKUSD BALANCE
-                </div>
-                <div className="text-4xl font-bold mb-3">36.61</div>
-                <div className="text-xs opacity-70 leading-tight">
-                  Available for staking and transactions
-                </div>
-              </div>
-            </div>
-
-            {/* Total Staked Card */}
-            <div className="bg-gradient-to-br  flex gap-1.5 from-pink-500 to-pink-600 p-6 rounded-2xl text-white relative overflow-hidden">
-              <div className="flex items-center justify-between mb-1">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Shield className="w-6 h-6 opacity-80 text-blue-600" />
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium opacity-80 mb-1 tracking-wide">
-                  TOTAL STAKED
-                </div>
-                <div className="text-4xl font-bold mb-3">110,000 LKUSD</div>
-                <div className="text-xs opacity-70 leading-tight">
-                  Across 3 different land NFTs
-                </div>
-              </div>
-            </div>
+          {/* Balance Cards */}
+          <div className="mb-8">
+            <BalanceCards 
+              balances={dashboardStats?.balances}
+              staking={dashboardStats?.staking}
+              isLoading={isLoading}
+            />
           </div>
-        </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex space-x-8 mb-6 border-b border-gray-800">
-          <button className="pb-2 border-b-2 border-orange-500 text-orange-500 font-medium">
-            Overview
-          </button>
-          <button className="pb-2 text-gray-400 hover:text-white">
-            Staked NFTs
-          </button>
-        </div>
+          {/* Navigation Tabs */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex space-x-8 mb-6 border-b border-gray-800"
+          >
+            {[
+              { id: 'overview', label: 'Overview', icon: BarChart3 },
+              { id: 'staking', label: 'Staked NFTs', icon: Lock },
+              { id: 'activity', label: 'Activity', icon: TrendingUp },
+              { id: 'analytics', label: 'Analytics', icon: Users }
+            ].map((tab) => (
+              <motion.button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                whileHover={{ y: -2 }}
+                className={`pb-2 px-1 flex items-center gap-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-b-2 border-orange-500 text-orange-500 font-medium'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </motion.button>
+            ))}
+          </motion.div>
 
-        {/* Chart and Summary Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Chart */}
-          <Charts />
+          {/* Tab Content */}
+          <AnimatePresence mode="wait">
+            {activeTab === 'overview' && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-8"
+              >
+                {/* Chart and Summary Section */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                  {/* Chart - Takes up 2 columns */}
+                  <div className="xl:col-span-2">
+                    <Charts dashboardStats={dashboardStats} isLoading={isLoading} />
+                  </div>
+                  
+                  {/* Account Summary */}
+                  <AccountSummary 
+                    address={address}
+                    staking={dashboardStats?.staking}
+                    proposals={dashboardStats?.proposals}
+                    activity={dashboardStats?.activity}
+                    isLoading={isLoading}
+                  />
+                </div>
 
-          {/* Account Summary */}
-          <div className="bg-gray-800 p-6 rounded-xl">
-            <h3 className="text-xl font-semibold mb-4">Account Summary</h3>
+                {/* Portfolio Performance */}
+                <PortfolioPerformance isLoading={isLoading} />
 
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Account</span>
-                <span className="text-gray-400">0x0e8f...0000</span>
-              </div>
+                {/* Recent Activity and Staked NFTs */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <RecentActivity 
+                    activity={dashboardStats?.activity}
+                    isLoading={isLoading}
+                  />
+                  <StakedNFTs 
+                    stakedNfts={dashboardData?.stakedNfts}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </motion.div>
+            )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-400">Total Staked</span>
-                <span>110,000 LKUSD</span>
-              </div>
+            {activeTab === 'staking' && (
+              <motion.div
+                key="staking"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <StakedNFTs 
+                  stakedNfts={dashboardData?.stakedNfts}
+                  isLoading={isLoading}
+                />
+              </motion.div>
+            )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-400">Total Rewards</span>
-                <span>2,340.5</span>
-              </div>
+            {activeTab === 'activity' && (
+              <motion.div
+                key="activity"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <RecentActivity 
+                  activity={dashboardStats?.activity}
+                  isLoading={isLoading}
+                />
+              </motion.div>
+            )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-400">Staked NFTs</span>
-                <span>8</span>
-              </div>
+            {activeTab === 'analytics' && (
+              <motion.div
+                key="analytics"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <Charts dashboardStats={dashboardStats} isLoading={isLoading} />
+                  <PortfolioPerformance isLoading={isLoading} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              <div className="flex justify-between">
-                <span className="text-gray-400">Annual Yield</span>
-                <span className="text-gray-400">Annual Yield</span>
-              </div>
-            </div>
-
-            <button className="w-full bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg font-medium mt-6">
-              View All NFTs
-            </button>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-              <BarChart3 className="w-4 h-4" />
-            </div>
-            <div className="flex-1 bg-gray-700 h-2 rounded-full overflow-hidden">
-              <div className="bg-orange-500 h-full w-3/4"></div>
-            </div>
-          </div>
+          {/* Global Loading Overlay */}
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+              >
+                <motion.div
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  className="bg-gray-800 p-6 rounded-xl border border-gray-700 flex items-center gap-4"
+                >
+                  <Loader2 className="w-6 h-6 animate-spin text-orange-400" />
+                  <span className="text-white font-medium">Loading dashboard data...</span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
-      {/* Footer Links */}
+      
+      {/* Footer */}
       <Footer />
     </div>
   );
