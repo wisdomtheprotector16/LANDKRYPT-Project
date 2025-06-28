@@ -216,7 +216,8 @@ export default function StakingModal({
       stakingContractAddress,
       stakeAmount,
       address,
-      stakingMetrics
+      stakingMetrics,
+      lkusdBalance: parseFloat(lkusdBalance)
     });
     
     if (!isConnected) {
@@ -229,7 +230,24 @@ export default function StakingModal({
       return;
     }
 
-    // Validate staking parameters
+    // Enhanced validation for LKUSD balance
+    const amount = parseFloat(stakeAmount);
+    const userLkusdBalance = parseFloat(lkusdBalance);
+    
+    console.log('💰 Balance check:', {
+      stakeAmount: amount,
+      userBalance: userLkusdBalance,
+      hasEnoughBalance: userLkusdBalance >= amount
+    });
+    
+    if (userLkusdBalance < amount) {
+      toast.error(`Insufficient LKUSD balance. You have ${userLkusdBalance.toFixed(6)} LKUSD but need ${amount} LKUSD`);
+      setStakingError(`Insufficient LKUSD balance. Get LKUSD from the Exchange first.`);
+      setStakingStage('error');
+      return;
+    }
+
+    // Validate other staking parameters
     const validation = validateStakingParams(
       stakeAmount, 
       lkusdBalance, 
@@ -240,8 +258,6 @@ export default function StakingModal({
       toast.error(validation.error);
       return;
     }
-
-    const amount = parseFloat(stakeAmount);
 
     setStakingError(null);
     
