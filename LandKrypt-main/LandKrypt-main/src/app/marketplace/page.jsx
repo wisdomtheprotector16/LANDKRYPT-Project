@@ -30,6 +30,8 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useContractOperations } from "@/hooks/useContractOperations";
 import IpfsImage from "@/components/IpfsImage";
 import { convertIpfsToHttp, fetchTokenMetadata } from "@/utils/ipfs";
+import { useMarketplaceMetadata } from "@/hooks/useNftMetadata";
+import { useUserActiveStakes, useNftAnalytics } from "@/hooks/useDatabaseActions";
 import marketplaceData from "../../../data/marketplace-listings.json";
 
 const VotingModal = ({
@@ -178,31 +180,30 @@ const NFTMarketplace = () => {
     { value: "digital asset", label: "Digital Asset" },
   ];
 
-  // Load NFT data from database with IPFS image conversion
-  const nftItems = marketplaceData.map(item => {
-    // Extract image URL from tokenURI or use direct image field
-    let imageUrl = item.image;
-    
-    // If we have a tokenURI, prioritize that for metadata
-    if (item.tokenURI) {
-      // For now, assume tokenURI points to metadata JSON with image field
-      // In a real app, you'd fetch the metadata to get the image URL
-      imageUrl = item.tokenURI;
-    } else if (item.tokenUrl) {
-      imageUrl = item.tokenUrl;
-    }
-    
-    // Convert IPFS URLs to HTTP URLs for better compatibility
-    const httpImageUrl = convertIpfsToHttp(imageUrl) || imageUrl;
+  // Load NFT data from database and process IPFS metadata
+  const { processedItems, isProcessing } = useMarketplaceMetadata(marketplaceData);
+  
+  // Get user's active stakes
+  const { stakes: userStakes } = useUserActiveStakes();
+  
+  // Format processed items for display with user stake information
+  const nftItems = processedItems.map(item => {
+    // Find user's stake for this NFT
+    const userStake = userStakes.find(stake => stake.nft_id === item.id);
     
     return {
       ...item,
-      image: httpImageUrl,
-      originalImageUrl: imageUrl, // Keep original for IPFS component
+      // Use processed image URL from metadata or fallback to original image
+      image: item.processedImageUrl || item.image,
+      originalImageUrl: item.processedImageUrl || item.image,
       // Format price for display
       price: `${parseFloat(item.price).toLocaleString()} LKRYPT staked`,
-      // Add staking contract address (this should come from your contract deployment data)
-      stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a", // Replace with actual contract address
+      // Add staking contract address
+      stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a",
+      // Add user stake information
+      userStaked: userStake ? parseFloat(userStake.amount) : 0,
+      hasUserStake: !!userStake,
+      userStakeDate: userStake ? userStake.created_at : null
     };
   });
 
@@ -255,6 +256,7 @@ const NFTMarketplace = () => {
     const [showVoteModal, setShowVoteModal] = useState(false);
     const { address, isConnected } = useAccount();
     const { connect, connectors } = useConnect();
+    const { analytics } = useNftAnalytics(item.id);
 
     const handleButtonClick = (e, action) => {
       e.stopPropagation(); // Prevent the card click from firing
@@ -288,7 +290,7 @@ const NFTMarketplace = () => {
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group cursor-pointer">
             <div className="relative overflow-hidden">
               <IpfsImage
-                src={item.originalImageUrl || item.image}
+                src={item.image}
                 alt={item.title}
                 className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800"
                 placeholder="/images/nft-placeholder.jpg"
@@ -332,9 +334,45 @@ const NFTMarketplace = () => {
                 <div className="text-orange-400 font-medium">{item.price}</div>
                 <div className="flex items-center gap-1 text-gray-400 text-sm">
                   <Users className="w-4 h-4" />
-                  <span>{item.shares}</span>
+                  <span>{analytics?.stakingStats?.totalStakers || 0} stakers</span>
                 </div>
               </div>
+              
+              {/* User Stake Status */}
+              {item.hasUserStake && (
+                <div className="mb-3 p-2 bg-green-900/20 border border-green-500/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-green-300 text-sm font-medium">
+                      You staked {item.userStaked.toFixed(2)} LKUSD
+                    </span>
+                  </div>
+                  <div className="text-green-400 text-xs mt-1">
+                    Earning daily rewards
+                  </div>
+                </div>
+              )}
+              
+              {/* Staking Progress */}
+              {analytics?.stakingStats && (
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>Staking Progress</span>
+                    <span>{analytics.stakingStats.totalStakers} participants</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-1.5">
+                    <div 
+                      className="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full"
+                      style={{ 
+                        width: `${Math.min((analytics.stakingStats.totalStaked / 1000000) * 100, 100)}%` 
+                      }}
+                    ></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {analytics.stakingStats.totalStaked.toLocaleString()} LKUSD staked
+                  </div>
+                </div>
+              )}
               <button
                 onClick={(e) => handleButtonClick(e, "stake")}
                 className="w-full z-10 relative"

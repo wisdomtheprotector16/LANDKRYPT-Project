@@ -1,46 +1,92 @@
 import { NextResponse } from 'next/server';
-
-// Mock database connection - replace with your actual database client
-// import { createClient } from '@supabase/supabase-js'
+import DatabaseService, { ACTION_TYPES } from '@/lib/supabase';
 
 export async function POST(request) {
   try {
-    const { userAddress, actionType, txHash } = await request.json();
+    const { 
+      userAddress, 
+      nftId, 
+      actionType, 
+      txHash, 
+      blockNumber, 
+      amount, 
+      stakingContract,
+      proposalId,
+      voteChoice,
+      votingPower,
+      metadata = {} 
+    } = await request.json();
 
     // Validate required fields
-    if (!userAddress || !actionType || !txHash) {
+    if (!userAddress || !nftId || !actionType || !txHash) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: userAddress, nftId, actionType, txHash' },
         { status: 400 }
       );
     }
 
-    // Mock database insert - replace with actual database logic
-    const userAction = {
-      id: Date.now(),
-      user_address: userAddress,
-      action_type: actionType,
-      tx_hash: txHash,
-      timestamp: new Date().toISOString()
-    };
+    const db = new DatabaseService(true); // Use admin client for server operations
+    let result;
 
-    // Example with Supabase:
-    // const supabase = createClient(
-    //   process.env.NEXT_PUBLIC_SUPABASE_URL,
-    //   process.env.SUPABASE_SERVICE_ROLE_KEY
-    // );
-    // 
-    // const { data, error } = await supabase
-    //   .from('user_actions')
-    //   .insert([userAction])
-    //   .select();
-    //
-    // if (error) throw error;
+    // Handle different action types
+    switch (actionType) {
+      case ACTION_TYPES.STAKE:
+        if (!stakingContract || !amount) {
+          return NextResponse.json(
+            { error: 'Stake action requires stakingContract and amount' },
+            { status: 400 }
+          );
+        }
+        result = await db.recordStake({
+          userAddress,
+          nftId,
+          stakingContract,
+          amount,
+          txHash,
+          metadata
+        });
+        break;
+
+      case ACTION_TYPES.VOTE:
+        if (proposalId === undefined || voteChoice === undefined || !votingPower) {
+          return NextResponse.json(
+            { error: 'Vote action requires proposalId, voteChoice, and votingPower' },
+            { status: 400 }
+          );
+        }
+        result = await db.recordVote({
+          userAddress,
+          nftId,
+          proposalId,
+          voteChoice,
+          votingPower,
+          txHash,
+          metadata
+        });
+        break;
+
+      case ACTION_TYPES.UNSTAKE:
+        result = await db.endStake(userAddress, nftId, txHash);
+        break;
+
+      default:
+        // For other action types (purchase, list, approve)
+        result = await db.recordUserAction({
+          userAddress,
+          nftId,
+          actionType,
+          txHash,
+          blockNumber,
+          amount,
+          metadata
+        });
+        break;
+    }
 
     return NextResponse.json(
       { 
-        message: 'User action recorded successfully',
-        data: userAction
+        message: `${actionType} action recorded successfully`,
+        data: result
       },
       { status: 201 }
     );
@@ -58,6 +104,8 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const userAddress = searchParams.get('userAddress');
+    const nftId = searchParams.get('nftId');
+    const actionType = searchParams.get('actionType');
 
     if (!userAddress) {
       return NextResponse.json(
@@ -66,29 +114,30 @@ export async function GET(request) {
       );
     }
 
-    // Mock database query - replace with actual database logic
-    const mockActions = [
-      {
-        id: 1,
-        user_address: userAddress,
-        action_type: 'stake',
-        tx_hash: '0x123...abc',
-        timestamp: new Date().toISOString()
-      }
-    ];
+    const db = new DatabaseService(true); // Use admin client for server operations
+    let result = {};
 
-    // Example with Supabase:
-    // const { data, error } = await supabase
-    //   .from('user_actions')
-    //   .select('*')
-    //   .eq('user_address', userAddress)
-    //   .order('timestamp', { ascending: false });
-    //
-    // if (error) throw error;
+    // Get user actions for specific NFT if nftId is provided
+    if (nftId) {
+      const actions = await db.getUserNftActions(userAddress, parseInt(nftId));
+      const stakes = await db.getUserNftStakes(userAddress, parseInt(nftId));
+      const votes = await db.getUserNftVotes(userAddress, parseInt(nftId));
+      
+      result = {
+        nftId: parseInt(nftId),
+        actions,
+        stakes,
+        votes
+      };
+    } else {
+      // Get all active stakes for user
+      const activeStakes = await db.getUserActiveStakes(userAddress);
+      result = {
+        activeStakes
+      };
+    }
 
-    return NextResponse.json({
-      actions: mockActions
-    });
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Error fetching user actions:', error);

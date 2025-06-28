@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useAccount, useBalance, useReadContract } from 'wagmi';
 import { useContractOperations, useContractReads } from '@/hooks/useContractOperations';
+import { useDatabaseActions, useUserNftData, useNftAnalytics } from '@/hooks/useDatabaseActions';
 import { CONTRACT_ADDRESSES, NFT_STAKING_ABI, LANDKRYPT_STABLECOIN_ABI } from '@/contracts/abis';
 import { parseEther, formatEther } from 'viem';
 import { toast } from 'react-hot-toast';
@@ -60,6 +61,11 @@ export default function StakingModal({
     pendingTx,
     writeError 
   } = useContractOperations();
+  
+  // Database operations
+  const { recordStakeAction, recordUnstakeAction } = useDatabaseActions();
+  const { data: userNftData, refetch: refetchUserData } = useUserNftData(property?.id);
+  const { analytics: nftAnalytics, refetch: refetchAnalytics } = useNftAnalytics(property?.id);
 
   // Read staking contract data
   const { data: totalStaked } = useReadContract({
@@ -262,30 +268,30 @@ export default function StakingModal({
           throw new Error('Staking transaction failed - no result returned');
         }
         
-        // Log transaction to API (non-blocking)
+        // Record stake action in database (non-blocking)
         try {
-          await fetch('/api/user-actions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userAddress: address,
-              actionType: 'stake',
-              txHash: result,
-              details: {
-                propertyId: property?.id || 'unknown',
-                amount: amount,
-                stakingContract: stakingContractAddress,
-                expectedDailyRewards: stakingMetrics.dailyRewards,
-                expectedAnnualRewards: stakingMetrics.annualRewards,
-                timestamp: new Date().toISOString()
-              }
-            }),
+          await recordStakeAction({
+            nftId: property?.id || 1,
+            amount: amount.toString(),
+            stakingContract: stakingContractAddress,
+            txHash: result,
+            metadata: {
+              propertyTitle: property?.title || 'Unknown Property',
+              expectedDailyRewards: stakingMetrics.dailyRewards,
+              expectedAnnualRewards: stakingMetrics.annualRewards,
+              targetAmount: stakingMetrics.targetAmount,
+              progressPercentage: stakingMetrics.progressPercentage,
+              completionBonus: stakingMetrics.completionBonus,
+              timestamp: new Date().toISOString()
+            }
           });
-        } catch (logError) {
-          console.warn('Failed to log transaction:', logError);
-          // Don't fail the main operation for logging errors
+          
+          // Refresh user data and analytics
+          refetchUserData();
+          refetchAnalytics();
+        } catch (dbError) {
+          console.warn('Failed to record stake in database:', dbError);
+          // Don't fail the main operation for database errors
         }
       }
     } catch (error) {

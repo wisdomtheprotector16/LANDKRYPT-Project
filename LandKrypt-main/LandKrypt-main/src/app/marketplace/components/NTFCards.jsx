@@ -13,7 +13,7 @@ const NFTCard = ({ item, likedItems, toggleLike, onStakeClick }) => {
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group">
       <div className="relative overflow-hidden">
         <IpfsImage
-          src={item.image || item.tokenURI || item.tokenUrl}
+          src={item.processedImageUrl || item.image}
           alt={item.title}
           className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800"
           placeholder="/images/nft-placeholder.jpg"

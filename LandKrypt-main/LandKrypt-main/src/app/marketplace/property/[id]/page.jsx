@@ -41,6 +41,9 @@ import {
 } from "lucide-react";
 import { nftProperties } from "../../nfts";
 import Link from "next/link";
+import IpfsImage from "@/components/IpfsImage";
+import { useNftMetadata } from "@/hooks/useNftMetadata";
+import { convertIpfsToHttp } from "@/utils/ipfs";
 
 const PropertyDetailPage = ({ params }) => {
   // Get property from URL params or default to first property
@@ -229,10 +232,12 @@ const PropertyDetailPage = ({ params }) => {
               <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl">
                 {/* Property Image */}
                 <div className="relative w-full h-full">
-                  <img
-                    src={property.images[currentImageIndex]}
+                  <IpfsImage
+                    src={property.processedImageUrl || property.tokenURI || property.tokenUrl || property.images[currentImageIndex]}
                     alt={property.title}
                     className="w-full h-full object-cover"
+                    placeholder="/images/nft-placeholder.jpg"
+                    showLoadingSpinner={true}
                   />
 
                   {/* Image Navigation */}

@@ -12,7 +12,7 @@ import {
 import { useAccount, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { toast } from 'react-hot-toast';
-import { useContractWrite, useContractReadData, useWallet, parseAmount } from '../../../hooks/useContractInteraction';
+import { useContractWriteCustom, useContractReadData, useWallet, parseAmount } from '../../../hooks/useContractInteraction';
 import { NFT_STAKING_ABI, LANDKRYPT_STABLECOIN_ABI, CONTRACT_ADDRESSES } from '../../../contracts/abis';
 import CustomConnectButton from '../../../components/CustomConnectButton';
 
@@ -68,7 +68,7 @@ const PropertyDetailPage = () => {
   );
   
   // Staking transaction
-  const { write: stakeTokens, isLoading: isStaking, isSuccess: stakeSuccess } = useContractWrite(
+  const { write: stakeTokens, isLoading: isStaking, isSuccess: stakeSuccess } = useContractWriteCustom(
     stakingContractAddress,
     NFT_STAKING_ABI,
     'stake',
@@ -76,14 +76,14 @@ const PropertyDetailPage = () => {
   );
   
   // Withdraw transaction
-  const { write: withdrawTokens, isLoading: isWithdrawing } = useContractWrite(
+  const { write: withdrawTokens, isLoading: isWithdrawing } = useContractWriteCustom(
     stakingContractAddress,
     NFT_STAKING_ABI,
     'withdraw'
   );
   
   // Claim rewards transaction
-  const { write: claimRewards, isLoading: isClaiming } = useContractWrite(
+  const { write: claimRewards, isLoading: isClaiming } = useContractWriteCustom(
     stakingContractAddress,
     NFT_STAKING_ABI,
     'claimRewards'

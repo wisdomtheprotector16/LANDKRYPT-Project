@@ -1,20 +1,32 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Clock, CheckCircle } from "lucide-react";
+import { Users, Clock, CheckCircle, Plus, Building2, FileText } from "lucide-react";
 import { GradientButton } from "@/components/GradientButton";
-import { useContractWrite, useContractReadData, useWallet } from "../../../hooks/useContractInteraction";
+import { useContractWriteCustom, useContractReadData, useWallet } from "../../../hooks/useContractInteraction";
 import { NFTDAO_ABI, LANDKRYPT_STAKING_TOKEN_ABI, CONTRACT_ADDRESSES } from "../../../contracts/abis";
+import { useProposalsList, useNftsReadyForProposals, useProposals } from "@/hooks/useProposals";
+import { useDatabaseActions } from "@/hooks/useDatabaseActions";
 import { toast } from "react-hot-toast";
 import { parseAmount } from "../../../hooks/useContractInteraction";
+import marketplaceData from "../../../../data/marketplace-listings.json";
+import CreateProposalModal from "@/components/CreateProposalModal";
 
 const ProposalsSection = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [voteAmounts, setVoteAmounts] = useState({});
   const [showVoteModal, setShowVoteModal] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(null);
   
   // Wagmi hooks
   const { address, isConnected } = useWallet();
+  
+  // Database hooks
+  const { proposals: activeProposals, isLoading: loadingActive, refetch: refetchActive } = useProposalsList('active');
+  const { proposals: allProposals, isLoading: loadingAll, refetch: refetchAll } = useProposalsList();
+  const { nfts: nftsReadyForProposals, isLoading: loadingNfts, refetch: refetchNfts } = useNftsReadyForProposals();
+  const { createProposal } = useProposals();
+  const { recordVoteAction } = useDatabaseActions();
   
   // Get user's token balance for voting
   const { data: tokenBalance } = useContractReadData(
@@ -25,79 +37,22 @@ const ProposalsSection = () => {
   );
   
   // Vote transaction
-  const { write: voteOnProposal, isLoading: isVoting } = useContractWrite(
+  const { write: voteOnProposal, isLoading: isVoting } = useContractWriteCustom(
     CONTRACT_ADDRESSES.NFT_DAO,
     NFTDAO_ABI,
     'vote',
     showVoteModal ? [showVoteModal.id, parseAmount(voteAmounts[showVoteModal.id] || '0')] : []
   );
 
-  const activeProposals = [
-    {
-      id: 1,
-      title: "Eco-friendly Development for Lekki Plot",
-      tokenId: "201",
-      description:
-        "Premium waterfront property in Lagos' most exclusive neighborhood. Features private beach access and...",
-      ownership: "40%",
-      timeframe: "90 days (July 1-September 29, 2025)",
-      status: "Active",
-    },
-    {
-      id: 2,
-      title: "Luxury Apartment Complex in Ikoyi",
-      tokenId: "201",
-      description:
-        "Premium waterfront property in Lagos' most exclusive neighborhood. Features private beach access and...",
-      ownership: "40%",
-      timeframe: "90 days (July 1-September 29, 2025)",
-      status: "Active",
-    },
-    {
-      id: 3,
-      title: "Smart City Integration in Banana Island",
-      tokenId: "201",
-      description:
-        "Premium waterfront property in Lagos' most exclusive neighborhood. Features private beach access and...",
-      ownership: "40%",
-      timeframe: "90 days (July 1-September 29, 2025)",
-      status: "Active",
-    },
-  ];
-
-  const allProposals = [
-    ...activeProposals,
-    {
-      id: 4,
-      title: "Residential Complex in Victoria Island",
-      tokenId: "198",
-      description:
-        "High-end residential development with modern amenities and ocean views...",
-      ownership: "65%",
-      timeframe: "Completed (March 1-May 31, 2025)",
-      status: "Completed",
-    },
-    {
-      id: 5,
-      title: "Commercial Hub in Abuja CBD",
-      tokenId: "195",
-      description:
-        "Mixed-use development featuring office spaces and retail outlets...",
-      ownership: "55%",
-      timeframe: "Completed (January 15-April 15, 2025)",
-      status: "Completed",
-    },
-    {
-      id: 6,
-      title: "Affordable Housing Project in Surulere",
-      tokenId: "192",
-      description:
-        "Community-focused development aimed at providing quality affordable housing...",
-      ownership: "30%",
-      timeframe: "Rejected (February 1-March 30, 2025)",
-      status: "Rejected",
-    },
-  ];
+  // Get NFT details for display
+  const getNftDetails = (nftId) => {
+    return marketplaceData.find(item => item.id === nftId) || {
+      id: nftId,
+      title: `NFT Property #${nftId}`,
+      description: 'Property details not available',
+      image: '/images/nft-placeholder.jpg'
+    };
+  };
 
   const currentProposals =
     activeTab === "active" ? activeProposals : allProposals;
@@ -362,24 +317,108 @@ const ProposalsSection = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Progress Bar */}
-        <motion.div
-          className="w-full bg-gray-700 rounded-full h-2 mb-4"
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        >
+        {/* NFTs Ready for Proposals Section */}
+        {nftsReadyForProposals.length > 0 && (
           <motion.div
-            className="bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full relative"
-            initial={{ width: 0 }}
-            animate={{ width: "30%" }}
-            transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-12 mb-8"
           >
-            <div className="absolute left-0 w-8 h-8 bg-white rounded-full -top-3 flex items-center justify-center shadow-lg">
-              <div className="w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full"></div>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                <Building2 className="w-6 h-6 text-orange-400" />
+                NFTs Ready for Proposals
+              </h3>
+              <div className="text-sm text-gray-400">
+                {nftsReadyForProposals.length} properties available
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {nftsReadyForProposals.map((nft, index) => {
+                const nftDetails = getNftDetails(nft.nft_id);
+                return (
+                  <motion.div
+                    key={nft.nft_id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-orange-500/50 transition-all duration-300"
+                  >
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-green-400 text-sm font-medium">Owned by Staking Contract</span>
+                      </div>
+                      <h4 className="text-white font-semibold text-lg">{nftDetails.title}</h4>
+                    </div>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">NFT ID:</span>
+                        <span className="text-white font-medium">#{nft.nft_id}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Staking Contract:</span>
+                        <span className="text-white font-mono text-xs">
+                          {nft.staking_contract?.slice(0, 6)}...{nft.staking_contract?.slice(-4)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Purchased:</span>
+                        <span className="text-white">
+                          {new Date(nft.purchase_timestamp).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <GradientButton
+                      onClick={() => setShowCreateModal(nft)}
+                      className="w-full"
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Plus className="w-4 h-4" />
+                        <span>Create Proposal</span>
+                      </div>
+                    </GradientButton>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
-        </motion.div>
+        )}
+        
+        {/* No NFTs Ready Message */}
+        {!loadingNfts && nftsReadyForProposals.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-12 p-8 bg-gray-800/50 rounded-xl border border-gray-700 text-center"
+          >
+            <Building2 className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No NFTs Ready for Proposals</h3>
+            <p className="text-gray-400 max-w-md mx-auto">
+              NFTs need to be purchased by staking contracts before proposals can be created. 
+              Check back later or help fund existing properties to make them proposal-ready.
+            </p>
+          </motion.div>
+        )}
+        
+        {/* Create Proposal Modal */}
+        <CreateProposalModal
+          isOpen={!!showCreateModal}
+          onClose={() => setShowCreateModal(null)}
+          nft={showCreateModal}
+          nftDetails={showCreateModal ? getNftDetails(showCreateModal.nft_id) : null}
+          onSuccess={(proposal) => {
+            // Refresh proposals and NFTs ready for proposals
+            refetchActive();
+            refetchAll();
+            refetchNfts();
+            toast.success('Proposal created successfully!');
+          }}
+        />
       </div>
     </div>
   );
