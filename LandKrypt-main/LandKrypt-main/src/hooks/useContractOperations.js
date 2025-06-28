@@ -1,319 +1,399 @@
 // LandKrypt Contract Operations Hook
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { CONTRACT_ADDRESSES } from '@/contracts/abis';
-import * as ABIS from '@/contracts/abis';
-import { toast } from 'react-hot-toast';
-import { useState, useCallback } from 'react';
-import { parseEther, formatEther } from 'viem';
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { CONTRACT_ADDRESSES } from "@/contracts/abis";
+import * as ABIS from "@/contracts/abis";
+import { toast } from "react-hot-toast";
+import { useState, useCallback } from "react";
+import { parseEther, formatEther } from "viem";
 
 export function useContractOperations() {
   const { address, isConnected } = useAccount();
-  const { writeContract, data: writeData, isPending: isWritePending, error: writeError } = useWriteContract();
+  const {
+    writeContract,
+    data: writeData,
+    isPending: isWritePending,
+    error: writeError,
+  } = useWriteContract();
   const [pendingTx, setPendingTx] = useState(null);
 
   // Wait for transaction confirmation
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash: writeData,
-  });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash: writeData,
+    });
 
   // NFT Operations
-  const mintNFT = useCallback(async (to, tokenId, description, ipfsHash) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+  const mintNFT = useCallback(
+    async (to, tokenId, description, ipfsHash) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.REAL_ESTATE_NFT,
-        abi: ABIS.REAL_ESTATE_NFT_ABI,
-        functionName: 'mint',
-        args: [to, tokenId, description, ipfsHash],
-      });
-      
-      setPendingTx(hash);
-      toast.success('NFT minting transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Mint NFT error:', error);
-      toast.error(error.message || 'Failed to mint NFT');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.REAL_ESTATE_NFT,
+          abi: ABIS.REAL_ESTATE_NFT_ABI,
+          functionName: "mint",
+          args: [to, tokenId, description, ipfsHash],
+        });
+
+        setPendingTx(hash);
+        toast.success("NFT minting transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Mint NFT error:", error);
+        toast.error(error.message || "Failed to mint NFT");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
   // Marketplace Operations
-  const listNFT = useCallback(async (tokenId, price, stakingContract, nftOwner) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+  const listNFT = useCallback(
+    async (tokenId, price, stakingContract, nftOwner) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
-        abi: ABIS.NFT_MARKETPLACE_ABI,
-        functionName: 'listNFT',
-        args: [tokenId, parseEther(price.toString()), stakingContract, nftOwner],
-      });
-      
-      setPendingTx(hash);
-      toast.success('NFT listing transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('List NFT error:', error);
-      toast.error(error.message || 'Failed to list NFT');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
+          abi: ABIS.NFT_MARKETPLACE_ABI,
+          functionName: "listNFT",
+          args: [
+            tokenId,
+            parseEther(price.toString()),
+            stakingContract,
+            nftOwner,
+          ],
+        });
 
-  const buyNFT = useCallback(async (tokenId) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+        setPendingTx(hash);
+        toast.success("NFT listing transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("List NFT error:", error);
+        toast.error(error.message || "Failed to list NFT");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
-        abi: ABIS.NFT_MARKETPLACE_ABI,
-        functionName: 'buyNFT',
-        args: [tokenId],
-      });
-      
-      setPendingTx(hash);
-      toast.success('NFT purchase transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Buy NFT error:', error);
-      toast.error(error.message || 'Failed to buy NFT');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+  const buyNFT = useCallback(
+    async (tokenId) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
+
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
+          abi: ABIS.NFT_MARKETPLACE_ABI,
+          functionName: "buyNFT",
+          args: [tokenId],
+        });
+
+        setPendingTx(hash);
+        toast.success("NFT purchase transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Buy NFT error:", error);
+        toast.error(error.message || "Failed to buy NFT");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
   // Staking Operations
-  const stakeTokens = useCallback(async (stakingContractAddress, amount) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+  const stakeTokens = useCallback(
+    async (stakingContractAddress, amount) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
 
-    try {
-      const hash = await writeContract({
-        address: stakingContractAddress,
-        abi: ABIS.NFT_STAKING_ABI,
-        functionName: 'stake',
-        args: [parseEther(amount.toString())],
-      });
-      
-      setPendingTx(hash);
-      toast.success('Staking transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Stake tokens error:', error);
-      toast.error(error.message || 'Failed to stake tokens');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+      try {
+        const hash = await writeContract({
+          address: stakingContractAddress,
+          abi: ABIS.NFT_STAKING_ABI,
+          functionName: "stake",
+          args: [parseEther(amount.toString())],
+        });
 
-  const withdrawStake = useCallback(async (stakingContractAddress) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+        setPendingTx(hash);
+        toast.success("Staking transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Stake tokens error:", error);
+        toast.error(error.message || "Failed to stake tokens");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
-    try {
-      const hash = await writeContract({
-        address: stakingContractAddress,
-        abi: ABIS.NFT_STAKING_ABI,
-        functionName: 'withdrawStake',
-        args: [],
-      });
-      
-      setPendingTx(hash);
-      toast.success('Withdrawal transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Withdraw stake error:', error);
-      toast.error(error.message || 'Failed to withdraw stake');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+  const withdrawStake = useCallback(
+    async (stakingContractAddress) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
 
-  const claimRewards = useCallback(async (stakingContractAddress) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+      try {
+        const hash = await writeContract({
+          address: stakingContractAddress,
+          abi: ABIS.NFT_STAKING_ABI,
+          functionName: "withdrawStake",
+          args: [],
+        });
 
-    try {
-      const hash = await writeContract({
-        address: stakingContractAddress,
-        abi: ABIS.NFT_STAKING_ABI,
-        functionName: 'claimDailyRewards',
-        args: [],
-      });
-      
-      setPendingTx(hash);
-      toast.success('Claim rewards transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Claim rewards error:', error);
-      toast.error(error.message || 'Failed to claim rewards');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+        setPendingTx(hash);
+        toast.success("Withdrawal transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Withdraw stake error:", error);
+        toast.error(error.message || "Failed to withdraw stake");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
+
+  const claimRewards = useCallback(
+    async (stakingContractAddress) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
+
+      try {
+        const hash = await writeContract({
+          address: stakingContractAddress,
+          abi: ABIS.NFT_STAKING_ABI,
+          functionName: "claimDailyRewards",
+          args: [],
+        });
+
+        setPendingTx(hash);
+        toast.success("Claim rewards transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Claim rewards error:", error);
+        toast.error(error.message || "Failed to claim rewards");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
   // DAO Operations
-  const createProposal = useCallback(async (description, developer, ownershipPercentage, landNFTId, projectTimeframe) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+  const createProposal = useCallback(
+    async (
+      description,
+      developer,
+      ownershipPercentage,
+      landNFTId,
+      projectTimeframe
+    ) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.NFT_DAO,
-        abi: ABIS.NFTDAO_ABI,
-        functionName: 'createProposal',
-        args: [description, developer, ownershipPercentage, landNFTId, projectTimeframe],
-      });
-      
-      setPendingTx(hash);
-      toast.success('Proposal creation transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Create proposal error:', error);
-      toast.error(error.message || 'Failed to create proposal');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.NFT_DAO,
+          abi: ABIS.NFTDAO_ABI,
+          functionName: "createProposal",
+          args: [
+            description,
+            developer,
+            ownershipPercentage,
+            landNFTId,
+            projectTimeframe,
+          ],
+        });
 
-  const voteOnProposal = useCallback(async (proposalId, voteAmount) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
+        setPendingTx(hash);
+        toast.success("Proposal creation transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Create proposal error:", error);
+        toast.error(error.message || "Failed to create proposal");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.NFT_DAO,
-        abi: ABIS.NFTDAO_ABI,
-        functionName: 'vote',
-        args: [proposalId, parseEther(voteAmount.toString())],
-      });
-      
-      setPendingTx(hash);
-      toast.success('Vote transaction sent!');
-      return hash;
-    } catch (error) {
-      console.error('Vote error:', error);
-      toast.error(error.message || 'Failed to vote');
-      throw error;
-    }
-  }, [writeContract, isConnected]);
+  const voteOnProposal = useCallback(
+    async (proposalId, voteAmount) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return;
+      }
+
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.NFT_DAO,
+          abi: ABIS.NFTDAO_ABI,
+          functionName: "vote",
+          args: [proposalId, parseEther(voteAmount.toString())],
+        });
+
+        setPendingTx(hash);
+        toast.success("Vote transaction sent!");
+        return hash;
+      } catch (error) {
+        console.error("Vote error:", error);
+        toast.error(error.message || "Failed to vote");
+        throw error;
+      }
+    },
+    [writeContract, isConnected]
+  );
 
   // Exchange Operations
-  const swapETHForLKUSD = useCallback(async (ethAmount) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return { success: false, error: 'Wallet not connected' };
-    }
+  const swapETHForLKUSD = useCallback(
+    async (ethAmount) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return { success: false, error: "Wallet not connected" };
+      }
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.EXCHANGE,
-        abi: ABIS.EXCHANGE_ABI,
-        functionName: 'swapETHForLKUSD',
-        value: parseEther(ethAmount.toString()),
-      });
-      
-      setPendingTx(hash);
-      toast.success('ETH to LKUSD swap transaction sent!');
-      return { success: true, hash };
-    } catch (error) {
-      console.error('Swap ETH for LKUSD error:', error);
-      const errorMessage = error.message || 'Failed to swap ETH for LKUSD';
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  }, [writeContract, isConnected]);
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.EXCHANGE,
+          abi: ABIS.EXCHANGE_ABI,
+          functionName: "swapETHForLKUSD",
+          value: parseEther(ethAmount.toString()),
+        });
 
-  const swapERC20ForLKUSD = useCallback(async (tokenAddress, amount) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return { success: false, error: 'Wallet not connected' };
-    }
+        setPendingTx(hash);
+        toast.success("ETH to LKUSD swap transaction sent!");
+        return { success: true, hash };
+      } catch (error) {
+        console.error("Swap ETH for LKUSD error:", error);
+        const errorMessage = error.message || "Failed to swap ETH for LKUSD";
+        toast.error(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+    },
+    [writeContract, isConnected]
+  );
 
-    try {
-      const hash = await writeContract({
-        address: CONTRACT_ADDRESSES.EXCHANGE,
-        abi: ABIS.EXCHANGE_ABI,
-        functionName: 'swapERC20ForLKUSD',
-        args: [tokenAddress, parseEther(amount.toString())],
-      });
-      
-      setPendingTx(hash);
-      toast.success('ERC20 to LKUSD swap transaction sent!');
-      return { success: true, hash };
-    } catch (error) {
-      console.error('Swap ERC20 for LKUSD error:', error);
-      const errorMessage = error.message || 'Failed to swap ERC20 for LKUSD';
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  }, [writeContract, isConnected]);
+  const swapERC20ForLKUSD = useCallback(
+    async (tokenAddress, amount) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return { success: false, error: "Wallet not connected" };
+      }
 
-  const burnLKUSDForETH = useCallback(async (lkusdAmount) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return { success: false, error: 'Wallet not connected' };
-    }
+      try {
+        const hash = await writeContract({
+          address: CONTRACT_ADDRESSES.EXCHANGE,
+          abi: ABIS.EXCHANGE_ABI,
+          functionName: "swapERC20ForLKUSD",
+          args: [tokenAddress, parseEther(amount.toString())],
+        });
 
-    try {
-      // First approve LKUSD to be burned
-      const approveHash = await writeContract({
-        address: CONTRACT_ADDRESSES.LANDKRYPT_STABLECOIN,
-        abi: ABIS.LANDKRYPT_STABLECOIN_ABI,
-        functionName: 'approve',
-        args: [CONTRACT_ADDRESSES.EXCHANGE, parseEther(lkusdAmount.toString())],
-      });
-      
-      // Wait for approval to be confirmed before proceeding with burn
-      toast.success('LKUSD approval sent! Please wait for confirmation before burning.');
-      return { success: true, hash: approveHash, requiresSecondStep: true };
-    } catch (error) {
-      console.error('Approve LKUSD for burn error:', error);
-      const errorMessage = error.message || 'Failed to approve LKUSD for burning';
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  }, [writeContract, isConnected]);
+        setPendingTx(hash);
+        toast.success("ERC20 to LKUSD swap transaction sent!");
+        return { success: true, hash };
+      } catch (error) {
+        console.error("Swap ERC20 for LKUSD error:", error);
+        const errorMessage = error.message || "Failed to swap ERC20 for LKUSD";
+        toast.error(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+    },
+    [writeContract, isConnected]
+  );
+
+  const burnLKUSDForETH = useCallback(
+    async (lkusdAmount) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return { success: false, error: "Wallet not connected" };
+      }
+
+      try {
+        // First approve LKUSD to be burned
+        const approveHash = await writeContract({
+          address: CONTRACT_ADDRESSES.LANDKRYPT_STABLECOIN,
+          abi: ABIS.LANDKRYPT_STABLECOIN_ABI,
+          functionName: "approve",
+          args: [
+            CONTRACT_ADDRESSES.EXCHANGE,
+            parseEther(lkusdAmount.toString()),
+          ],
+        });
+
+        // Wait for approval to be confirmed before proceeding with burn
+        toast.success(
+          "LKUSD approval sent! Please wait for confirmation before burning."
+        );
+        return { success: true, hash: approveHash, requiresSecondStep: true };
+      } catch (error) {
+        console.error("Approve LKUSD for burn error:", error);
+        const errorMessage =
+          error.message || "Failed to approve LKUSD for burning";
+        toast.error(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+    },
+    [writeContract, isConnected]
+  );
 
   // Token Operations
-  const approveToken = useCallback(async (tokenAddress, spender, amount) => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return { success: false, error: 'Wallet not connected' };
-    }
+  const approveToken = useCallback(
+    async (tokenAddress, spender, amount) => {
+      if (!isConnected) {
+        toast.error("Please connect your wallet");
+        return { success: false, error: "Wallet not connected" };
+      }
 
-    try {
-      const hash = await writeContract({
-        address: tokenAddress,
-        abi: ABIS.LANDKRYPT_STABLECOIN_ABI,
-        functionName: 'approve',
-        args: [spender, parseEther(amount.toString())],
-      });
-      
-      setPendingTx(hash);
-      toast.success('Approval transaction sent!');
-      return { success: true, hash };
-    } catch (error) {
-      console.error('Approve token error:', error);
-      const errorMessage = error.message || 'Failed to approve token';
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  }, [writeContract, isConnected]);
+      // Check if `amount` is missing or invalid
+      if (
+        amount === undefined ||
+        amount === null ||
+        typeof amount !== "number"
+      ) {
+        toast.error("Invalid amount provided");
+        return { success: false, error: "Invalid amount" };
+      }
+
+      try {
+        const hash = await writeContract({
+          address: tokenAddress,
+          abi: ABIS.LANDKRYPT_STABLECOIN_ABI,
+          functionName: "approve",
+          args: [spender, parseEther(amount.toString())], // Now `amount` is safe to use
+        });
+
+        setPendingTx(hash);
+        toast.success("Approval transaction sent!");
+        return { success: true, hash };
+      } catch (error) {
+        console.error("Approve token error:", error);
+        const errorMessage = error.message || "Failed to approve token";
+        toast.error(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+    },
+    [writeContract, isConnected]
+  );
 
   return {
     // State
@@ -363,7 +443,7 @@ export function useContractReads() {
   const { data: lkusdBalance, isLoading: isLkusdLoading } = useReadContract({
     address: CONTRACT_ADDRESSES.LANDKRYPT_STABLECOIN,
     abi: ABIS.LANDKRYPT_STABLECOIN_ABI,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
@@ -375,7 +455,7 @@ export function useContractReads() {
   const { data: lkstBalance, isLoading: isLkstLoading } = useReadContract({
     address: CONTRACT_ADDRESSES.LANDKRYPT_STAKING_TOKEN,
     abi: ABIS.LANDKRYPT_STAKING_TOKEN_ABI,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
@@ -388,7 +468,7 @@ export function useContractReads() {
     return useReadContract({
       address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
       abi: ABIS.NFT_MARKETPLACE_ABI,
-      functionName: 'listings',
+      functionName: "listings",
       args: tokenId ? [tokenId] : undefined,
       query: {
         enabled: !!tokenId,
@@ -402,7 +482,7 @@ export function useContractReads() {
     const { data: balance } = useReadContract({
       address: stakingContract,
       abi: ABIS.NFT_STAKING_ABI,
-      functionName: 'balanceOf',
+      functionName: "balanceOf",
       args: userAddress ? [userAddress] : undefined,
       query: {
         enabled: !!stakingContract && !!userAddress,
@@ -413,7 +493,7 @@ export function useContractReads() {
     const { data: earned } = useReadContract({
       address: stakingContract,
       abi: ABIS.NFT_STAKING_ABI,
-      functionName: 'earned',
+      functionName: "earned",
       args: userAddress ? [userAddress] : undefined,
       query: {
         enabled: !!stakingContract && !!userAddress,
@@ -424,7 +504,7 @@ export function useContractReads() {
     const { data: totalStaked } = useReadContract({
       address: stakingContract,
       abi: ABIS.NFT_STAKING_ABI,
-      functionName: 'totalStaked',
+      functionName: "totalStaked",
       query: {
         enabled: !!stakingContract,
         refetchInterval: 30000,
@@ -434,7 +514,7 @@ export function useContractReads() {
     const { data: targetAmount } = useReadContract({
       address: stakingContract,
       abi: ABIS.NFT_STAKING_ABI,
-      functionName: 'targetAmount',
+      functionName: "targetAmount",
       query: {
         enabled: !!stakingContract,
         refetchInterval: 60000,
@@ -452,8 +532,8 @@ export function useContractReads() {
 
   return {
     // Token Balances
-    lkusdBalance: lkusdBalance ? formatEther(lkusdBalance) : '0',
-    lkstBalance: lkstBalance ? formatEther(lkstBalance) : '0',
+    lkusdBalance: lkusdBalance ? formatEther(lkusdBalance) : "0",
+    lkstBalance: lkstBalance ? formatEther(lkstBalance) : "0",
     isBalanceLoading: isLkusdLoading || isLkstLoading,
 
     // Hooks for specific reads

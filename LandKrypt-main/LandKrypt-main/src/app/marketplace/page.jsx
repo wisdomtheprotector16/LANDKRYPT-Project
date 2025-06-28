@@ -5,7 +5,6 @@ import {
   Search,
   Filter,
   ChevronDown,
-  Star,
   Share2,
   Heart,
   Eye,
@@ -31,7 +30,10 @@ import { useContractOperations } from "@/hooks/useContractOperations";
 import IpfsImage from "@/components/IpfsImage";
 import { convertIpfsToHttp, fetchTokenMetadata } from "@/utils/ipfs";
 import { useMarketplaceMetadata } from "@/hooks/useNftMetadata";
-import { useUserActiveStakes, useNftAnalytics } from "@/hooks/useDatabaseActions";
+import {
+  useUserActiveStakes,
+  useNftAnalytics,
+} from "@/hooks/useDatabaseActions";
 import marketplaceData from "../../../data/marketplace-listings.json";
 
 const VotingModal = ({
@@ -43,7 +45,8 @@ const VotingModal = ({
   const [stakeAmount, setStakeAmount] = useState("");
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
-  const { stakeTokens, approveToken, isLoading, error } = useContractOperations();
+  const { stakeTokens, approveToken, isLoading, error } =
+    useContractOperations();
 
   if (!isOpen) return null;
 
@@ -51,10 +54,47 @@ const VotingModal = ({
     e.stopPropagation(); // Prevent click from bubbling to overlay
   };
 
+  // const handleStakeSubmit = async () => {
+  //   if (!isConnected) {
+  //     // Connect wallet first
+  //     const connector = connectors[0]; // Use first available connector
+  //     if (connector) {
+  //       connect({ connector });
+  //     }
+  //     return;
+  //   }
+
+  //   if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
+  //     alert("Please enter a valid stake amount");
+  //     return;
+  //   }
+
+  //   try {
+  //     // First approve tokens, then stake
+  //     const approveResult = await approveToken({
+  //       spender: property.stakingContract, // Assuming this is in the property data
+  //       amount: stakeAmount,
+  //     });
+
+  //     if (approveResult.success) {
+  //       const stakeResult = await stakeTokens({
+  //         tokenId: property.id,
+  //         amount: stakeAmount,
+  //       });
+
+  //       if (stakeResult.success) {
+  //         alert(`Successfully staked ${stakeAmount} LKST on ${property.title}!`);
+  //         onClose();
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Staking failed:", err);
+  //   }
+  // };
+
   const handleStakeSubmit = async () => {
     if (!isConnected) {
-      // Connect wallet first
-      const connector = connectors[0]; // Use first available connector
+      const connector = connectors[0];
       if (connector) {
         connect({ connector });
       }
@@ -65,27 +105,43 @@ const VotingModal = ({
       alert("Please enter a valid stake amount");
       return;
     }
-
+    const LKST_TOKEN_ADDRESS =
+      process.env.NEXT_PUBLIC_LANDKRYPT_STAKING_TOKEN_ADDRESS;
     try {
-      // First approve tokens, then stake
+      // First approve tokens
       const approveResult = await approveToken({
-        spender: property.stakingContract, // Assuming this is in the property data
+        spender: property.stakingContract,
         amount: stakeAmount,
+        tokenAddress: LKST_TOKEN_ADDRESS, // Add your LKST token address
       });
 
-      if (approveResult.success) {
+      if (!approveResult.success) {
+        throw new Error("Token approval failed");
+      }
+
+      // Wait for approval transaction to be confirmed
+      const approvalConfirmed = await waitForTransactionReceipt({
+        hash: approveResult.hash,
+      });
+
+      if (approvalConfirmed.status === "success") {
+        // Then stake tokens
         const stakeResult = await stakeTokens({
           tokenId: property.id,
           amount: stakeAmount,
+          stakingContractAddress: property.stakingContract,
         });
 
         if (stakeResult.success) {
-          alert(`Successfully staked ${stakeAmount} LKST on ${property.title}!`);
+          alert(
+            `Successfully staked ${stakeAmount} LKST on ${property.title}!`
+          );
           onClose();
         }
       }
     } catch (err) {
       console.error("Staking failed:", err);
+      setError(err.message || "Staking failed");
     }
   };
 
@@ -119,11 +175,7 @@ const VotingModal = ({
           <p className="text-gray-400 text-sm">
             Available: {availableTokens} LKST
           </p>
-          {error && (
-            <p className="text-red-400 text-sm mt-2">
-              Error: {error}
-            </p>
-          )}
+          {error && <p className="text-red-400 text-sm mt-2">Error: {error}</p>}
         </div>
 
         <div className="flex gap-3">
@@ -169,7 +221,7 @@ const NFTMarketplace = () => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [showVotingModal, setShowVotingModal] = useState(false);
-  
+
   // Wallet and contract integration
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
@@ -181,16 +233,17 @@ const NFTMarketplace = () => {
   ];
 
   // Load NFT data from database and process IPFS metadata
-  const { processedItems, isProcessing } = useMarketplaceMetadata(marketplaceData);
-  
+  const { processedItems, isProcessing } =
+    useMarketplaceMetadata(marketplaceData);
+
   // Get user's active stakes
   const { stakes: userStakes } = useUserActiveStakes();
-  
+
   // Format processed items for display with user stake information
-  const nftItems = processedItems.map(item => {
+  const nftItems = processedItems.map((item) => {
     // Find user's stake for this NFT
-    const userStake = userStakes.find(stake => stake.nft_id === item.id);
-    
+    const userStake = userStakes.find((stake) => stake.nft_id === item.id);
+
     return {
       ...item,
       // Use processed image URL from metadata or fallback to original image
@@ -199,11 +252,12 @@ const NFTMarketplace = () => {
       // Format price for display
       price: `${parseFloat(item.price).toLocaleString()} LKRYPT staked`,
       // Add staking contract address
-      stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a",
+      stakingContract:
+        item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a",
       // Add user stake information
       userStaked: userStake ? parseFloat(userStake.amount) : 0,
       hasUserStake: !!userStake,
-      userStakeDate: userStake ? userStake.created_at : null
+      userStakeDate: userStake ? userStake.created_at : null,
     };
   });
 
@@ -265,11 +319,14 @@ const NFTMarketplace = () => {
       } else if (action === "share") {
         // Handle share action - copy property link to clipboard
         const propertyUrl = `${window.location.origin}/marketplace/property/${item.id}`;
-        navigator.clipboard.writeText(propertyUrl).then(() => {
-          alert("Property link copied to clipboard!");
-        }).catch(() => {
-          alert("Failed to copy link");
-        });
+        navigator.clipboard
+          .writeText(propertyUrl)
+          .then(() => {
+            alert("Property link copied to clipboard!");
+          })
+          .catch(() => {
+            alert("Failed to copy link");
+          });
       } else if (action === "stake") {
         // Check wallet connection before showing modal
         if (!isConnected) {
@@ -334,10 +391,12 @@ const NFTMarketplace = () => {
                 <div className="text-orange-400 font-medium">{item.price}</div>
                 <div className="flex items-center gap-1 text-gray-400 text-sm">
                   <Users className="w-4 h-4" />
-                  <span>{analytics?.stakingStats?.totalStakers || 0} stakers</span>
+                  <span>
+                    {analytics?.stakingStats?.totalStakers || 0} stakers
+                  </span>
                 </div>
               </div>
-              
+
               {/* User Stake Status */}
               {item.hasUserStake && (
                 <div className="mb-3 p-2 bg-green-900/20 border border-green-500/30 rounded-lg">
@@ -352,24 +411,30 @@ const NFTMarketplace = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Staking Progress */}
               {analytics?.stakingStats && (
                 <div className="mb-3">
                   <div className="flex justify-between text-xs text-gray-400 mb-1">
                     <span>Staking Progress</span>
-                    <span>{analytics.stakingStats.totalStakers} participants</span>
+                    <span>
+                      {analytics.stakingStats.totalStakers} participants
+                    </span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-1.5">
-                    <div 
+                    <div
                       className="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full"
-                      style={{ 
-                        width: `${Math.min((analytics.stakingStats.totalStaked / 1000000) * 100, 100)}%` 
+                      style={{
+                        width: `${Math.min(
+                          (analytics.stakingStats.totalStaked / 1000000) * 100,
+                          100
+                        )}%`,
                       }}
                     ></div>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
-                    {analytics.stakingStats.totalStaked.toLocaleString()} LKUSD staked
+                    {analytics.stakingStats.totalStaked.toLocaleString()} LKUSD
+                    staked
                   </div>
                 </div>
               )}
@@ -377,7 +442,9 @@ const NFTMarketplace = () => {
                 onClick={(e) => handleButtonClick(e, "stake")}
                 className="w-full z-10 relative"
               >
-                <GradientButton>{!isConnected ? "Connect & Stake" : "Start Staking"}</GradientButton>
+                <GradientButton>
+                  {!isConnected ? "Connect & Stake" : "Start Staking"}
+                </GradientButton>
               </button>
             </div>
           </div>
@@ -408,7 +475,7 @@ const NFTMarketplace = () => {
           <p className="text-xl text-gray-300 mb-4">
             Explore, buy, and stake on verified land NFTs
           </p>
-          
+
           {/* Wallet Connection Status */}
           <div className="mb-8">
             {isConnected ? (
@@ -594,7 +661,7 @@ const NFTMarketplace = () => {
               <button className="p-2 text-gray-400 hover:text-white transition-colors">
                 <ChevronDown className="w-5 h-5 rotate-90" />
               </button>
-              {[1, 2, 3, 4, 5, 6].map((page) => (
+              {/* {[1, 2, 3, 4, 5, 6].map((page) => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
@@ -606,7 +673,7 @@ const NFTMarketplace = () => {
                 >
                   {page}
                 </button>
-              ))}
+              ))} */}
               <button className="p-2 text-gray-400 hover:text-white transition-colors">
                 <ChevronDown className="w-5 h-5 -rotate-90" />
               </button>
