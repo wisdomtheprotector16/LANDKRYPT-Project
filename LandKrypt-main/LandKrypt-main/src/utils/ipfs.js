@@ -235,7 +235,7 @@ export const IpfsImage = ({
 };
 
 // Export for use in components
-export default {
+const ipfsUtils = {
   convertIpfsToHttp,
   fetchTokenMetadata,
   getOptimizedImageUrl,
@@ -245,3 +245,5 @@ export default {
   extractIpfsHash,
   IPFS_GATEWAYS
 };
+
+export default ipfsUtils;

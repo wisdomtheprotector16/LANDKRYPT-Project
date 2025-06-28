@@ -86,10 +86,10 @@ export default function StakingModal({
     },
   });
 
-  const { data: userStakedAmount } = useReadContract({
+  const { data: stakerInfo } = useReadContract({
     address: stakingContractAddress,
     abi: NFT_STAKING_ABI,
-    functionName: 'balanceOf',
+    functionName: 'stakers',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address && !!stakingContractAddress,
@@ -100,7 +100,7 @@ export default function StakingModal({
   const { data: earnedRewards } = useReadContract({
     address: stakingContractAddress,
     abi: NFT_STAKING_ABI,
-    functionName: 'earned',
+    functionName: 'getTotalClaimableRewards',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address && !!stakingContractAddress,
@@ -123,7 +123,7 @@ export default function StakingModal({
   const stakingMetrics = useMemo(() => {
     const totalStakedFormatted = totalStaked ? parseFloat(formatEther(totalStaked)) : 0;
     const targetAmountFormatted = targetAmount ? parseFloat(formatEther(targetAmount)) : 0;
-    const userStakedFormatted = userStakedAmount ? parseFloat(formatEther(userStakedAmount)) : 0;
+    const userStakedFormatted = stakerInfo ? parseFloat(formatEther(stakerInfo[0])) : 0; // amount is first in tuple
     const earnedRewardsFormatted = earnedRewards ? parseFloat(formatEther(earnedRewards)) : 0;
     const currentAllowanceFormatted = currentAllowance ? parseFloat(formatEther(currentAllowance)) : 0;
 
@@ -159,7 +159,7 @@ export default function StakingModal({
       isCompleted: progressPercentage >= 100,
       needsApproval: currentAllowanceFormatted < stakeAmountNum
     };
-  }, [totalStaked, targetAmount, userStakedAmount, earnedRewards, currentAllowance, stakeAmount]);
+  }, [totalStaked, targetAmount, stakerInfo, earnedRewards, currentAllowance, stakeAmount]);
 
   // Monitor transaction status
   useEffect(() => {
@@ -211,6 +211,14 @@ export default function StakingModal({
   }, [isOpen]);
 
   const handleStake = async () => {
+    console.log('🚀 Starting handleStake with:', {
+      isConnected,
+      stakingContractAddress,
+      stakeAmount,
+      address,
+      stakingMetrics
+    });
+    
     if (!isConnected) {
       toast.error("Please connect your wallet first");
       return;
@@ -264,8 +272,8 @@ export default function StakingModal({
         
         const result = await stakeTokens(stakingContractAddress, amount);
         
-        if (!result) {
-          throw new Error('Staking transaction failed - no result returned');
+        if (!result?.success) {
+          throw new Error(result?.error || 'Staking transaction failed');
         }
         
         // Record stake action in database (non-blocking)
@@ -274,7 +282,7 @@ export default function StakingModal({
             nftId: property?.id || 1,
             amount: amount.toString(),
             stakingContract: stakingContractAddress,
-            txHash: result,
+            txHash: result.hash,
             metadata: {
               propertyTitle: property?.title || 'Unknown Property',
               expectedDailyRewards: stakingMetrics.dailyRewards,
@@ -297,12 +305,12 @@ export default function StakingModal({
     } catch (error) {
       console.error("Staking operation failed:", error);
       
-      const errorMessage = handleTransactionError(
-        error, 
-        currentStep === 1 ? 'approval' : 'staking'
-      );
+      // const errorMessage = handleTransactionError(
+      //   error, 
+      //   currentStep === 1 ? 'approval' : 'staking'
+      // );
       
-      setStakingError(errorMessage);
+      // setStakingError(errorMessage);
       setStakingStage('error');
     }
   };
@@ -569,6 +577,28 @@ export default function StakingModal({
                       <p className="text-blue-300">Completion Bonus:</p>
                       <p className="text-blue-100 font-bold">{stakingMetrics.completionBonus.toFixed(2)} LKUSD</p>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Low Balance Warning */}
+              {parseFloat(lkusdBalance) < 1 && (
+                <div className="mt-4 flex items-start gap-3 p-3 bg-orange-900/20 border border-orange-500/30 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5" />
+                  <div>
+                    <p className="text-orange-200 text-sm font-medium mb-1">
+                      Low LKUSD Balance
+                    </p>
+                    <p className="text-orange-300 text-xs mb-2">
+                      You need LKUSD tokens to stake. You can get LKUSD by swapping ETH in the Exchange.
+                    </p>
+                    <a 
+                      href="/#exchange" 
+                      onClick={onClose}
+                      className="text-orange-400 text-xs hover:underline"
+                    >
+                      Go to Exchange →
+                    </a>
                   </div>
                 </div>
               )}

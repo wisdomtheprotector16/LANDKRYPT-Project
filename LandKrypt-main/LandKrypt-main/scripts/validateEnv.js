@@ -1,6 +1,7 @@
 // Environment Variables Validation Script
 // Run this to check if your environment is properly configured
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 const requiredVars = {
   // Blockchain essentials

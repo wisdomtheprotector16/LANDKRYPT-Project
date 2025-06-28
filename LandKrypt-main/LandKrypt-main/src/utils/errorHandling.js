@@ -85,9 +85,9 @@ export function parseContractError(error) {
   }
 
   // If no specific pattern matches, return a cleaned version
-  return errorMessage.length > 100 
-    ? 'Transaction failed. Please check your inputs and try again.'
-    : errorMessage;
+  // return errorMessage.length > 100 
+  //   ? 'Transaction failed. Please check your inputs and try again.'
+  //   : errorMessage;
 }
 
 /**

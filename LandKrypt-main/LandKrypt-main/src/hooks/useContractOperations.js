@@ -1,3 +1,4 @@
+'use client';
 // LandKrypt Contract Operations Hook
 import {
   useAccount,
@@ -116,6 +117,16 @@ export function useContractOperations() {
   );
 
   // Staking Operations
+  const stakeTokens = useCallback(async (stakingContractAddress, amount) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return { success: false, error: 'Wallet not connected' };
+    }
+
+    if (!stakingContractAddress || stakingContractAddress === '0x0000000000000000000000000000000000000000') {
+      toast.error('Invalid staking contract address');
+      return { success: false, error: 'Invalid staking contract' };
+    }
   const stakeTokens = useCallback(
     async (stakingContractAddress, amount) => {
       if (!isConnected) {
@@ -123,6 +134,26 @@ export function useContractOperations() {
         return;
       }
 
+    try {
+      const hash = await writeContract({
+        address: stakingContractAddress,
+        abi: ABIS.NFT_STAKING_ABI,
+        functionName: 'stake',
+        args: [parseEther(amount.toString())],
+      });
+      
+      setPendingTx(hash);
+      toast.success('Staking transaction sent!');
+      return { success: true, hash };
+    } catch (error) {
+      console.error('Stake tokens error:', error);
+      const errorMessage = error.message?.includes('User rejected') 
+        ? 'Transaction rejected by user'
+        : error.message || 'Failed to stake tokens';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  }, [writeContract, isConnected]);
       try {
         const hash = await writeContract({
           address: stakingContractAddress,
@@ -198,18 +229,35 @@ export function useContractOperations() {
   );
 
   // DAO Operations
-  const createProposal = useCallback(
-    async (
-      description,
-      developer,
-      ownershipPercentage,
-      landNFTId,
-      projectTimeframe
-    ) => {
-      if (!isConnected) {
-        toast.error("Please connect your wallet");
-        return;
-      }
+  const registerDeveloper = useCallback(async () => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+
+    try {
+      const hash = await writeContract({
+        address: CONTRACT_ADDRESSES.NFT_DAO,
+        abi: ABIS.NFTDAO_ABI,
+        functionName: 'registerDeveloper',
+        value: parseEther('0.1'), // Developer fee is 0.1 ETH
+      });
+      
+      setPendingTx(hash);
+      toast.success('Developer registration transaction sent!');
+      return hash;
+    } catch (error) {
+      console.error('Register developer error:', error);
+      toast.error(error.message || 'Failed to register as developer');
+      throw error;
+    }
+  }, [writeContract, isConnected]);
+
+  const createProposal = useCallback(async (description, developer, ownershipPercentage, landNFTId, projectTimeframe) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return;
+    }
 
       try {
         const hash = await writeContract({
@@ -418,6 +466,7 @@ export function useContractOperations() {
     claimRewards,
 
     // DAO Operations
+    registerDeveloper,
     createProposal,
     voteOnProposal,
 
@@ -479,10 +528,10 @@ export function useContractReads() {
 
   // Get staking info
   const useStakingInfo = (stakingContract, userAddress) => {
-    const { data: balance } = useReadContract({
+    const { data: stakerInfo } = useReadContract({
       address: stakingContract,
       abi: ABIS.NFT_STAKING_ABI,
-      functionName: "balanceOf",
+      functionName: 'stakers',
       args: userAddress ? [userAddress] : undefined,
       query: {
         enabled: !!stakingContract && !!userAddress,
@@ -493,7 +542,7 @@ export function useContractReads() {
     const { data: earned } = useReadContract({
       address: stakingContract,
       abi: ABIS.NFT_STAKING_ABI,
-      functionName: "earned",
+      functionName: 'getTotalClaimableRewards',
       args: userAddress ? [userAddress] : undefined,
       query: {
         enabled: !!stakingContract && !!userAddress,
@@ -522,7 +571,7 @@ export function useContractReads() {
     });
 
     return {
-      userBalance: balance,
+      userBalance: stakerInfo ? stakerInfo[0] : 0n, // amount is first in tuple
       earnedRewards: earned,
       totalStaked,
       targetAmount,

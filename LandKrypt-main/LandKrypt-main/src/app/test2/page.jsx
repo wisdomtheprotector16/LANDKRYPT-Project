@@ -7,9 +7,17 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
 const CustomConnectButton = () => {
-  const { address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
-  const { disconnect } = useDisconnect();
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  // Only use hooks on client side to avoid SSR issues
+  const { address } = isMounted ? useAccount() : { address: null };
+  const { signMessageAsync } = isMounted ? useSignMessage() : { signMessageAsync: null };
+  const { disconnect } = isMounted ? useDisconnect() : { disconnect: () => {} };
   const [authData, setAuthData] = useState({
     nonce: null,
     message: null,
@@ -76,9 +84,9 @@ const CustomConnectButton = () => {
   };
 
   useEffect(() => {
-    if (address) {
+    if (address && isMounted && signMessageAsync) {
       handleAuthentication();
-    } else {
+    } else if (!address) {
       // Reset auth data when disconnecting
       setAuthData({
         nonce: null,
@@ -89,7 +97,7 @@ const CustomConnectButton = () => {
         loading: false,
       });
     }
-  }, [address]);
+  }, [address, isMounted, signMessageAsync]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -104,6 +112,21 @@ const CustomConnectButton = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Don't render ConnectButton on server side
+  if (!isMounted) {
+    return (
+      <div className="space-y-4">
+        <div className="animate-pulse bg-gray-200 h-12 rounded"></div>
+        <div className="bg-gray-100 p-4 rounded-lg space-y-4">
+          <h3 className="font-bold text-lg">Authentication Debug Info</h3>
+          <div className="text-gray-500 text-center py-4">
+            Loading wallet connection...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -2,6 +2,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useDisconnect } from "wagmi";
 import { GradientButton2 } from "./GradientButton2";
 import { useState, useRef, useEffect } from "react";
+import ClientOnlyWrapper from "./ClientOnlyWrapper";
 
 const CustomConnectButton = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -258,4 +259,17 @@ const CustomConnectButton = () => {
   );
 };
 
-export default CustomConnectButton;
+// Wrapped version to prevent SSR issues
+const WrappedCustomConnectButton = () => {
+  return (
+    <ClientOnlyWrapper fallback={
+      <div className="px-4 py-2 bg-gray-700 text-white rounded-lg animate-pulse">
+        Loading...
+      </div>
+    }>
+      <CustomConnectButton />
+    </ClientOnlyWrapper>
+  );
+};
+
+export default WrappedCustomConnectButton;

@@ -4,6 +4,7 @@ import { useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
 import { useContractReadData } from './useContractInteraction';
 import { CONTRACT_ADDRESSES, LANDKRYPT_STAKING_TOKEN_ABI, LANDKRYPT_STABLECOIN_ABI } from '../contracts/abis';
+import { isBrowser } from '../lib/ssr-polyfills';
 
 // Hook for user dashboard data
 export function useDashboardData() {
@@ -38,7 +39,7 @@ export function useDashboardData() {
 
   // Fetch user dashboard data from APIs
   const fetchDashboardData = useCallback(async () => {
-    if (!address || !isConnected) return;
+    if (!address || !isConnected || !isBrowser) return;
 
     setIsLoading(true);
     setError(null);
