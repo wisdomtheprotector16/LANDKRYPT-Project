@@ -2,11 +2,11 @@
 "use client";
 
 import React from "react";
-import { MapPin, Users, Share2, Heart } from "lucide-react";
+import { MapPin, Users, Share2, Heart, TrendingUp, Target } from "lucide-react";
 import Link from "next/link";
 import { GradientButton } from "@/components/GradientButton";
 
-const NFTCard = ({ item, likedItems, toggleLike }) => {
+const NFTCard = ({ item, likedItems, toggleLike, onStakeClick }) => {
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group">
       <div className="relative overflow-hidden">
@@ -48,20 +48,45 @@ const NFTCard = ({ item, likedItems, toggleLike }) => {
           <MapPin className="w-4 h-4" />
           <span>{item.location}</span>
         </div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <div className="text-orange-400 font-medium">{item.price}</div>
           <div className="flex items-center gap-1 text-gray-400 text-sm">
             <Users className="w-4 h-4" />
             <span>{item.shares}</span>
           </div>
         </div>
-        <Link href="/marketplace/1">
-          <div className="w-full">
-            <GradientButton className="">
-              Start Staking
-            </GradientButton>
+        
+        {/* Staking Progress Bar */}
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <span>Staking Progress</span>
+            <span>{item.stakingProgress || '0'}%</span>
           </div>
-        </Link>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${item.stakingProgress || 0}%` }}
+            />
+          </div>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="space-y-2">
+          <button
+            onClick={() => onStakeClick && onStakeClick(item)}
+            className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-[1.02] font-medium flex items-center justify-center gap-2"
+          >
+            <TrendingUp className="w-4 h-4" />
+            Stake & Earn
+          </button>
+          
+          <Link href={`/marketplace/property/${item.id}`}>
+            <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+              <Target className="w-4 h-4" />
+              View Details
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );

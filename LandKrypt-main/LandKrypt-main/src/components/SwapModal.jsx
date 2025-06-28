@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, ArrowUpDown, ChevronDown, Loader2 } from "lucide-react";
-import { useAccount, useBalance } from 'wagmi';
-import { useContractWriteCustom } from '@/hooks/useContractInteraction';
-import { CONTRACT_ADDRESSES, LANDKRYPT_STABLECOIN_ABI } from '@/contracts/abis';
-import { parseEther } from 'viem';
+import { X, ArrowUpDown, ChevronDown, Loader2, Settings, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { useAccount, useBalance, useReadContract } from 'wagmi';
+import { useContractOperations, useContractReads } from '@/hooks/useContractOperations';
+import { CONTRACT_ADDRESSES, EXCHANGE_ABI, LANDKRYPT_STABLECOIN_ABI } from '@/contracts/abis';
+import { parseEther, formatEther } from 'viem';
 import { toast } from 'react-hot-toast';
-
-const EXCHANGE_RATE = 3000; // 1 ETH = 3000 LKUSD
 
 export default function SwapModal({ onClose }) {
   const [swapFromAmount, setSwapFromAmount] = useState("");
@@ -17,36 +15,106 @@ export default function SwapModal({ onClose }) {
   const [toToken, setToToken] = useState("LKUSD");
   const [showFromTokenList, setShowFromTokenList] = useState(false);
   const [showToTokenList, setShowToTokenList] = useState(false);
-  const [isSwapping, setIsSwapping] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState(EXCHANGE_RATE);
+  const [showSettings, setShowSettings] = useState(false);
+  const [slippageTolerance, setSlippageTolerance] = useState(0.5); // 0.5% default
+  const [deadline, setDeadline] = useState(20); // 20 minutes default
+  const [swapStage, setSwapStage] = useState('input'); // 'input', 'confirming', 'success', 'error'
+  const [txHash, setTxHash] = useState(null);
+  const [swapError, setSwapError] = useState(null);
+  const [priceImpact, setPriceImpact] = useState(0);
 
-  // Wallet connection
+  // Wallet connection and contract operations
   const { address, isConnected } = useAccount();
   const { data: ethBalance } = useBalance({ address });
-  
-  // Mock LKUSD balance - in production, read from contract
-  const [lkusdBalance] = useState(1250.75);
+  const { lkusdBalance, formatEther } = useContractReads();
+  const { 
+    swapETHForLKUSD, 
+    burnLKUSDForETH, 
+    isWritePending, 
+    isConfirming, 
+    isConfirmed,
+    pendingTx,
+    writeError 
+  } = useContractOperations();
+
+  // Read exchange rate from Oracle/Exchange contract
+  const { data: exchangeFeeRate } = useReadContract({
+    address: CONTRACT_ADDRESSES.EXCHANGE,
+    abi: EXCHANGE_ABI,
+    functionName: 'feeRate',
+    query: {
+      refetchInterval: 30000, // Refresh every 30 seconds
+    },
+  });
+
+  // Mock exchange rate for demo - in production, get from Oracle
+  const [exchangeRate] = useState(3000); // 1 ETH = 3000 LKUSD
 
   const tokens = [
     { symbol: "ETH", name: "Ethereum", icon: "♦" },
     { symbol: "LKUSD", name: "LandKrypt USD", icon: "$" },
   ];
 
-  // Calculate swap amount
+  // Calculate swap amount with slippage and fees
   useEffect(() => {
     if (swapFromAmount && !isNaN(swapFromAmount)) {
       const amount = parseFloat(swapFromAmount);
+      const feeRate = exchangeFeeRate ? Number(exchangeFeeRate) / 10000 : 0.005; // Default 0.5% fee
+      
       if (fromToken === "ETH" && toToken === "LKUSD") {
-        setSwapToAmount((amount * EXCHANGE_RATE).toFixed(2));
+        const rawAmount = amount * exchangeRate;
+        const feeAmount = rawAmount * feeRate;
+        const afterFee = rawAmount - feeAmount;
+        const slippageAmount = afterFee * (slippageTolerance / 100);
+        const finalAmount = afterFee - slippageAmount;
+        
+        setSwapToAmount(finalAmount.toFixed(2));
+        setPriceImpact(((feeAmount + slippageAmount) / rawAmount * 100).toFixed(2));
       } else if (fromToken === "LKUSD" && toToken === "ETH") {
-        setSwapToAmount((amount / EXCHANGE_RATE).toFixed(6));
+        // For LKUSD to ETH, this would require a burn mechanism
+        const rawAmount = amount / exchangeRate;
+        const feeAmount = rawAmount * feeRate;
+        const afterFee = rawAmount - feeAmount;
+        const slippageAmount = afterFee * (slippageTolerance / 100);
+        const finalAmount = afterFee - slippageAmount;
+        
+        setSwapToAmount(finalAmount.toFixed(6));
+        setPriceImpact(((feeAmount + slippageAmount) / rawAmount * 100).toFixed(2));
       } else {
         setSwapToAmount(swapFromAmount);
+        setPriceImpact(0);
       }
     } else {
       setSwapToAmount("");
+      setPriceImpact(0);
     }
-  }, [swapFromAmount, fromToken, toToken]);
+  }, [swapFromAmount, fromToken, toToken, exchangeRate, exchangeFeeRate, slippageTolerance]);
+
+  // Monitor transaction status
+  useEffect(() => {
+    if (pendingTx) {
+      setTxHash(pendingTx);
+      setSwapStage('confirming');
+    }
+  }, [pendingTx]);
+
+  useEffect(() => {
+    if (isConfirmed && swapStage === 'confirming') {
+      setSwapStage('success');
+      toast.success('Swap completed successfully!');
+      // Auto-close modal after success
+      setTimeout(() => {
+        onClose();
+      }, 3000);
+    }
+  }, [isConfirmed, swapStage, onClose]);
+
+  useEffect(() => {
+    if (writeError) {
+      setSwapError(writeError.message || 'Transaction failed');
+      setSwapStage('error');
+    }
+  }, [writeError]);
 
   const handleSwap = async () => {
     if (!isConnected) {
@@ -61,63 +129,84 @@ export default function SwapModal({ onClose }) {
 
     const amount = parseFloat(swapFromAmount);
     const currentEthBalance = ethBalance ? parseFloat(ethBalance.formatted) : 0;
+    const currentLkusdBalance = parseFloat(lkusdBalance);
     
+    // Balance validation
     if (fromToken === "ETH" && amount > currentEthBalance) {
       toast.error("Insufficient ETH balance");
       return;
     }
-    if (fromToken === "LKUSD" && amount > lkusdBalance) {
+    if (fromToken === "LKUSD" && amount > currentLkusdBalance) {
       toast.error("Insufficient LKUSD balance");
       return;
     }
 
-    setIsSwapping(true);
+    // Price impact warning
+    if (parseFloat(priceImpact) > 5) {
+      const confirmed = window.confirm(
+        `High price impact detected (${priceImpact}%). Are you sure you want to proceed?`
+      );
+      if (!confirmed) return;
+    }
+
+    setSwapStage('confirming');
+    setSwapError(null);
     
     try {
-      // Step 1: Prepare transaction via API
-      const response = await fetch('/api/prepare-swap-tx', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fromToken,
-          toToken,
-          amount: amount.toString(),
-          userAddress: address,
-        }),
-      });
-
-      const result = await response.json();
+      let result;
       
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to prepare transaction');
+      if (fromToken === "ETH" && toToken === "LKUSD") {
+        // ETH to LKUSD swap
+        result = await swapETHForLKUSD(amount);
+      } else if (fromToken === "LKUSD" && toToken === "ETH") {
+        // LKUSD to ETH swap (burn mechanism)
+        result = await burnLKUSDForETH(amount);
+      } else {
+        throw new Error('Unsupported swap pair');
       }
 
-      // Step 2: Execute transaction (mock for now)
-      // In production, you would use wagmi's writeContract here
-      toast.success(`Successfully swapped ${amount} ${fromToken} to ${swapToAmount} ${toToken}`);
-      
-      // Step 3: Log transaction
-      await fetch('/api/user-actions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userAddress: address,
-          actionType: 'swap',
-          txHash: '0x' + Math.random().toString(16).substr(2, 64), // Mock tx hash
-        }),
-      });
-
-      onClose();
+      if (result.success) {
+        // Log transaction to API
+        try {
+          await fetch('/api/user-actions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userAddress: address,
+              actionType: 'swap',
+              txHash: result.hash,
+              details: {
+                fromToken,
+                toToken,
+                fromAmount: amount,
+                toAmount: swapToAmount,
+                slippage: slippageTolerance,
+                priceImpact
+              }
+            }),
+          });
+        } catch (logError) {
+          console.warn('Failed to log transaction:', logError);
+          // Don't fail the swap if logging fails
+        }
+      } else {
+        throw new Error(result.error || 'Swap failed');
+      }
     } catch (error) {
       console.error("Swap failed", error);
-      toast.error(error.message || "Swap transaction failed. Please try again.");
-    } finally {
-      setIsSwapping(false);
+      setSwapError(error.message || "Swap transaction failed. Please try again.");
+      setSwapStage('error');
     }
+  };
+
+  const resetSwap = () => {
+    setSwapStage('input');
+    setSwapError(null);
+    setTxHash(null);
+    setSwapFromAmount('');
+    setSwapToAmount('');
   };
 
   const handleFlipTokens = () => {
@@ -145,7 +234,17 @@ export default function SwapModal({ onClose }) {
   };
 
   const getBalance = (token) => {
-    return token === "ETH" ? ethBalance : lkusdBalance;
+    if (token === "ETH") {
+      return ethBalance ? parseFloat(ethBalance.formatted) : 0;
+    } else if (token === "LKUSD") {
+      return parseFloat(lkusdBalance || 0);
+    }
+    return 0;
+  };
+
+  const getFormattedBalance = (token) => {
+    const balance = getBalance(token);
+    return token === "ETH" ? balance.toFixed(6) : balance.toFixed(2);
   };
 
   const getTokenIcon = (token) => {
@@ -173,15 +272,83 @@ export default function SwapModal({ onClose }) {
               <h2 className="text-2xl font-bold text-white mb-1">
                 LandKrypt Exchange
               </h2>
-              <p className="text-gray-400 text-sm">Swap tokens instantly</p>
+              <p className="text-gray-400 text-sm">
+                {swapStage === 'input' && 'Swap tokens instantly'}
+                {swapStage === 'confirming' && 'Confirming transaction...'}
+                {swapStage === 'success' && 'Swap completed!'}
+                {swapStage === 'error' && 'Transaction failed'}
+              </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors p-1"
-            >
-              <X size={24} />
-            </button>
+            <div className="flex items-center gap-2">
+              {swapStage === 'input' && (
+                <button
+                  onClick={() => setShowSettings(!showSettings)}
+                  className="text-gray-400 hover:text-white transition-colors p-1"
+                >
+                  <Settings size={20} />
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+              >
+                <X size={24} />
+              </button>
+            </div>
           </div>
+
+          {/* Settings Panel */}
+          {showSettings && swapStage === 'input' && (
+            <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+              <h3 className="text-white font-medium mb-4">Transaction Settings</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-300 text-sm mb-2">
+                    Slippage Tolerance (%)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {[0.1, 0.5, 1.0].map((preset) => (
+                      <button
+                        key={preset}
+                        onClick={() => setSlippageTolerance(preset)}
+                        className={`px-3 py-1 rounded text-sm transition-colors ${
+                          slippageTolerance === preset
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        {preset}%
+                      </button>
+                    ))}
+                    <input
+                      type="number"
+                      value={slippageTolerance}
+                      onChange={(e) => setSlippageTolerance(parseFloat(e.target.value) || 0)}
+                      className="bg-gray-700 text-white px-2 py-1 rounded text-sm w-16"
+                      step="0.1"
+                      min="0"
+                      max="50"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm mb-2">
+                    Transaction Deadline (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={deadline}
+                    onChange={(e) => setDeadline(parseInt(e.target.value) || 20)}
+                    className="bg-gray-700 text-white px-3 py-2 rounded w-full"
+                    min="1"
+                    max="180"
+                  />
+                </div>
+              </div>
+            </div>
+          )}          
 
           {/* Swap From Section */}
           <div className="mb-4">
@@ -193,25 +360,27 @@ export default function SwapModal({ onClose }) {
                 onClick={() => setSwapFromAmount(getBalance(fromToken).toString())}
                 className="text-gray-400 hover:text-white text-sm"
               >
-                Max: {getBalance(fromToken)} {fromToken}
+                Max: {getFormattedBalance(fromToken)} {fromToken}
               </button>
             </div>
             <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <input
-                  type="number"
-                  value={swapFromAmount}
-                  onChange={(e) => setSwapFromAmount(e.target.value)}
-                  className="bg-transparent text-white text-2xl font-bold outline-none flex-1 min-w-0 mr-4"
-                  placeholder="0"
-                  min="0"
-                  step="any"
-                />
+            <div className="flex items-center justify-between mb-2">
+              <input
+                type="number"
+                value={swapFromAmount}
+                onChange={(e) => setSwapFromAmount(e.target.value)}
+                className="bg-transparent text-white text-2xl font-bold outline-none flex-1 min-w-0 mr-4"
+                placeholder="0"
+                min="0"
+                step="any"
+                disabled={swapStage !== 'input'}
+              />
                 <div className="relative flex-shrink-0">
-                  <button
-                    onClick={() => setShowFromTokenList(!showFromTokenList)}
-                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 rounded-lg px-3 py-2 transition-colors"
-                  >
+                <button
+                  onClick={() => setShowFromTokenList(!showFromTokenList)}
+                  className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 rounded-lg px-3 py-2 transition-colors"
+                  disabled={swapStage !== 'input'}
+                >
                     {fromToken === "ETH" ? (
                       <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs font-bold">
@@ -252,7 +421,7 @@ export default function SwapModal({ onClose }) {
                 </div>
               </div>
               <p className="text-gray-400 text-sm">
-                Balance: {getBalance(fromToken).toFixed(2)} {fromToken}
+                Balance: {getFormattedBalance(fromToken)} {fromToken}
               </p>
             </div>
           </div>
@@ -263,6 +432,7 @@ export default function SwapModal({ onClose }) {
               onClick={handleFlipTokens}
               className="bg-blue-600 hover:bg-blue-700 p-3 rounded-full transition-colors duration-200 shadow-lg"
               aria-label="Flip tokens"
+              disabled={swapStage !== 'input'}
             >
               <ArrowUpDown size={20} className="text-white" />
             </button>
@@ -283,10 +453,11 @@ export default function SwapModal({ onClose }) {
                   placeholder="0"
                 />
                 <div className="relative flex-shrink-0">
-                  <button
-                    onClick={() => setShowToTokenList(!showToTokenList)}
-                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 rounded-lg px-3 py-2 transition-colors"
-                  >
+                <button
+                  onClick={() => setShowToTokenList(!showToTokenList)}
+                  className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 rounded-lg px-3 py-2 transition-colors"
+                  disabled={swapStage !== 'input'}
+                >
                     {toToken === "ETH" ? (
                       <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs font-bold">
@@ -327,41 +498,166 @@ export default function SwapModal({ onClose }) {
                 </div>
               </div>
               <p className="text-gray-400 text-sm">
-                Balance: {getBalance(toToken).toFixed(2)} {toToken}
+                Balance: {getFormattedBalance(toToken)} {toToken}
               </p>
             </div>
           </div>
 
-          {/* Exchange Rate Info */}
-          <div className="mb-4 p-3 bg-gray-800 rounded-lg text-center">
-            <p className="text-gray-400 text-sm">
-              1 {fromToken} ={" "}
-              {fromToken === "ETH"
-                ? EXCHANGE_RATE
-                : (1 / EXCHANGE_RATE).toFixed(6)}{" "}
-              {toToken}
-            </p>
-          </div>
+          {/* Exchange Rate and Impact Info */}
+          {swapStage === 'input' && (
+            <div className="mb-4 space-y-3">
+              <div className="p-3 bg-gray-800 rounded-lg">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-400">Exchange Rate:</span>
+                  <span className="text-white">
+                    1 {fromToken} = {fromToken === "ETH" ? exchangeRate : (1 / exchangeRate).toFixed(6)} {toToken}
+                  </span>
+                </div>
+                {exchangeFeeRate && (
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <span className="text-gray-400">Fee:</span>
+                    <span className="text-white">{(Number(exchangeFeeRate) / 100).toFixed(2)}%</span>
+                  </div>
+                )}
+                {parseFloat(priceImpact) > 0 && (
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <span className="text-gray-400">Price Impact:</span>
+                    <span className={`${parseFloat(priceImpact) > 5 ? 'text-red-400' : 'text-yellow-400'}`}>
+                      {priceImpact}%
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-sm mt-2">
+                  <span className="text-gray-400">Slippage:</span>
+                  <span className="text-white">{slippageTolerance}%</span>
+                </div>
+              </div>
+              
+              {parseFloat(priceImpact) > 3 && (
+                <div className="flex items-center gap-2 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-yellow-400" />
+                  <span className="text-yellow-200 text-sm">
+                    {parseFloat(priceImpact) > 5 ? 'High' : 'Medium'} price impact detected
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Transaction Status */}
+          {swapStage === 'confirming' && (
+            <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                <div>
+                  <p className="text-blue-200 font-medium">Transaction Confirming</p>
+                  <p className="text-blue-300 text-sm">
+                    Swapping {swapFromAmount} {fromToken} for {swapToAmount} {toToken}
+                  </p>
+                  {txHash && (
+                    <p className="text-blue-400 text-xs mt-1">
+                      Tx: {txHash.slice(0, 10)}...{txHash.slice(-8)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {swapStage === 'success' && (
+            <div className="mb-6 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-green-400" />
+                <div>
+                  <p className="text-green-200 font-medium">Swap Successful!</p>
+                  <p className="text-green-300 text-sm">
+                    Received {swapToAmount} {toToken}
+                  </p>
+                  {txHash && (
+                    <a 
+                      href={`https://sepolia.etherscan.io/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-400 text-xs hover:underline"
+                    >
+                      View on Etherscan
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {swapStage === 'error' && (
+            <div className="mb-6 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5" />
+                <div>
+                  <p className="text-red-200 font-medium">Transaction Failed</p>
+                  <p className="text-red-300 text-sm mt-1">
+                    {swapError}
+                  </p>
+                  <button
+                    onClick={resetSwap}
+                    className="text-red-400 text-sm hover:underline mt-2"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Swap Button */}
-          <button
-            onClick={handleSwap}
-            disabled={!swapFromAmount || parseFloat(swapFromAmount) <= 0 || isSwapping || !isConnected}
-            className={`w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
-              !swapFromAmount || parseFloat(swapFromAmount) <= 0 || isSwapping || !isConnected
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:from-orange-600 hover:to-red-600"
-            }`}
-          >
-            {isSwapping && <Loader2 className="animate-spin" size={20} />}
-            {!isConnected
-              ? "Connect Wallet"
-              : !swapFromAmount || parseFloat(swapFromAmount) <= 0
-              ? "Enter Amount"
-              : isSwapping
-              ? "Swapping..."
-              : `Swap ${fromToken} to ${toToken}`}
-          </button>
+          {swapStage === 'input' && (
+            <button
+              onClick={handleSwap}
+              disabled={!swapFromAmount || parseFloat(swapFromAmount) <= 0 || isWritePending || !isConnected}
+              className={`w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                !swapFromAmount || parseFloat(swapFromAmount) <= 0 || isWritePending || !isConnected
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:from-orange-600 hover:to-red-600"
+              }`}
+            >
+              {isWritePending && <Loader2 className="animate-spin" size={20} />}
+              {!isConnected
+                ? "Connect Wallet"
+                : !swapFromAmount || parseFloat(swapFromAmount) <= 0
+                ? "Enter Amount"
+                : isWritePending
+                ? "Confirming..."
+                : `Swap ${fromToken} to ${toToken}`}
+            </button>
+          )}
+
+          {swapStage === 'confirming' && (
+            <button
+              disabled
+              className="w-full bg-gray-700 text-gray-300 font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2"
+            >
+              <Loader2 className="animate-spin" size={20} />
+              {isConfirming ? 'Waiting for confirmation...' : 'Transaction pending...'}
+            </button>
+          )}
+
+          {(swapStage === 'success' || swapStage === 'error') && (
+            <div className="space-y-3">
+              {swapStage === 'error' && (
+                <button
+                  onClick={resetSwap}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
+                >
+                  Try Again
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-xl transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

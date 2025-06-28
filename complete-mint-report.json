@@ -1,0 +1,55 @@
+{
+  "timestamp": "2025-06-28T00:14:40.298Z",
+  "recipient": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC",
+  "total": 6,
+  "existing": 2,
+  "newlyMinted": 4,
+  "failed": 0,
+  "existingNFTs": [
+    {
+      "tokenId": 1,
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.26_a97c5884.jpg",
+      "owner": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC"
+    },
+    {
+      "tokenId": 2,
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.26_ccd45142.jpg",
+      "owner": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC"
+    }
+  ],
+  "newResults": [
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_21c4e115.jpg",
+      "tokenId": 3,
+      "txHash": "0x7b7f8d769c67447b367ec941fbfc1e235033f0abdfc14900eead37d0971e1165",
+      "imageCid": "bafkreihicdyg6t23vnhromvnxu6gcvtgpntu4o6otgiv5c5toccw5to64q",
+      "metadataCid": "bafkreie5dcljjs322mzcg5rfarbkeabxes7dr7vfqfsrty3aaqnlbe5itm",
+      "recipient": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_237a5395.jpg",
+      "tokenId": 4,
+      "txHash": "0x10fa8afd8476d6f7916bd0c9ed9c879dddc68886f41c1aad9f07360e8a116004",
+      "imageCid": "bafkreiafwp6utm7qq2p4dyijimyvrhixhneptojixvxwvwuvoqjrnaolxe",
+      "metadataCid": "bafkreib4coyqdbwqldcvwncpa5ias5ueixpfkvz3fzixu6nopxzajset4a",
+      "recipient": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_66f033c1.jpg",
+      "tokenId": 5,
+      "txHash": "0xec2c0ce432653b080f4103fc0a90a3b14f065210d9e15da95957bb16ad659574",
+      "imageCid": "bafkreiatqikdd5x63jtgtit2ssi75n5vdyn2m22evyqythfkjrumjg2mge",
+      "metadataCid": "bafkreiaovdx26d7me3siyyurkhuwdnldmmnmup4izdziutpdznrcpchbfu",
+      "recipient": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC"
+    },
+    {
+      "filename": "WhatsApp Image 2025-06-20 at 04.26.27_a96643cc.jpg",
+      "tokenId": 6,
+      "txHash": "0x2f4a02a907bbd8b58225d933f4923fc626bc8819ac71cce959a3ff5af7b7da73",
+      "imageCid": "bafkreicn3aaqcqcsq4vywnsjmviwkdw73d2npchrnrohnsckoeknbme6j4",
+      "metadataCid": "bafkreiepgd2sywscayod2hcwvxk4mbno65tmabpb7ghmpa63qg23nepksq",
+      "recipient": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC"
+    }
+  ],
+  "errors": []
+}

@@ -8,15 +8,7 @@ require('dotenv').config();
 const LISTING_PRICE = ethers.parseUnits('200000', 18); // 200,000 LKUSD (18 decimals)
 const TARGET_AMOUNT = ethers.parseUnits('200000', 18); // Same as listing price for simplicity
 
-// NFT Data with Token IDs
-const NFT_DATA = [
-  { tokenId: 1, name: "Luxury Modern Apartment Complex" },
-  { tokenId: 2, name: "Executive Commercial Building" },
-  { tokenId: 3, name: "Waterfront Villa Estate" },
-  { tokenId: 4, name: "Urban Residential Tower" },
-  { tokenId: 5, name: "Commercial Shopping Plaza" },
-  { tokenId: 6, name: "Luxury Resort Development" }
-];
+// We'll discover NFTs dynamically instead of using hardcoded data
 
 // Contract ABIs
 const STAKING_FACTORY_ABI = [
@@ -74,6 +66,20 @@ const NFT_ABI = [
     "outputs": [{"internalType": "address", "name": "", "type": "address"}],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "getTokenDescription",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "tokenURI",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
 
@@ -84,6 +90,61 @@ function getRequiredEnvVar(name) {
     throw new Error(`Environment variable ${name} not set`);
   }
   return value;
+}
+
+// Discover all NFTs owned by the given address
+async function discoverOwnedNFTs(nftContract, ownerAddress, maxTokenId = 1000) {
+  console.log(`🔍 Scanning for NFTs owned by ${ownerAddress}...`);
+  
+  const ownedNFTs = [];
+  const batchSize = 50; // Process in batches to avoid RPC rate limits
+  
+  for (let start = 1; start <= maxTokenId; start += batchSize) {
+    const end = Math.min(start + batchSize - 1, maxTokenId);
+    const promises = [];
+    
+    // Create batch of ownership checks
+    for (let tokenId = start; tokenId <= end; tokenId++) {
+      promises.push(
+        nftContract.ownerOf(tokenId)
+          .then(owner => ({ tokenId, owner, exists: true }))
+          .catch(() => ({ tokenId, owner: null, exists: false }))
+      );
+    }
+    
+    // Execute batch
+    const results = await Promise.all(promises);
+    
+    // Filter for NFTs owned by the target address
+    for (const result of results) {
+      if (result.exists && result.owner.toLowerCase() === ownerAddress.toLowerCase()) {
+        ownedNFTs.push(result.tokenId);
+      }
+    }
+    
+    // Progress indicator
+    if (end % 100 === 0 || end === maxTokenId) {
+      console.log(`   Scanned up to token ID ${end}... Found ${ownedNFTs.length} owned NFTs so far`);
+    }
+  }
+  
+  return ownedNFTs;
+}
+
+// Get NFT description from contract
+async function getNFTDescription(nftContract, tokenId) {
+  try {
+    const description = await nftContract.getTokenDescription(tokenId);
+    return description;
+  } catch (error) {
+    try {
+      // Fallback to tokenURI if getTokenDescription fails
+      const tokenURI = await nftContract.tokenURI(tokenId);
+      return `NFT #${tokenId} (${tokenURI.substring(0, 50)}...)`;
+    } catch (error2) {
+      return `NFT #${tokenId}`;
+    }
+  }
 }
 
 async function createStakingWithMinters() {
@@ -122,7 +183,17 @@ async function createStakingWithMinters() {
       wallet
     );
 
-    console.log(`📋 Creating staking contracts for ${NFT_DATA.length} NFTs`);
+    // Discover owned NFTs
+    console.log(`🔍 Discovering NFTs owned by ${wallet.address}...`);
+    const ownedTokenIds = await discoverOwnedNFTs(nftContract, wallet.address, 1000);
+    
+    if (ownedTokenIds.length === 0) {
+      console.log('❌ No NFTs found owned by your address.');
+      console.log('💡 Make sure you have minted NFTs or they are owned by the deployer address.');
+      return;
+    }
+
+    console.log(`📋 Creating staking contracts for ${ownedTokenIds.length} NFTs`);
     console.log(`💰 Listing price: ${ethers.formatUnits(LISTING_PRICE, 18)} LKUSD each`);
     console.log(`🎯 Target amount: ${ethers.formatUnits(TARGET_AMOUNT, 18)} LKUSD each`);
     console.log(`👤 Owner: ${wallet.address}\n`);
@@ -130,10 +201,12 @@ async function createStakingWithMinters() {
     const results = [];
     const errors = [];
 
-    for (let i = 0; i < NFT_DATA.length; i++) {
-      const nft = NFT_DATA[i];
+    for (let i = 0; i < ownedTokenIds.length; i++) {
+      const tokenId = ownedTokenIds[i];
+      const description = await getNFTDescription(nftContract, tokenId);
+      const nft = { tokenId, name: description };
       
-      console.log(`\n🏠 Processing NFT ${i + 1}/${NFT_DATA.length}:`);
+      console.log(`\n🏠 Processing NFT ${i + 1}/${ownedTokenIds.length}:`);
       console.log(`   🏷️  Token ID: ${nft.tokenId}`);
       console.log(`   📝 Name: ${nft.name}`);
 
@@ -225,7 +298,7 @@ async function createStakingWithMinters() {
         console.log(`   🎉 NFT ${nft.tokenId} successfully setup and listed with minter permissions!`);
 
         // Wait 5 seconds between transactions
-        if (i < NFT_DATA.length - 1) {
+        if (i < ownedTokenIds.length - 1) {
           console.log('   ⏳ Waiting 5 seconds before next NFT...');
           await new Promise(resolve => setTimeout(resolve, 5000));
         }
@@ -244,7 +317,7 @@ async function createStakingWithMinters() {
     console.log('\n' + '='.repeat(80));
     console.log('🎉 STAKING SETUP WITH MINTER PERMISSIONS COMPLETED!');
     console.log('='.repeat(80));
-    console.log(`📊 Total NFTs: ${NFT_DATA.length}`);
+    console.log(`📊 Total NFTs: ${ownedTokenIds.length}`);
     console.log(`✅ Successfully Setup: ${results.filter(r => r.status === 'created').length}`);
     console.log(`⚠️  Already Existed: ${results.filter(r => r.status === 'already_exists').length}`);
     console.log(`❌ Failed: ${errors.length}`);
@@ -274,7 +347,7 @@ async function createStakingWithMinters() {
       timestamp: new Date().toISOString(),
       listingPrice: ethers.formatUnits(LISTING_PRICE, 18),
       targetAmount: ethers.formatUnits(TARGET_AMOUNT, 18),
-      total: NFT_DATA.length,
+      total: ownedTokenIds.length,
       successful: results.filter(r => r.status === 'created').length,
       alreadyExists: results.filter(r => r.status === 'already_exists').length,
       failed: errors.length,

@@ -1,42 +1,32 @@
 {
-  "timestamp": "2025-06-27T22:04:28.611Z",
+  "timestamp": "2025-06-28T01:00:14.307Z",
   "listingPrice": "200000.0",
   "targetAmount": "200000.0",
-  "total": 6,
-  "successful": 0,
+  "total": 2,
+  "successful": 2,
   "alreadyExists": 0,
-  "failed": 6,
-  "results": [],
-  "errors": [
-    {
-      "tokenId": 1,
-      "name": "Luxury Modern Apartment Complex",
-      "error": "execution reverted: \"LandKryptStablecoin: caller is not a minter\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002b4c616e644b72797074537461626c65636f696e3a2063616c6c6572206973206e6f742061206d696e746572000000000000000000000000000000000000000000\", reason=\"LandKryptStablecoin: caller is not a minter\", transaction={ \"data\": \"0x04b4bfe10000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000002a5a058fc295ed000000000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0xDE127d9c649EC55D815eE409d2A5fFBA425cd7A7\" }, invocation=null, revert={ \"args\": [ \"LandKryptStablecoin: caller is not a minter\" ], \"name\": \"Error\", \"signature\": \"Error(string)\" }, code=CALL_EXCEPTION, version=6.14.4)"
-    },
-    {
-      "tokenId": 2,
-      "name": "Executive Commercial Building",
-      "error": "execution reverted: \"LandKryptStablecoin: caller is not a minter\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002b4c616e644b72797074537461626c65636f696e3a2063616c6c6572206973206e6f742061206d696e746572000000000000000000000000000000000000000000\", reason=\"LandKryptStablecoin: caller is not a minter\", transaction={ \"data\": \"0x04b4bfe10000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000002a5a058fc295ed000000000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0xDE127d9c649EC55D815eE409d2A5fFBA425cd7A7\" }, invocation=null, revert={ \"args\": [ \"LandKryptStablecoin: caller is not a minter\" ], \"name\": \"Error\", \"signature\": \"Error(string)\" }, code=CALL_EXCEPTION, version=6.14.4)"
-    },
-    {
-      "tokenId": 3,
-      "name": "Waterfront Villa Estate",
-      "error": "execution reverted: \"LandKryptStablecoin: caller is not a minter\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002b4c616e644b72797074537461626c65636f696e3a2063616c6c6572206973206e6f742061206d696e746572000000000000000000000000000000000000000000\", reason=\"LandKryptStablecoin: caller is not a minter\", transaction={ \"data\": \"0x04b4bfe10000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000002a5a058fc295ed000000000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0xDE127d9c649EC55D815eE409d2A5fFBA425cd7A7\" }, invocation=null, revert={ \"args\": [ \"LandKryptStablecoin: caller is not a minter\" ], \"name\": \"Error\", \"signature\": \"Error(string)\" }, code=CALL_EXCEPTION, version=6.14.4)"
-    },
-    {
-      "tokenId": 4,
-      "name": "Urban Residential Tower",
-      "error": "execution reverted: \"LandKryptStablecoin: caller is not a minter\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002b4c616e644b72797074537461626c65636f696e3a2063616c6c6572206973206e6f742061206d696e746572000000000000000000000000000000000000000000\", reason=\"LandKryptStablecoin: caller is not a minter\", transaction={ \"data\": \"0x04b4bfe10000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000002a5a058fc295ed000000000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0xDE127d9c649EC55D815eE409d2A5fFBA425cd7A7\" }, invocation=null, revert={ \"args\": [ \"LandKryptStablecoin: caller is not a minter\" ], \"name\": \"Error\", \"signature\": \"Error(string)\" }, code=CALL_EXCEPTION, version=6.14.4)"
-    },
+  "failed": 0,
+  "results": [
     {
       "tokenId": 5,
-      "name": "Commercial Shopping Plaza",
-      "error": "execution reverted: \"LandKryptStablecoin: caller is not a minter\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002b4c616e644b72797074537461626c65636f696e3a2063616c6c6572206973206e6f742061206d696e746572000000000000000000000000000000000000000000\", reason=\"LandKryptStablecoin: caller is not a minter\", transaction={ \"data\": \"0x04b4bfe10000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000002a5a058fc295ed000000000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0xDE127d9c649EC55D815eE409d2A5fFBA425cd7A7\" }, invocation=null, revert={ \"args\": [ \"LandKryptStablecoin: caller is not a minter\" ], \"name\": \"Error\", \"signature\": \"Error(string)\" }, code=CALL_EXCEPTION, version=6.14.4)"
+      "name": "NFT #5",
+      "stakingContract": "0x3dF327A3bbf0174e9201F78F6391634fa00CB2B3",
+      "createTxHash": "0xc8681aabc9028360df9265393d45dd16814d2e17942f55f76001e5b3cc48f44a",
+      "approveTxHash": "0xff65f15126ad30e275de9e3f70e775a93c39b8f835267937a8d61e979a19094e",
+      "minterTxHash": "0xd5ae9c578ce56c4be84adb6b1c879f608d4f6b23279876d61b436f8cd5910c52",
+      "minterStatus": "granted",
+      "status": "created"
     },
     {
       "tokenId": 6,
-      "name": "Luxury Resort Development",
-      "error": "execution reverted: \"LandKryptStablecoin: caller is not a minter\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002b4c616e644b72797074537461626c65636f696e3a2063616c6c6572206973206e6f742061206d696e746572000000000000000000000000000000000000000000\", reason=\"LandKryptStablecoin: caller is not a minter\", transaction={ \"data\": \"0x04b4bfe10000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000002a5a058fc295ed000000000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0xDE127d9c649EC55D815eE409d2A5fFBA425cd7A7\" }, invocation=null, revert={ \"args\": [ \"LandKryptStablecoin: caller is not a minter\" ], \"name\": \"Error\", \"signature\": \"Error(string)\" }, code=CALL_EXCEPTION, version=6.14.4)"
+      "name": "Alpine Ski Resort Land in Swiss Alps - 200 hectares of pristine mountain terrain with ski slope development rights, chairlift access, and year-round recreational opportunities.",
+      "stakingContract": "0x356223eC4B82BDA324442dd6A02afEDd23C255ae",
+      "createTxHash": "0xbf88bc7dbca41aec3a833661c130cd368c6acb4aed1c74b52f0b76e57b996318",
+      "approveTxHash": "0xf4d94e1b6cbf6f7cc48f9c2400d3e982d6d675270e34794220264dbf5e11aa8b",
+      "minterTxHash": "0x3cf8135881c496f50b8178a433bc5ea8e35b8f33ac2b6d3b1c0815ef13dd51ca",
+      "minterStatus": "granted",
+      "status": "created"
     }
-  ]
+  ],
+  "errors": []
 }

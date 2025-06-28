@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "tokenId": "1",
+    "title": "Prime Agricultural Land in Tuscany, Italy - 50 hectares of fertile vineyard territory with rolling hills, perfect soil composition for premium wine production, and panoramic views of the Italian countryside.",
+    "description": "Prime Agricultural Land in Tuscany, Italy - 50 hectares of fertile vineyard territory with rolling hills, perfect soil composition for premium wine production, and panoramic views of the Italian countryside.",
+    "location": "Property Location 1",
+    "price": "2e+23",
+    "shares": "22 Shares",
+    "image": "/nfts/nft1.jpg",
+    "tag": "COMMERCIAL",
+    "category": "commercial",
+    "staking": true,
+    "type": "digital asset",
+    "stakingContract": "0x1A80A30f6465b55b35f583900f3D684270e5b291",
+    "isListed": true,
+    "owner": "0x21c9e67513A59249575d0142723AC83e6E0d7dC6",
+    "originalPrice": "2e+23",
+    "tokenUrl": "ipfs://bafkreic5vn4gar25t6awooomodyxf6kbr3gmvprstb2qkdxyyiw2tc2scu",
+    "tokenURI": "ipfs://bafkreic5vn4gar25t6awooomodyxf6kbr3gmvprstb2qkdxyyiw2tc2scu"
+  },
+  {
+    "id": 5,
+    "tokenId": "5",
+    "title": "Outback Mining Territory in Western Australia - 500 hectares with proven mineral deposits, existing mining rights, and access to transportation infrastructure for resource extraction.",
+    "description": "Outback Mining Territory in Western Australia - 500 hectares with proven mineral deposits, existing mining rights, and access to transportation infrastructure for resource extraction.",
+    "location": "Property Location 5",
+    "price": "2e+23",
+    "shares": "43 Shares",
+    "image": "/nfts/nft5.jpg",
+    "tag": "COMMERCIAL",
+    "category": "commercial",
+    "staking": true,
+    "type": "digital asset",
+    "stakingContract": "0x3dF327A3bbf0174e9201F78F6391634fa00CB2B3",
+    "isListed": true,
+    "owner": "0x21c9e67513A59249575d0142723AC83e6E0d7dC6",
+    "originalPrice": "2e+23",
+    "tokenUrl": "ipfs://bafkreiaovdx26d7me3siyyurkhuwdnldmmnmup4izdziutpdznrcpchbfu",
+    "tokenURI": "ipfs://bafkreiaovdx26d7me3siyyurkhuwdnldmmnmup4izdziutpdznrcpchbfu"
+  }
+]

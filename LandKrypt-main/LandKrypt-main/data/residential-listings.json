@@ -1,0 +1,22 @@
+[
+  {
+    "id": 4,
+    "tokenId": "4",
+    "title": "Urban Development Plot in Tokyo, Japan - 15,000 square meters in prime Shibuya district with high-rise development rights, excellent transportation access, and commercial zoning approval.",
+    "description": "Urban Development Plot in Tokyo, Japan - 15,000 square meters in prime Shibuya district with high-rise development rights, excellent transportation access, and commercial zoning approval.",
+    "location": "Property Location 4",
+    "price": "2e+23",
+    "shares": "29 Shares",
+    "image": "/nfts/nft4.jpg",
+    "tag": "RESIDENTIAL",
+    "category": "residential",
+    "staking": true,
+    "type": "rwa",
+    "stakingContract": "0x4081aad5880018aA1a9fE58F0ae11aA3fFA59d83",
+    "isListed": true,
+    "owner": "0x21c9e67513A59249575d0142723AC83e6E0d7dC6",
+    "originalPrice": "2e+23",
+    "tokenUrl": "ipfs://bafkreib4coyqdbwqldcvwncpa5ias5ueixpfkvz3fzixu6nopxzajset4a",
+    "tokenURI": "ipfs://bafkreib4coyqdbwqldcvwncpa5ias5ueixpfkvz3fzixu6nopxzajset4a"
+  }
+]

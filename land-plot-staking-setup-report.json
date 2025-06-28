@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-06-28T00:28:26.342Z",
+  "targetAmount": "200000.0",
+  "targetAmountWei": "200000000000000000000000",
+  "total": 6,
+  "successful": 0,
+  "alreadyExists": 0,
+  "failed": 6,
+  "landPlots": [],
+  "errors": [
+    {
+      "tokenId": 1,
+      "name": "Prime Agricultural Land - Tuscany, Italy",
+      "location": "Tuscany, Italy",
+      "error": "missing revert data (action=\"estimateGas\", data=null, reason=null, transaction={ \"data\": \"0xade7dabf0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0x0b6fDD529afdAd0264c8A0BA698986181E837911\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.14.4)"
+    },
+    {
+      "tokenId": 2,
+      "name": "Coastal Development Plot - Malibu, California",
+      "location": "Malibu, California",
+      "error": "missing revert data (action=\"estimateGas\", data=null, reason=null, transaction={ \"data\": \"0xade7dabf0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0x0b6fDD529afdAd0264c8A0BA698986181E837911\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.14.4)"
+    },
+    {
+      "tokenId": 3,
+      "name": "Rainforest Conservation Land - Costa Rica",
+      "location": "Costa Rica",
+      "error": "missing revert data (action=\"estimateGas\", data=null, reason=null, transaction={ \"data\": \"0xade7dabf0000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0x0b6fDD529afdAd0264c8A0BA698986181E837911\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.14.4)"
+    },
+    {
+      "tokenId": 4,
+      "name": "Urban Development Plot - Tokyo, Japan",
+      "location": "Tokyo, Japan",
+      "error": "missing revert data (action=\"estimateGas\", data=null, reason=null, transaction={ \"data\": \"0xade7dabf0000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0x0b6fDD529afdAd0264c8A0BA698986181E837911\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.14.4)"
+    },
+    {
+      "tokenId": 5,
+      "name": "Outback Mining Territory - Western Australia",
+      "location": "Western Australia",
+      "error": "missing revert data (action=\"estimateGas\", data=null, reason=null, transaction={ \"data\": \"0xade7dabf0000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0x0b6fDD529afdAd0264c8A0BA698986181E837911\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.14.4)"
+    },
+    {
+      "tokenId": 6,
+      "name": "Alpine Ski Resort Land - Swiss Alps",
+      "location": "Swiss Alps",
+      "error": "missing revert data (action=\"estimateGas\", data=null, reason=null, transaction={ \"data\": \"0xade7dabf0000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000002a5a058fc295ed000000\", \"from\": \"0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC\", \"to\": \"0x0b6fDD529afdAd0264c8A0BA698986181E837911\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.14.4)"
+    }
+  ]
+}

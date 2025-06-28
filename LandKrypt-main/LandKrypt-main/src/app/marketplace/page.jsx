@@ -19,13 +19,16 @@ import {
   Menu,
   X,
   ShieldQuestion,
+  Loader2,
 } from "lucide-react";
-import { nftProperties } from "./nfts";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import Header from "@/components/Header";
 import SwapModal from "@/components/SwapModal";
 import { GradientButton } from "@/components/GradientButton";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useContractOperations } from "@/hooks/useContractOperations";
+import marketplaceData from "../../../data/marketplace-listings.json";
 
 const VotingModal = ({
   isOpen,
@@ -33,10 +36,53 @@ const VotingModal = ({
   property,
   availableTokens = 36.61,
 }) => {
+  const [stakeAmount, setStakeAmount] = useState("");
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { stakeTokens, approveToken, isLoading, error } = useContractOperations();
+
   if (!isOpen) return null;
 
   const handleModalClick = (e) => {
     e.stopPropagation(); // Prevent click from bubbling to overlay
+  };
+
+  const handleStakeSubmit = async () => {
+    if (!isConnected) {
+      // Connect wallet first
+      const connector = connectors[0]; // Use first available connector
+      if (connector) {
+        connect({ connector });
+      }
+      return;
+    }
+
+    if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
+      alert("Please enter a valid stake amount");
+      return;
+    }
+
+    try {
+      // First approve tokens, then stake
+      const approveResult = await approveToken({
+        spender: property.stakingContract, // Assuming this is in the property data
+        amount: stakeAmount,
+      });
+
+      if (approveResult.success) {
+        const stakeResult = await stakeTokens({
+          tokenId: property.id,
+          amount: stakeAmount,
+        });
+
+        if (stakeResult.success) {
+          alert(`Successfully staked ${stakeAmount} LKST on ${property.title}!`);
+          onClose();
+        }
+      }
+    } catch (err) {
+      console.error("Staking failed:", err);
+    }
   };
 
   return (
@@ -61,29 +107,36 @@ const VotingModal = ({
           <input
             type="number"
             placeholder="Enter amount to stake"
+            value={stakeAmount}
+            onChange={(e) => setStakeAmount(e.target.value)}
             className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white mb-2"
+            disabled={isLoading}
           />
           <p className="text-gray-400 text-sm">
             Available: {availableTokens} LKST
           </p>
+          {error && (
+            <p className="text-red-400 text-sm mt-2">
+              Error: {error}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={onClose}
             className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            onClick={() => {
-              // Handle vote submission
-              alert(`Voted on ${property.title}`);
-              onClose();
-            }}
-            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition"
+            onClick={handleStakeSubmit}
+            disabled={isLoading || (!isConnected && !stakeAmount)}
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Vote Now
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {!isConnected ? "Connect & Stake" : "Stake Now"}
           </button>
         </div>
         <div className="mt-8 flex gap-1 text-white bg-neutral-800/30 rounded-2xl p-3">
@@ -112,6 +165,10 @@ const NFTMarketplace = () => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [showVotingModal, setShowVotingModal] = useState(false);
+  
+  // Wallet and contract integration
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
 
   const filterOptions = [
     { value: "all", label: "All" },
@@ -119,116 +176,16 @@ const NFTMarketplace = () => {
     { value: "digital asset", label: "Digital Asset" },
   ];
 
-  const nftItems = [
-    {
-      id: 1,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "200,000 LKRYPT staked",
-      shares: "22 Shares",
-      image: "/nfts/nft1.jpg",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "rwa",
-    },
-    {
-      id: 2,
-      title: "Commercial Plot In Victoria Island",
-      location: "Victoria Island, Lagos, Nigeria",
-      price: "150,000 LKRYPT staked",
-      shares: "18 Shares",
-      image: "/nfts/nft2.jpg",
-      tag: "COMMERCIAL",
-      category: "commercial",
-      staking: true,
-      type: "digital asset",
-    },
-    {
-      id: 3,
-      title: "Residential Development Land",
-      location: "Lekki, Lagos, Nigeria",
-      price: "300,000 LKRYPT staked",
-      shares: "35 Shares",
-      image: "/nfts/nft3.jpg",
-      tag: "RESIDENTIAL",
-      category: "residential",
-      staking: true,
-      type: "rwa",
-    },
-    {
-      id: 4,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "250,000 LKRYPT staked",
-      shares: "28 Shares",
-      image: "/nfts/nft4.jpg",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "rwa",
-    },
-    {
-      id: 5,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "180,000 LKRYPT staked",
-      shares: "25 Shares",
-      image: "/nfts/nft5.jpg",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "digital asset",
-    },
-    {
-      id: 6,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "320,000 LKRYPT staked",
-      shares: "42 Shares",
-      image: "/nfts/nft6.jpg",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "digital asset",
-    },
-    {
-      id: 7,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "320,000 LKRYPT staked",
-      shares: "42 Shares",
-      image: "/nfts/nft7.png",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "rwa",
-    },
-    {
-      id: 8,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "320,000 LKRYPT staked",
-      shares: "42 Shares",
-      image: "/nfts/nft8.png",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "digital asset",
-    },
-    {
-      id: 9,
-      title: "Luxury Villa In Banana Island",
-      location: "Banana Island, Lagos, Nigeria",
-      price: "320,000 LKRYPT staked",
-      shares: "42 Shares",
-      image: "/nfts/nft9.png",
-      tag: "LUXURY VILLA",
-      category: "residential",
-      staking: true,
-      type: "digital asset",
-    },
-  ];
+  // Load NFT data from database
+  const nftItems = marketplaceData.map(item => ({
+    ...item,
+    // Use tokenURI for images, fallback to image field if needed
+    image: item.tokenURI || item.tokenUrl || item.image,
+    // Format price for display
+    price: `${parseFloat(item.price).toLocaleString()} LKRYPT staked`,
+    // Add staking contract address (this should come from your contract deployment data)
+    stakingContract: item.stakingContract || "0x742d35Cc6634C0532925a3b8D5C90bdb9B11223a", // Replace with actual contract address
+  }));
 
   // Filter and search logic
   const filteredItems = useMemo(() => {
@@ -277,18 +234,31 @@ const NFTMarketplace = () => {
 
   const NFTCard = ({ item }) => {
     const [showVoteModal, setShowVoteModal] = useState(false);
+    const { address, isConnected } = useAccount();
+    const { connect, connectors } = useConnect();
 
     const handleButtonClick = (e, action) => {
       e.stopPropagation(); // Prevent the card click from firing
       if (action === "like") {
         toggleLike(item.id);
       } else if (action === "share") {
-        // Handle share action
-        alert("share pop up");
-      } else if (action === "vote") {
-        // Show the voting modal you uploaded
-        // You'll need to implement this modal component
-        // alert("modal pop up");
+        // Handle share action - copy property link to clipboard
+        const propertyUrl = `${window.location.origin}/marketplace/property/${item.id}`;
+        navigator.clipboard.writeText(propertyUrl).then(() => {
+          alert("Property link copied to clipboard!");
+        }).catch(() => {
+          alert("Failed to copy link");
+        });
+      } else if (action === "stake") {
+        // Check wallet connection before showing modal
+        if (!isConnected) {
+          // Auto-connect if not connected
+          const connector = connectors[0];
+          if (connector) {
+            connect({ connector });
+          }
+          return;
+        }
         setShowVoteModal(true);
       }
     };
@@ -299,11 +269,18 @@ const NFTMarketplace = () => {
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group cursor-pointer">
             <div className="relative overflow-hidden">
               <div className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover"
-                />
+              <img
+                src={item.image.startsWith('ipfs://') ? 
+                  `https://ipfs.io/ipfs/${item.image.replace('ipfs://', '')}` : 
+                  item.image
+                }
+                alt={item.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to placeholder if IPFS image fails
+                  e.target.src = '/nfts/placeholder.jpg';
+                }}
+              />
               </div>
               <div className="absolute top-3 left-3">
                 <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -347,10 +324,10 @@ const NFTMarketplace = () => {
                 </div>
               </div>
               <button
-                onClick={(e) => handleButtonClick(e, "vote")}
+                onClick={(e) => handleButtonClick(e, "stake")}
                 className="w-full z-10 relative"
               >
-                <GradientButton>Start Staking</GradientButton>
+                <GradientButton>{!isConnected ? "Connect & Stake" : "Start Staking"}</GradientButton>
               </button>
             </div>
           </div>
@@ -378,9 +355,34 @@ const NFTMarketplace = () => {
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-orange-200 to-orange-400 bg-clip-text text-transparent">
             NFT Marketplace
           </h1>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-xl text-gray-300 mb-4">
             Explore, buy, and stake on verified land NFTs
           </p>
+          
+          {/* Wallet Connection Status */}
+          <div className="mb-8">
+            {isConnected ? (
+              <div className="flex items-center justify-center gap-2 text-green-400">
+                <Wallet className="w-5 h-5" />
+                <span className="text-sm">
+                  Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  const connector = connectors[0];
+                  if (connector) {
+                    connect({ connector });
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+              >
+                <Wallet className="w-4 h-4" />
+                Connect Wallet to Start Staking
+              </button>
+            )}
+          </div>
 
           <div className="relative max-w-2xl mx-auto">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

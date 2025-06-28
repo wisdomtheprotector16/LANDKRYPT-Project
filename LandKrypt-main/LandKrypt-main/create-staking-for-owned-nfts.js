@@ -4,6 +4,7 @@ const hre = require("hardhat");
 const { ethers } = hre;
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // Default configuration (can be overridden via command line arguments)
 const DEFAULT_CONFIG = {

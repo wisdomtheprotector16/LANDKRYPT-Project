@@ -125,7 +125,7 @@ export function useContractOperations() {
       const hash = await writeContract({
         address: stakingContractAddress,
         abi: ABIS.NFT_STAKING_ABI,
-        functionName: 'withdraw',
+        functionName: 'withdrawStake',
         args: [],
       });
       
@@ -149,7 +149,7 @@ export function useContractOperations() {
       const hash = await writeContract({
         address: stakingContractAddress,
         abi: ABIS.NFT_STAKING_ABI,
-        functionName: 'claimRewards',
+        functionName: 'claimDailyRewards',
         args: [],
       });
       
@@ -212,11 +212,88 @@ export function useContractOperations() {
     }
   }, [writeContract, isConnected]);
 
+  // Exchange Operations
+  const swapETHForLKUSD = useCallback(async (ethAmount) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return { success: false, error: 'Wallet not connected' };
+    }
+
+    try {
+      const hash = await writeContract({
+        address: CONTRACT_ADDRESSES.EXCHANGE,
+        abi: ABIS.EXCHANGE_ABI,
+        functionName: 'swapETHForLKUSD',
+        value: parseEther(ethAmount.toString()),
+      });
+      
+      setPendingTx(hash);
+      toast.success('ETH to LKUSD swap transaction sent!');
+      return { success: true, hash };
+    } catch (error) {
+      console.error('Swap ETH for LKUSD error:', error);
+      const errorMessage = error.message || 'Failed to swap ETH for LKUSD';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  }, [writeContract, isConnected]);
+
+  const swapERC20ForLKUSD = useCallback(async (tokenAddress, amount) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return { success: false, error: 'Wallet not connected' };
+    }
+
+    try {
+      const hash = await writeContract({
+        address: CONTRACT_ADDRESSES.EXCHANGE,
+        abi: ABIS.EXCHANGE_ABI,
+        functionName: 'swapERC20ForLKUSD',
+        args: [tokenAddress, parseEther(amount.toString())],
+      });
+      
+      setPendingTx(hash);
+      toast.success('ERC20 to LKUSD swap transaction sent!');
+      return { success: true, hash };
+    } catch (error) {
+      console.error('Swap ERC20 for LKUSD error:', error);
+      const errorMessage = error.message || 'Failed to swap ERC20 for LKUSD';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  }, [writeContract, isConnected]);
+
+  const burnLKUSDForETH = useCallback(async (lkusdAmount) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return { success: false, error: 'Wallet not connected' };
+    }
+
+    try {
+      // First approve LKUSD to be burned
+      const approveHash = await writeContract({
+        address: CONTRACT_ADDRESSES.LANDKRYPT_STABLECOIN,
+        abi: ABIS.LANDKRYPT_STABLECOIN_ABI,
+        functionName: 'approve',
+        args: [CONTRACT_ADDRESSES.EXCHANGE, parseEther(lkusdAmount.toString())],
+      });
+      
+      // Wait for approval to be confirmed before proceeding with burn
+      toast.success('LKUSD approval sent! Please wait for confirmation before burning.');
+      return { success: true, hash: approveHash, requiresSecondStep: true };
+    } catch (error) {
+      console.error('Approve LKUSD for burn error:', error);
+      const errorMessage = error.message || 'Failed to approve LKUSD for burning';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  }, [writeContract, isConnected]);
+
   // Token Operations
   const approveToken = useCallback(async (tokenAddress, spender, amount) => {
     if (!isConnected) {
       toast.error('Please connect your wallet');
-      return;
+      return { success: false, error: 'Wallet not connected' };
     }
 
     try {
@@ -229,11 +306,12 @@ export function useContractOperations() {
       
       setPendingTx(hash);
       toast.success('Approval transaction sent!');
-      return hash;
+      return { success: true, hash };
     } catch (error) {
       console.error('Approve token error:', error);
-      toast.error(error.message || 'Failed to approve token');
-      throw error;
+      const errorMessage = error.message || 'Failed to approve token';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   }, [writeContract, isConnected]);
 
@@ -265,6 +343,11 @@ export function useContractOperations() {
 
     // Token Operations
     approveToken,
+
+    // Exchange Operations
+    swapETHForLKUSD,
+    swapERC20ForLKUSD,
+    burnLKUSDForETH,
 
     // Utilities
     parseEther,

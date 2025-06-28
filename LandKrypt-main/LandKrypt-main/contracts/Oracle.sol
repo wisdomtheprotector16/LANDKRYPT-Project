@@ -20,6 +20,8 @@ contract Oracle {
     function convertETHToUSD(uint256 ethAmount) public view returns (uint256) {
         int256 ethPrice = getLatestETHPrice();
         require(ethPrice > 0, "Invalid price feed");
-        return (ethAmount * uint256(ethPrice)) / 1e18;
+        // ETH price feed has 8 decimals, ETH amount is in wei (18 decimals)
+        // Result in USD with 18 decimals: (ethAmount * ethPrice) / 1e8
+        return (ethAmount * uint256(ethPrice)) / 1e8;
     }
 }

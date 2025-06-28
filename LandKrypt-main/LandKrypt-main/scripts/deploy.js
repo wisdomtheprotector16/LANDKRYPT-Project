@@ -9,8 +9,8 @@ const DEPLOY_CONFIG = {
   NETWORK: {
     CHAINLINK_FEED: "0x694AA1769357215DE4FAC081bf1f309aDC325306", // ETH/USD Sepolia
     GAS_SETTINGS: {
-      maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      maxPriorityFeePerGas: ethers.utils.parseUnits("2", "gwei")
+      maxFeePerGas: ethers.parseUnits("50", "gwei"),
+      maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
     }
   },
   
@@ -20,10 +20,10 @@ const DEPLOY_CONFIG = {
     DAO: {
       VOTING_PERIOD: 604800, // 7 days
       QUORUM_PERCENT: 30, // 30%
-      DEVELOPER_FEE_ETH: ethers.utils.parseEther("0.1")
+      DEVELOPER_FEE_ETH: ethers.parseEther("0.1")
     },
     NFT: {
-      BASE_URI: "https://gateway.pinata.cloud/ipfs/",
+      BASE_URI: "ipfs://",
       MINT_SAFETY_LIMIT: 1000 // Max NFTs that can be minted
     }
   }
@@ -32,7 +32,7 @@ const DEPLOY_CONFIG = {
 async function main() {
   const [deployer] = await ethers.getSigners();
   console.log(`\n🚀 Beginning LandKrypt deployment with ${deployer.address}\n`);
-  console.log(`💰 Deployer balance: ${ethers.utils.formatEther(await deployer.getBalance())} ETH\n`);
+  console.log(`💰 Deployer balance: ${ethers.formatEther(await deployer.provider.getBalance(deployer.address))} ETH\n`);
 
   /********************************
    * PHASE 1: CORE INFRASTRUCTURE *
@@ -42,34 +42,34 @@ async function main() {
   // Deploy Stablecoin Ecosystem
   const LKUSD = await ethers.getContractFactory("LandKryptStablecoin");
   const lkusd = await LKUSD.deploy();
-  await lkusd.deployed();
-  console.log(`✅ LKUSD deployed to: ${lkusd.address}`);
+  await lkusd.waitForDeployment();
+  console.log(`✅ LKUSD deployed to: ${await lkusd.getAddress()}`);
   
   const LKST = await ethers.getContractFactory("LandKryptStakingToken");
   const lkst = await LKST.deploy();
-  await lkst.deployed();
-  console.log(`✅ LKST deployed to: ${lkst.address}`);
+  await lkst.waitForDeployment();
+  console.log(`✅ LKST deployed to: ${await lkst.getAddress()}`);
 
   // Deploy NFT Infrastructure
   const RealEstateNFT = await ethers.getContractFactory("RealEstateNFT");
   const realEstateNFT = await RealEstateNFT.deploy(DEPLOY_CONFIG.PROTOCOL.NFT.BASE_URI);
-  await realEstateNFT.deployed();
-  console.log(`✅ RealEstateNFT deployed to: ${realEstateNFT.address}`);
+  await realEstateNFT.waitForDeployment();
+  console.log(`✅ RealEstateNFT deployed to: ${await realEstateNFT.getAddress()}`);
 
   // Deploy Financial Infrastructure
   const Oracle = await ethers.getContractFactory("Oracle");
   const oracle = await Oracle.deploy(DEPLOY_CONFIG.NETWORK.CHAINLINK_FEED);
-  await oracle.deployed();
-  console.log(`✅ Oracle deployed to: ${oracle.address}`);
+  await oracle.waitForDeployment();
+  console.log(`✅ Oracle deployed to: ${await oracle.getAddress()}`);
 
   const Exchange = await ethers.getContractFactory("Exchange");
   const exchange = await Exchange.deploy(
-    lkusd.address,
-    oracle.address,
+    await lkusd.getAddress(),
+    await oracle.getAddress(),
     DEPLOY_CONFIG.PROTOCOL.EXCHANGE_FEE_BPS
   );
-  await exchange.deployed();
-  console.log(`✅ Exchange deployed to: ${exchange.address}`);
+  await exchange.waitForDeployment();
+  console.log(`✅ Exchange deployed to: ${await exchange.getAddress()}`);
 
   /*************************************
    * PHASE 2: OPERATIONAL COMPONENTS *
@@ -79,30 +79,30 @@ async function main() {
   // Deploy Marketplace with temporary DAO address
   const NFTMarketplace = await ethers.getContractFactory("NFTMarketplace");
   const marketplace = await NFTMarketplace.deploy(
-    realEstateNFT.address,
-    lkusd.address,
-    ethers.constants.AddressZero // Temporary DAO placeholder
+    await realEstateNFT.getAddress(),
+    await lkusd.getAddress(),
+    ethers.ZeroAddress // Temporary DAO placeholder
   );
-  await marketplace.deployed();
-  console.log(`✅ NFTMarketplace deployed to: ${marketplace.address}`);
+  await marketplace.waitForDeployment();
+  console.log(`✅ NFTMarketplace deployed to: ${await marketplace.getAddress()}`);
 
   // Deploy Development Contract
   const DevelopmentContract = await ethers.getContractFactory("DevelopmentContract");
   const devContract = await DevelopmentContract.deploy();
-  await devContract.deployed();
-  console.log(`✅ DevelopmentContract deployed to: ${devContract.address}`);
+  await devContract.waitForDeployment();
+  console.log(`✅ DevelopmentContract deployed to: ${await devContract.getAddress()}`);
 
   // Deploy Staking Factory
   const StakingFactory = await ethers.getContractFactory("StakingFactory");
   const stakingFactory = await StakingFactory.deploy(
-    marketplace.address,
-    lkusd.address,
-    lkst.address,
-    realEstateNFT.address,
-    devContract.address
+    await marketplace.getAddress(),
+    await lkusd.getAddress(),
+    await lkst.getAddress(),
+    await realEstateNFT.getAddress(),
+    await devContract.getAddress()
   );
-  await stakingFactory.deployed();
-  console.log(`✅ StakingFactory deployed to: ${stakingFactory.address}`);
+  await stakingFactory.waitForDeployment();
+  console.log(`✅ StakingFactory deployed to: ${await stakingFactory.getAddress()}`);
 
   /******************************
    * PHASE 3: GOVERNANCE LAYER *
@@ -112,16 +112,16 @@ async function main() {
   // Deploy DAO with full dependencies
   const NFTDAO = await ethers.getContractFactory("NFTDAO");
   const nftDAO = await NFTDAO.deploy(
-    lkst.address,
-    marketplace.address,
-    devContract.address,
-    stakingFactory.address,
+    await lkst.getAddress(),
+    await marketplace.getAddress(),
+    await devContract.getAddress(),
+    await stakingFactory.getAddress(),
     DEPLOY_CONFIG.PROTOCOL.DAO.VOTING_PERIOD,
     DEPLOY_CONFIG.PROTOCOL.DAO.QUORUM_PERCENT,
     DEPLOY_CONFIG.PROTOCOL.DAO.DEVELOPER_FEE_ETH
   );
-  await nftDAO.deployed();
-  console.log(`✅ NFTDAO deployed to: ${nftDAO.address}`);
+  await nftDAO.waitForDeployment();
+  console.log(`✅ NFTDAO deployed to: ${await nftDAO.getAddress()}`);
 
   /*******************************
    * PHASE 4: SYSTEM INTEGRATION *
@@ -130,7 +130,7 @@ async function main() {
 
   // 1. Update Marketplace DAO reference
   console.log("🔄 Updating Marketplace DAO address...");
-  const updateDAOTx = await marketplace.changeDAOAddress(nftDAO.address);
+  const updateDAOTx = await marketplace.changeDAOAddress(await nftDAO.getAddress());
   await updateDAOTx.wait();
 
   // 2. Set Contract Permissions
@@ -163,10 +163,10 @@ async function main() {
   console.log("\n🔍 Verifying Deployment...");
   
   const verificationResults = {
-    DAO_ADDRESS_SET: await marketplace.nftDAO() === nftDAO.address,
+    DAO_ADDRESS_SET: await marketplace.nftDAO() === await nftDAO.getAddress(),
     MINT_PERMISSIONS: {
-      STAKING_FACTORY_LKUSD: await lkusd.isMinter(stakingFactory.address),
-      EXCHANGE_LKUSD: await lkusd.isMinter(exchange.address)
+      STAKING_FACTORY_LKUSD: await lkusd.isMinter(await stakingFactory.getAddress()),
+      EXCHANGE_LKUSD: await lkusd.isMinter(await exchange.getAddress())
     }
   };
 
@@ -181,19 +181,19 @@ async function main() {
     deployer: deployer.address,
     contracts: {
       CORE: {
-        LKUSD: lkusd.address,
-        LKST: lkst.address,
-        RealEstateNFT: realEstateNFT.address,
-        Oracle: oracle.address,
-        Exchange: exchange.address
+        LKUSD: await lkusd.getAddress(),
+        LKST: await lkst.getAddress(),
+        RealEstateNFT: await realEstateNFT.getAddress(),
+        Oracle: await oracle.getAddress(),
+        Exchange: await exchange.getAddress()
       },
       OPERATIONAL: {
-        Marketplace: marketplace.address,
-        StakingFactory: stakingFactory.address,
-        DevelopmentContract: devContract.address
+        Marketplace: await marketplace.getAddress(),
+        StakingFactory: await stakingFactory.getAddress(),
+        DevelopmentContract: await devContract.getAddress()
       },
       GOVERNANCE: {
-        DAO: nftDAO.address
+        DAO: await nftDAO.getAddress()
       }
     }
   };
@@ -224,15 +224,28 @@ async function configurePermissions({ lkusd, lkst, exchange, stakingFactory, nft
   console.log("Setting up minting permissions...");
   
   // Stablecoin permissions
-  await lkusd.addMinter(exchange.address);
-  await lkusd.addMinter(stakingFactory.address);
-  await lkusd.addBurner(stakingFactory.address);
+  console.log("   Adding Exchange as LKUSD minter...");
+  const tx1 = await lkusd.addMinter(await exchange.getAddress());
+  await tx1.wait();
+  
+  console.log("   Adding StakingFactory as LKUSD minter...");
+  const tx2 = await lkusd.addMinter(await stakingFactory.getAddress());
+  await tx2.wait();
+  
+  console.log("   Adding StakingFactory as LKUSD burner...");
+  const tx3 = await lkusd.addBurner(await stakingFactory.getAddress());
+  await tx3.wait();
 
   // Staking token permissions
-  await lkst.addMinter(stakingFactory.address);
-  await lkst.addBurner(nftDAO.address);
+  console.log("   Adding StakingFactory as LKST minter...");
+  const tx4 = await lkst.addMinter(await stakingFactory.getAddress());
+  await tx4.wait();
   
-  console.log("✅ Permissions configured");
+  console.log("   Adding DAO as LKST burner...");
+  const tx5 = await lkst.addBurner(await nftDAO.getAddress());
+  await tx5.wait();
+  
+  console.log("✅ All permissions configured successfully");
 }
 
 async function transferOwnerships({ contracts, newOwner }) {

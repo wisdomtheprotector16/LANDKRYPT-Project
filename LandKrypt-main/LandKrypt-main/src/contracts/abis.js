@@ -9,14 +9,14 @@ export const NFT_STAKING_ABI = [
   },
   {
     "inputs": [],
-    "name": "withdraw",
+    "name": "withdrawStake",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "claimRewards",
+    "name": "claimDailyRewards",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -52,6 +52,16 @@ export const NFT_STAKING_ABI = [
   {
     "inputs": [],
     "name": "returnTokenId",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "owner", "type": "address"},
+      {"internalType": "address", "name": "spender", "type": "address"}
+    ],
+    "name": "allowance",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
@@ -252,6 +262,41 @@ export const LANDKRYPT_STAKING_TOKEN_ABI = [
   }
 ];
 
+// Exchange Contract ABI
+export const EXCHANGE_ABI = [
+  {
+    "inputs": [],
+    "name": "swapETHForLKUSD",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "erc20Token", "type": "address"},
+      {"internalType": "uint256", "name": "erc20Amount", "type": "uint256"}
+    ],
+    "name": "swapERC20ForLKUSD",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "feeRate",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "newFeeRate", "type": "uint256"}],
+    "name": "updateFeeRate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
 export const LANDKRYPT_STABLECOIN_ABI = [
   {
     "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
@@ -269,6 +314,26 @@ export const LANDKRYPT_STABLECOIN_ABI = [
     "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "to", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "from", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ];
 
@@ -279,5 +344,7 @@ export const CONTRACT_ADDRESSES = {
   LANDKRYPT_STAKING_TOKEN: process.env.NEXT_PUBLIC_LANDKRYPT_STAKING_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000',
   NFT_MARKETPLACE: process.env.NEXT_PUBLIC_NFT_MARKETPLACE_ADDRESS || '0x0000000000000000000000000000000000000000',
   NFT_DAO: process.env.NEXT_PUBLIC_NFT_DAO_ADDRESS || '0x0000000000000000000000000000000000000000',
-  STAKING_FACTORY: process.env.NEXT_PUBLIC_STAKING_FACTORY_ADDRESS || '0x0000000000000000000000000000000000000000'
+  STAKING_FACTORY: process.env.NEXT_PUBLIC_STAKING_FACTORY_ADDRESS || '0x0000000000000000000000000000000000000000',
+  EXCHANGE: process.env.NEXT_PUBLIC_EXCHANGE_ADDRESS || '0x0000000000000000000000000000000000000000',
+  ORACLE: process.env.NEXT_PUBLIC_ORACLE_ADDRESS || '0x0000000000000000000000000000000000000000'
 };
