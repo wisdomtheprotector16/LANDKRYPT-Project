@@ -1,3 +1,5 @@
+"use client"
+
 import CTA from "@/components/CTA";
 import FAQ from "@/components/FAQ";
 import Features from "@/components/Features";
@@ -16,7 +18,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 export default function Home() {
   return (
     // <div className="text-red-700 overflow-y-scroll h-screen flex flex-col">
-    <div className="bg-black text-white relative">
+    <div className="bg-black text-white relative overflow-x-hidden">
       {/* <LandKryptLanding/> */}
       <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 my-3 px-5">
         <Header />

@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "./GradientButton";
+import Link from "next/link";
 
 export default function CTA() {
   return (
@@ -35,18 +36,20 @@ export default function CTA() {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <div className="flex flex-col items-stretch gap-2 md:flex-row md:items-center">
-            <GradientButton>Verify My Land</GradientButton>
-            <GradientButton className="border border-amber-500 " gradientFrom="" gradientTo="">
-              Verify My Land
-            </GradientButton>
+            {/* 4 */}
+            <Link href="/anthos">
+              <GradientButton>Verify My Land</GradientButton>
+            </Link>
+            <Link href="/marketplace">
+              <GradientButton
+                className="border border-amber-500 text-sm"
+                gradientFrom=""
+                gradientTo=""
+              >
+                Explore Properties
+              </GradientButton>
+            </Link>
           </div>
-          {/* <Button 
-            variant="outline"
-            className="border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-8 py-3 text-lg font-semibold rounded-md transition-all duration-200 transform hover:scale-105 bg-transparent"
-            size="lg"
-          >
-            Explore Properties
-          </Button> */}
         </div>
       </div>
 

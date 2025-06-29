@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import "./Marketplace.css";
 import {
   Search,
   Filter,
@@ -19,6 +20,8 @@ import {
   X,
   ShieldQuestion,
   Loader2,
+  TrendingUp,
+  Clock,
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -35,15 +38,31 @@ import { useMarketplaceMetadata } from "@/hooks/useNftMetadata";
 import {
   useUserActiveStakes,
   useNftAnalytics,
+  useUserNftData,
 } from "@/hooks/useDatabaseActions";
 import marketplaceData from "../../../data/marketplace-listings.json";
+// test
+// import { useAccount, useBalance, useReadContract } from 'wagmi';
+import { useContractReads } from "@/hooks/useContractOperations";
+// import { useDatabaseActions, , useNftAnalytics } from '@/hooks/useDatabaseActions';
+import { NFT_STAKING_ABI, LANDKRYPT_STABLECOIN_ABI } from "@/contracts/abis";
+import { parseEther, formatEther } from "viem";
+import { toast } from "react-hot-toast";
+import {
+  parseContractError,
+  handleTransactionError,
+  validateStakingParams,
+  formatTxHash,
+  getEtherscanUrl,
+  formatBalance as formatBalanceUtil,
+} from "@/utils/errorHandling";
 
 // Hook to get staking contract address for an NFT
 const useStakingContractAddress = (tokenId) => {
   const { data: stakingContract } = useReadContract({
     address: CONTRACT_ADDRESSES.STAKING_FACTORY,
     abi: STAKING_FACTORY_ABI,
-    functionName: 'getStakingContractForNFT',
+    functionName: "getStakingContractForNFT",
     args: tokenId ? [tokenId] : undefined,
     query: {
       enabled: !!tokenId,
@@ -51,8 +70,9 @@ const useStakingContractAddress = (tokenId) => {
     },
   });
 
-  return stakingContract && stakingContract !== '0x0000000000000000000000000000000000000000' 
-    ? stakingContract 
+  return stakingContract &&
+    stakingContract !== "0x0000000000000000000000000000000000000000"
+    ? stakingContract
     : null;
 };
 
@@ -66,16 +86,31 @@ const NFTMarketplace = () => {
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
-  
+
+  // should delete
+  const [stakeAmount, setStakeAmount] = useState("");
+
+  const stakingContractAddress =
+    process.env.NEXT_PUBLIC_LANDKRYPT_STAKING_TOKEN_ADDRESS;
+
+  // const [stakingStage, setStakingStage] = useState("input"); // 'input', 'approving', 'staking', 'success', 'error'
+  // const [showSettings, setShowSettings] = useState(false);
+  // const [maxSlippage, setMaxSlippage] = useState(1.0); // 1% default
+  // const [deadline, setDeadline] = useState(20); // 20 minutes default
+  // const [stakingError, setStakingError] = useState(null);
+  // const [txHash, setTxHash] = useState(null);
+  // const [currentStep, setCurrentStep] = useState(1); // 1: Approve, 2: Stake
+  // const [approvalTxHash, setApprovalTxHash] = useState(null);
+
   // Handle client-side mounting
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  
+
   // Wallet and contract integration - always call hooks
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
-  
+
   // Use mounted state to determine when to actually use the values
   const safeAddress = isMounted ? address : null;
   const safeIsConnected = isMounted ? isConnected : false;
@@ -87,6 +122,125 @@ const NFTMarketplace = () => {
     { value: "rwa", label: "RWA" },
     { value: "digital asset", label: "Digital Asset" },
   ];
+  // Read staking contract data
+  const { data: totalStaked } = useReadContract({
+    address: stakingContractAddress,
+    abi: NFT_STAKING_ABI,
+    functionName: "totalStaked",
+    query: {
+      refetchInterval: 10000,
+    },
+  });
+
+  const { data: targetAmount } = useReadContract({
+    address: stakingContractAddress,
+    abi: NFT_STAKING_ABI,
+    functionName: "targetAmount",
+    query: {
+      refetchInterval: 30000,
+    },
+  });
+
+  const { data: stakerInfo } = useReadContract({
+    address: stakingContractAddress,
+    abi: NFT_STAKING_ABI,
+    functionName: "stakers",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && !!stakingContractAddress,
+      refetchInterval: 10000,
+    },
+  });
+
+  const { data: earnedRewards } = useReadContract({
+    address: stakingContractAddress,
+    abi: NFT_STAKING_ABI,
+    functionName: "getTotalClaimableRewards",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && !!stakingContractAddress,
+      refetchInterval: 10000,
+    },
+  });
+
+  const { data: currentAllowance } = useReadContract({
+    address: CONTRACT_ADDRESSES.LANDKRYPT_STABLECOIN,
+    abi: LANDKRYPT_STABLECOIN_ABI,
+    functionName: "allowance",
+    args: address ? [address, stakingContractAddress] : undefined,
+    query: {
+      enabled: !!address && !!stakingContractAddress,
+      refetchInterval: 5000,
+    },
+  });
+
+  // Calculate staking metrics
+  const stakingMetrics = useMemo(() => {
+    const totalStakedFormatted = totalStaked
+      ? parseFloat(formatEther(totalStaked))
+      : 0;
+    const targetAmountFormatted = targetAmount
+      ? parseFloat(formatEther(targetAmount))
+      : 0;
+    const userStakedFormatted = stakerInfo
+      ? parseFloat(formatEther(stakerInfo[0]))
+      : 0; // amount is first in tuple
+    const earnedRewardsFormatted = earnedRewards
+      ? parseFloat(formatEther(earnedRewards))
+      : 0;
+    const currentAllowanceFormatted = currentAllowance
+      ? parseFloat(formatEther(currentAllowance))
+      : 0;
+
+    const progressPercentage =
+      targetAmountFormatted > 0
+        ? (totalStakedFormatted / targetAmountFormatted) * 100
+        : 0;
+    const remainingAmount = Math.max(
+      0,
+      targetAmountFormatted - totalStakedFormatted
+    );
+
+    // Calculate APR (0.05% daily = 18.25% annual)
+    const dailyRate = 0.0005; // 0.05%
+    const annualRate = dailyRate * 365 * 100; // Convert to percentage
+
+    // Calculate potential rewards for entered amount
+    const stakeAmountNum = parseFloat(stakeAmount) || 0;
+    const dailyRewards = stakeAmountNum * dailyRate;
+    const monthlyRewards = dailyRewards * 30;
+    const annualRewards = stakeAmountNum * (annualRate / 100);
+
+    // Calculate completion bonus (110% of staked amount)
+    const completionBonus = stakeAmountNum * 1.1;
+
+    return {
+      totalStaked: totalStakedFormatted,
+      targetAmount: targetAmountFormatted,
+      userStaked: userStakedFormatted,
+      earnedRewards: earnedRewardsFormatted,
+      currentAllowance: currentAllowanceFormatted,
+      progressPercentage: Math.min(progressPercentage, 100),
+      remainingAmount,
+      annualRate,
+      dailyRewards,
+      monthlyRewards,
+      annualRewards,
+      completionBonus,
+      isCompleted: progressPercentage >= 100,
+      needsApproval: currentAllowanceFormatted < stakeAmountNum,
+    };
+  }, [
+    totalStaked,
+    targetAmount,
+    stakerInfo,
+    earnedRewards,
+    currentAllowance,
+    stakeAmount,
+  ]);
+  const formatBalance = (amount) => {
+    return formatBalanceUtil(amount);
+  };
 
   // Load NFT data from database and process IPFS metadata
   const { processedItems, isProcessing } =
@@ -106,7 +260,9 @@ const NFTMarketplace = () => {
       image: item.processedImageUrl || item.image,
       originalImageUrl: item.processedImageUrl || item.image,
       // Format price for display
-      price: `${parseFloat(item.originalPrice || item.price || 0).toLocaleString()} LKUSD target`,
+      price: `${parseFloat(
+        item.originalPrice || item.price || 0
+      ).toLocaleString()} LKUSD target`,
       // Use the staking contract from data or resolve it dynamically
       stakingContract: item.stakingContract,
       // Add user stake information
@@ -114,27 +270,30 @@ const NFTMarketplace = () => {
       hasUserStake: !!userStake,
       userStakeDate: userStake ? userStake.created_at : null,
       // Add token ID for contract resolution
-      tokenId: item.tokenId || item.id
+      tokenId: item.tokenId || item.id,
     };
   });
 
   // Filter and search logic
   const filteredItems = useMemo(() => {
     if (!processedItems || processedItems.length === 0) return [];
-    
+
     let filtered = nftItems;
 
     // Apply type filter - make sure this matches your data structure
     if (activeFilter !== "all") {
-      filtered = filtered.filter((item) => 
-        item.type && item.type.toLowerCase() === activeFilter.toLowerCase()
+      filtered = filtered.filter(
+        (item) =>
+          item.type && item.type.toLowerCase() === activeFilter.toLowerCase()
       );
     }
 
     // Apply search filter
     if (searchQuery.trim()) {
-      filtered = filtered.filter((item) =>
-        item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (item) =>
+          item.title &&
+          item.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -149,7 +308,6 @@ const NFTMarketplace = () => {
       </div>
     );
   }
-
 
   const toggleLike = (id) => {
     const newLiked = new Set(likedItems);
@@ -178,184 +336,360 @@ const NFTMarketplace = () => {
   };
 
   const NFTCard = ({ item }) => {
-    // Always call hooks - use the safe values from parent component
-    const { analytics } = useNftAnalytics(item.id);
-    
-    // Get the actual staking contract address from the factory
+    // Get the staking contract address for this specific NFT
     const dynamicStakingContract = useStakingContractAddress(item.tokenId);
-    
-    // Use dynamic contract address if available, fallback to static data
-    const stakingContractAddress = dynamicStakingContract || item.stakingContract;
+    const stakingContractAddress =
+      dynamicStakingContract || item.stakingContract;
+
+    // Read staking contract data for THIS specific NFT
+    const { data: totalStaked } = useReadContract({
+      address: stakingContractAddress,
+      abi: NFT_STAKING_ABI,
+      functionName: "totalStaked",
+      enabled: !!stakingContractAddress,
+      query: { refetchInterval: 10000 },
+    });
+
+    const { data: targetAmount } = useReadContract({
+      address: stakingContractAddress,
+      abi: NFT_STAKING_ABI,
+      functionName: "targetAmount",
+      enabled: !!stakingContractAddress,
+      query: { refetchInterval: 30000 },
+    });
+
+    // Calculate metrics for THIS NFT
+    const stakingMetrics = useMemo(() => {
+      if (!totalStaked || !targetAmount) return null;
+
+      const totalStakedFormatted = parseFloat(formatEther(totalStaked));
+      const targetAmountFormatted = parseFloat(formatEther(targetAmount));
+      const remainingAmount = Math.max(
+        0,
+        targetAmountFormatted - totalStakedFormatted
+      );
+      const progressPercentage =
+        targetAmountFormatted > 0
+          ? (totalStakedFormatted / targetAmountFormatted) * 100
+          : 0;
+
+      return {
+        totalStaked: totalStakedFormatted,
+        targetAmount: targetAmountFormatted,
+        remainingAmount,
+        progressPercentage: Math.min(progressPercentage, 100),
+        isCompleted: progressPercentage >= 100,
+      };
+    }, [totalStaked, targetAmount]);
+
+    const { analytics } = useNftAnalytics(item.id);
 
     const handleButtonClick = (e, action) => {
-      e.stopPropagation(); // Prevent the card click from firing
+      e.stopPropagation();
+
       if (action === "like") {
         toggleLike(item.id);
       } else if (action === "share") {
-        // Handle share action - copy property link to clipboard
-        // const propertyUrl = `${window.location.origin}/marketplace/property/${item.id}`;
+        const propertyUrl = `${window.location.origin}/marketplace/property/${item.id}`;
         navigator.clipboard
           .writeText(propertyUrl)
-          .then(() => {
-            alert("Property link copied to clipboard!");
-          })
-          .catch(() => {
-            alert("Failed to copy link");
-          });
+          .then(() => alert("Property link copied to clipboard!"))
+          .catch(() => alert("Failed to copy link"));
       } else if (action === "stake") {
-        // Check wallet connection before showing modal
         if (!safeIsConnected) {
-          // Auto-connect if not connected
           const connector = safeConnectors[0];
           if (connector) {
             safeConnect({ connector });
           }
           return;
         }
-        // Set the selected property with the correct staking contract
+
         const propertyWithContract = {
           ...item,
-          stakingContract: stakingContractAddress
+          stakingContract: stakingContractAddress,
         };
         setSelectedProperty(propertyWithContract);
         setShowStakingModal(true);
       }
     };
 
+    const getStakingStatusColor = () => {
+      if (!stakingMetrics) return "text-gray-400";
+      if (stakingMetrics.isCompleted) return "text-emerald-400";
+      if (stakingMetrics.progressPercentage > 75) return "text-amber-400";
+      if (stakingMetrics.progressPercentage > 50) return "text-blue-400";
+      return "text-purple-400";
+    };
+
+    const getProgressBarColor = () => {
+      if (!stakingMetrics) return "from-gray-500 to-gray-600";
+      if (stakingMetrics.isCompleted) return "from-emerald-500 to-green-500";
+      if (stakingMetrics.progressPercentage > 75)
+        return "from-amber-500 to-orange-500";
+      if (stakingMetrics.progressPercentage > 50)
+        return "from-blue-500 to-cyan-500";
+      return "from-purple-500 to-pink-500";
+    };
+
+    const getStakingPriority = () => {
+      if (!stakingMetrics) return null;
+      if (stakingMetrics.isCompleted) return "FUNDED";
+      if (stakingMetrics.progressPercentage > 90) return "URGENT";
+      if (stakingMetrics.progressPercentage > 75) return "PRIORITY";
+      if (stakingMetrics.progressPercentage > 50) return "ACTIVE";
+      return "EARLY STAGE";
+    };
+
+    const getPriorityBadgeStyle = () => {
+      if (!stakingMetrics) return "bg-gray-600 text-gray-200";
+      if (stakingMetrics.isCompleted) return "bg-emerald-600 text-emerald-100";
+      if (stakingMetrics.progressPercentage > 90)
+        return "bg-red-600 text-red-100 animate-pulse";
+      if (stakingMetrics.progressPercentage > 75)
+        return "bg-amber-600 text-amber-100";
+      if (stakingMetrics.progressPercentage > 50)
+        return "bg-blue-600 text-blue-100";
+      return "bg-purple-600 text-purple-100";
+    };
+
     return (
-      <>
-        <div >
-       {/* <Link href={`/marketplace/property/${item.id}`} passHref legacyBehavior> */}
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 group cursor-pointer">
-            <div className="relative overflow-hidden">
-              <IpfsImage
-                src={item.image}
-                alt={item.title}
-                className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800"
-                placeholder="/images/nft-placeholder.jpg"
-                showLoadingSpinner={true}
-              />
-              <div className="absolute top-3 left-3">
-                <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                  {item.tag}
-                </span>
-              </div>
-              <div className="absolute top-3 right-3 flex gap-2">
-                <button
-                  onClick={(e) => handleButtonClick(e, "like")}
-                  className={`p-1.5 rounded-full backdrop-blur-sm transition-all z-10 ${
-                    likedItems.has(item.id)
-                      ? "bg-red-500 text-white"
-                      : "bg-black/30 text-white hover:bg-red-500"
-                  }`}
-                >
-                  <Heart className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={(e) => handleButtonClick(e, "share")}
-                  className="p-1.5 bg-black/30 backdrop-blur-sm rounded-full text-white hover:bg-gray-700 transition-all z-10"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
+      <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 hover:border-orange-500/60 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 group cursor-pointer hover:scale-[1.02] transform">
+        {/* Image Section */}
+        <div className="relative overflow-hidden">
+          <IpfsImage
+            src={item.image}
+            alt={item.title}
+            className="w-full h-48 bg-gradient-to-br from-gray-700 to-gray-800 group-hover:scale-110 transition-transform duration-700"
+            placeholder="/images/nft-placeholder.jpg"
+            showLoadingSpinner={true}
+          />
 
-            <div className="p-5">
-              <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-orange-400 transition-colors">
-                {item.title}
-              </h3>
-              <div className="flex items-center gap-2 text-gray-400 text-sm mb-3">
-                <MapPin className="w-4 h-4" />
-                <span>{item.location}</span>
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-orange-400 font-medium">{item.price}</div>
-                <div className="flex items-center gap-1 text-gray-400 text-sm">
-                  <Users className="w-4 h-4" />
-                  <span>
-                    {analytics?.stakingStats?.totalStakers || 0} stakers
-                  </span>
-                </div>
-              </div>
-
-              {/* User Stake Status */}
-              {item.hasUserStake && (
-                <div className="mb-3 p-2 bg-green-900/20 border border-green-500/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-300 text-sm font-medium">
-                      You staked {item.userStaked.toFixed(2)} LKUSD
-                    </span>
-                  </div>
-                  <div className="text-green-400 text-xs mt-1">
-                    Earning daily rewards
-                  </div>
-                </div>
-              )}
-
-              {/* Staking Progress */}
-              {analytics?.stakingStats && (
-                <div className="mb-3">
-                  <div className="flex justify-between text-xs text-gray-400 mb-1">
-                    <span>Staking Progress</span>
-                    <span>
-                      {analytics.stakingStats.totalStakers} participants
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-1.5">
-                    <div
-                      className="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 rounded-full"
-                      style={{
-                        width: `${Math.min(
-                          (analytics.stakingStats.totalStaked / 1000000) * 100,
-                          100
-                        )}%`,
-                      }}
-                    ></div>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {analytics.stakingStats.totalStaked.toLocaleString()} LKUSD
-                    staked
-                  </div>
-                </div>
-              )}
-              <button
-                onClick={(e) => handleButtonClick(e, "stake")}
-                className="w-full z-10 relative"
-                disabled={!stakingContractAddress}
+          {/* Enhanced Tag with Priority */}
+          <div className="absolute top-3 left-3 flex gap-2">
+            <span className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-lg">
+              {item.tag}
+            </span>
+            {stakingMetrics && (
+              <span
+                className={`text-xs px-2 py-1 rounded-full font-bold ${getPriorityBadgeStyle()}`}
               >
-                <GradientButton>
-                  {!stakingContractAddress 
-                    ? "Staking Contract Not Found"
-                    : !safeIsConnected 
-                    ? "Connect & Stake" 
-                    : "Start Staking"
-                  }
-                </GradientButton>
-              </button>
-              
-              {/* Debug info for staking contract */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Contract: {stakingContractAddress ? 
-                    `${stakingContractAddress.slice(0,8)}...${stakingContractAddress.slice(-6)}` : 
-                    'Not deployed'
-                  }
-                </div>
-              )}
-            </div>
+                {getStakingPriority()}
+              </span>
+            )}
           </div>
+
+          {/* Action Buttons */}
+          <div className="absolute top-3 right-3 flex gap-2">
+            <button
+              onClick={(e) => handleButtonClick(e, "like")}
+              className={`p-2 rounded-full backdrop-blur-md transition-all  shadow-lg hover:scale-110 ${
+                likedItems.has(item.id)
+                  ? "bg-red-500/90 text-white"
+                  : "bg-black/40 text-white hover:bg-red-500/90"
+              }`}
+            >
+              <Heart className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => handleButtonClick(e, "share")}
+              className="p-2 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-gray-700/90 transition-all  shadow-lg hover:scale-110"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </div>
 
-      </>
+        {/* Content Section */}
+        <div className="p-6">
+          <h3 className="text-white font-bold text-xl mb-3 group-hover:text-orange-400 transition-colors line-clamp-1">
+            {item.title}
+          </h3>
+
+          <div className="flex items-center gap-2 text-gray-400 text-sm mb-4">
+            <MapPin className="w-4 h-4 text-orange-400" />
+            <span>{item.location}</span>
+          </div>
+
+          {/* Enhanced Staking Status Overlay */}
+          {stakingMetrics && (
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
+              <div className="bg-black/70 backdrop-blur-md rounded-xl p-3 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    className={`text-sm font-bold ${getStakingStatusColor()}`}
+                  >
+                    {stakingMetrics.isCompleted ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
+                        <span>Fully Funded</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-3 h-3 rounded-full ${
+                            stakingMetrics.progressPercentage > 90
+                              ? "bg-red-400 animate-pulse"
+                              : stakingMetrics.progressPercentage > 75
+                              ? "bg-amber-400"
+                              : stakingMetrics.progressPercentage > 50
+                              ? "bg-blue-400"
+                              : "bg-purple-400"
+                          }`}
+                        ></div>
+                        <span>
+                          {formatBalance(stakingMetrics.remainingAmount)} LKUSD
+                          needed
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-white/90 text-sm font-bold bg-white/20 px-2 py-1 rounded-full">
+                    {stakingMetrics.progressPercentage.toFixed(1)}%
+                  </span>
+                </div>
+
+                {/* Enhanced Progress Bar */}
+                <div className="relative">
+                  <div className="w-full bg-gray-800/80 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`bg-gradient-to-r ${getProgressBarColor()} h-2 rounded-full transition-all duration-1000 ease-out shadow-lg`}
+                      style={{ width: `${stakingMetrics.progressPercentage}%` }}
+                    />
+                  </div>
+                  {/* Progress milestones */}
+                  <div className="absolute top-0 left-1/4 w-0.5 h-2 bg-white/30"></div>
+                  <div className="absolute top-0 left-1/2 w-0.5 h-2 bg-white/30"></div>
+                  <div className="absolute top-0 left-3/4 w-0.5 h-2 bg-white/30"></div>
+                </div>
+
+                {/* Target vs Remaining Quick Stats */}
+                <div className="flex justify-between mt-2 text-xs">
+                  <span className="text-gray-300">
+                    Target:{" "}
+                    <span className="text-white font-medium">
+                      {formatBalance(stakingMetrics.targetAmount)}
+                    </span>
+                  </span>
+                  {!stakingMetrics.isCompleted && (
+                    <span className="text-orange-300">
+                      Need:{" "}
+                      <span className="text-orange-100 font-medium">
+                        {formatBalance(stakingMetrics.remainingAmount)}
+                      </span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Participants Info */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 text-gray-400 text-sm">
+              <Users className="w-4 h-4 text-blue-400" />
+              <span>{analytics?.stakingStats?.totalStakers || 0} stakers</span>
+            </div>
+            {stakingMetrics?.isCompleted && (
+              <div className="flex items-center gap-2 text-emerald-400 text-sm bg-emerald-900/20 px-3 py-1 rounded-full border border-emerald-500/30">
+                <CheckCircle className="w-4 h-4" />
+                <span className="font-medium">Funded</span>
+              </div>
+            )}
+          </div>
+
+          {/* User Stake Status */}
+          {item.hasUserStake && (
+            <div className="mb-4 p-3 bg-gradient-to-r from-emerald-900/30 to-green-900/30 border border-emerald-500/30 rounded-xl">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
+                <span className="text-emerald-300 text-sm font-semibold">
+                  Your Stake: {item.userStaked.toFixed(2)} LKUSD
+                </span>
+              </div>
+              <div className="text-emerald-400 text-xs mt-1 flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
+                Earning daily rewards
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced Staking Button */}
+          <GradientButton
+            onClick={(e) => handleButtonClick(e, "stake")}
+            className=" relative group/btn"
+            disabled={!stakingContractAddress || stakingMetrics?.isCompleted}
+          >
+            <div
+              className={`relative overflow-hidden  font-semibold text-center transition-all duration-300 ${
+                !stakingContractAddress
+                  ? " cursor-not-allowed"
+                  : stakingMetrics?.isCompleted
+                  ? "cursor-not-allowed"
+                  : "   group-hover/btn:scale-105 transform"
+              }`}
+            >
+              {!stakingContractAddress ? (
+                <span className="flex items-center justify-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Contract Not Found
+                </span>
+              ) : stakingMetrics?.isCompleted ? (
+                <span className="flex items-center justify-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Fully Funded
+                </span>
+              ) : !safeIsConnected ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Wallet className="w-4 h-4" />
+                  Connect & Stake
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Stake Now (
+                  {formatBalance(stakingMetrics?.remainingAmount || 20000)}{" "}
+                  needed)
+                </span>
+              )}
+
+              {/* Button shine effect */}
+              {!stakingMetrics?.isCompleted && stakingContractAddress && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+              )}
+            </div>
+          </GradientButton>
+
+          {/* Debug info for staking contract */}
+          {process.env.NODE_ENV === "development" && (
+            <div className="text-xs text-gray-500 mt-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/30">
+              <div className="font-mono">
+                Contract:{" "}
+                {stakingContractAddress
+                  ? `${stakingContractAddress.slice(
+                      0,
+                      8
+                    )}...${stakingContractAddress.slice(-6)}`
+                  : "Not deployed"}
+              </div>
+              {stakingMetrics && (
+                <div className="mt-1 font-mono">
+                  Progress: {stakingMetrics.progressPercentage.toFixed(2)}% |
+                  Remaining: {formatBalance(stakingMetrics.remainingAmount)} |
+                  Target: {formatBalance(stakingMetrics.targetAmount)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     );
   };
-
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-[#07000b] via-[#06000b] to-black overflow-x-hidden">
+    <main className="min-h-screen bg-gradient-to-b from-neutral-900 via-neutral-900 to-black overflow-x-hidden text-white relative">
       {/* Header */}
-      <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 my-3 px-5">
+      <div className="max-w-7xl mx-auto absolute top-0 left-0 right-0 z-50 px-5 py-3 backdrop-blur-md bg-opacity-80">
         <Header />
       </div>
 
@@ -375,7 +709,8 @@ const NFTMarketplace = () => {
               <div className="flex items-center justify-center gap-2 text-green-400">
                 <Wallet className="w-5 h-5" />
                 <span className="text-sm">
-                  Connected: {safeAddress?.slice(0, 6)}...{safeAddress?.slice(-4)}
+                  Connected: {safeAddress?.slice(0, 6)}...
+                  {safeAddress?.slice(-4)}
                 </span>
               </div>
             ) : (
@@ -386,7 +721,7 @@ const NFTMarketplace = () => {
                     safeConnect({ connector });
                   }
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:to-pink-500 text-white rounded-full shadow-lg transform transition-transform hover:-translate-y-1"
               >
                 <Wallet className="w-4 h-4" />
                 Connect Wallet to Start Staking
@@ -443,7 +778,7 @@ const NFTMarketplace = () => {
                 </GradientButton>
 
                 {isFilterDropdownOpen && (
-                  <div className="absolute top-full mt-2 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-10 min-w-[150px]">
+                  <div className="absolute top-full mt-2 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl  min-w-[150px]">
                     {filterOptions.map((option) => (
                       <button
                         key={option.value}
@@ -481,7 +816,7 @@ const NFTMarketplace = () => {
                 </button>
 
                 {isFilterDropdownOpen && (
-                  <div className="absolute top-full mt-2 left-0 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-10">
+                  <div className="absolute top-full mt-2 left-0 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl ">
                     {filterOptions.map((option) => (
                       <button
                         key={option.value}
@@ -550,29 +885,29 @@ const NFTMarketplace = () => {
 
           {/* Pagination - Only show if we have items */}
           {
-          // filteredItems.length > 0 && (
-          //   <div className="flex items-center justify-center gap-2">
-          //     <button className="p-2 text-gray-400 hover:text-white transition-colors">
-          //       <ChevronDown className="w-5 h-5 rotate-90" />
-          //     </button>
-          //     {/* {[1, 2, 3, 4, 5, 6].map((page) => (
-          //       <button
-          //         key={page}
-          //         onClick={() => setCurrentPage(page)}
-          //         className={`w-10 h-10 rounded-lg font-medium transition-all ${
-          //           currentPage === page
-          //             ? "bg-orange-500 text-white"
-          //             : "bg-gray-800/50 text-gray-300 hover:bg-gray-700 hover:text-white"
-          //         }`}
-          //       >
-          //         {page}
-          //       </button>
-          //     ))} */}
-          //     <button className="p-2 text-gray-400 hover:text-white transition-colors">
-          //       <ChevronDown className="w-5 h-5 -rotate-90" />
-          //     </button>
-          //   </div>
-          // )
+            // filteredItems.length > 0 && (
+            //   <div className="flex items-center justify-center gap-2">
+            //     <button className="p-2 text-gray-400 hover:text-white transition-colors">
+            //       <ChevronDown className="w-5 h-5 rotate-90" />
+            //     </button>
+            //     {/* {[1, 2, 3, 4, 5, 6].map((page) => (
+            //       <button
+            //         key={page}
+            //         onClick={() => setCurrentPage(page)}
+            //         className={`w-10 h-10 rounded-lg font-medium transition-all ${
+            //           currentPage === page
+            //             ? "bg-orange-500 text-white"
+            //             : "bg-gray-800/50 text-gray-300 hover:bg-gray-700 hover:text-white"
+            //         }`}
+            //       >
+            //         {page}
+            //       </button>
+            //     ))} */}
+            //     <button className="p-2 text-gray-400 hover:text-white transition-colors">
+            //       <ChevronDown className="w-5 h-5 -rotate-90" />
+            //     </button>
+            //   </div>
+            // )
           }
         </div>
       </section>
@@ -592,7 +927,7 @@ const NFTMarketplace = () => {
 
       {/* Footer */}
       <Footer />
-    </div>
+    </main>
   );
 };
 

@@ -39,7 +39,7 @@ export default function FAQ() {
   };
 
   return (
-    <div className="py-8 w-full max-w-7xl mx-auto z-50">
+    <div id="faq" className="py-8 w-full max-w-7xl mx-auto z-50">
       <div className="w-full px-4  ">
         <header className="text-left space-y-2 mx-auto w-full">
           <h2 className="text-4xl md:text-5xl font-bold">

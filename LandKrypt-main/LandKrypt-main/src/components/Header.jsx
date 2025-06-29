@@ -184,7 +184,7 @@ const Header = () => {
 
           {/* Sidebar */}
           <div className={getSidebarClasses()}>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full bg-neutral-800">
               {/* Header with Logo and Close Button */}
               <div
                 className={`flex items-center justify-between p-6 border-b border-slate-700/50 ${getContentClasses(

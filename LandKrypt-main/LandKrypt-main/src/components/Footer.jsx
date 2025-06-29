@@ -74,6 +74,16 @@ const Footer = () => {
                     key={linkIndex}
                     href={link.href}
                     className="block text-gray-400 hover:text-white transition-colors"
+                    onClick={
+                      link.text === "FAQ"
+                        ? (e) => {
+                            e.preventDefault();
+                            document
+                              .getElementById("faq")
+                              .scrollIntoView({ behavior: "smooth" });
+                          }
+                        : undefined
+                    }
                   >
                     {link.text}
                   </a>
@@ -118,12 +128,6 @@ const Footer = () => {
             <p className="text-xs text-gray-600">
               {new Date().getFullYear()} LANDKRYPT ALL RIGHTS RESERVED
             </p>
-            {/* Logo/Icon placeholder */}
-            {/* <div className="mt-4 flex justify-center">
-              <div className="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm opacity-60"></div>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>

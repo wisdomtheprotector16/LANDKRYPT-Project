@@ -1,0 +1,119 @@
+{
+  "timestamp": "2025-06-28T19:57:28.835Z",
+  "network": "sepolia",
+  "wallet": "0x18A16EfC5A7fb2FC9B21894011a0b429d30f08FC",
+  "operations": [
+    {
+      "stakingContract": "0x1A80A30f6465b55b35f583900f3D684270e5b291",
+      "tokenIds": [
+        1
+      ],
+      "isListed": true,
+      "timestamp": "2025-06-28T19:57:32.960Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    },
+    {
+      "stakingContract": "0x3cB393Ea1B81984db01bA2D729210D317eCDa307",
+      "tokenIds": [
+        2
+      ],
+      "isListed": true,
+      "timestamp": "2025-06-28T19:57:33.278Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    },
+    {
+      "stakingContract": "0x7aAa5fecC3C266bb65283f92c320134e2Ea9fFEA",
+      "tokenIds": [
+        3
+      ],
+      "isListed": true,
+      "timestamp": "2025-06-28T19:57:33.568Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    },
+    {
+      "stakingContract": "0x0b6fDD529afdAd0264c8A0BA698986181E837911",
+      "tokenIds": [
+        "Unknown"
+      ],
+      "isListed": false,
+      "timestamp": "2025-06-28T19:57:33.892Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    },
+    {
+      "stakingContract": "0x4081aad5880018aA1a9fE58F0ae11aA3fFA59d83",
+      "tokenIds": [
+        "Unknown"
+      ],
+      "isListed": false,
+      "timestamp": "2025-06-28T19:57:34.197Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    },
+    {
+      "stakingContract": "0x3dF327A3bbf0174e9201F78F6391634fa00CB2B3",
+      "tokenIds": [
+        "Unknown"
+      ],
+      "isListed": false,
+      "timestamp": "2025-06-28T19:57:36.546Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    },
+    {
+      "stakingContract": "0x356223eC4B82BDA324442dd6A02afEDd23C255ae",
+      "tokenIds": [
+        "Unknown"
+      ],
+      "isListed": false,
+      "timestamp": "2025-06-28T19:57:36.886Z",
+      "attempt": 1,
+      "success": true,
+      "error": null,
+      "txHash": null,
+      "gasUsed": null,
+      "wasAlreadyMinter": true,
+      "action": "no-action-needed"
+    }
+  ],
+  "summary": {
+    "discovered": 7,
+    "alreadyMinters": 7,
+    "successfullyAdded": 0,
+    "errors": 0,
+    "gasUsed": "0"
+  }
+}

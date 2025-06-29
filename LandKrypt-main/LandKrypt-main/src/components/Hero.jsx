@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Plus } from "lucide-react";
 import Link from "next/link";
@@ -22,9 +22,51 @@ const StatItem = ({ value, label, color = "text-white" }) => {
 };
 
 const Hero = () => {
+  const [animatedStars, setAnimatedStars] = useState([]);
+
+  useEffect(() => {
+    const stars = [];
+    for (let i = 0; i < 15; i++) {
+      stars.push({
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 3,
+        duration: 2 + Math.random() * 4,
+        size: 4 + Math.random() * 8,
+        opacity: 0.3 + Math.random() * 0.7,
+      });
+    }
+    setAnimatedStars(stars);
+  }, []);
+  // Add this CSS animation to your styles
+  const starTwinkle = `
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+`;
+
   const [showSwapPopUp, setshowSwapPopUp] = useState(false);
   return (
     <div className="relative min-h-screen overflow-hidden py-9 bg-black">
+      {animatedStars.map((star) => (
+        <div
+          key={star.id}
+          className="absolute rounded-full bg-white shadow-lg"
+          style={{
+            left: `${star.left}%`,
+            top: `${star.top}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            animation: `twinkle ${star.duration}s infinite ${star.delay}s ease-in-out`,
+            boxShadow: `0 0 ${star.size}px rgba(255, 255, 255, 0.8)`,
+            background: `radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.2) 100%)`,
+          }}
+        >
+          <div className="absolute inset-0 rounded-full bg-white opacity-90"></div>
+        </div>
+      ))}
       <div className="absolute top-0">
         {" "}
         {showSwapPopUp && <SwapModal onClose={() => setshowSwapPopUp(false)} />}

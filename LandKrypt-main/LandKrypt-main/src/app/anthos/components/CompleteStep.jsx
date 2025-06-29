@@ -1,5 +1,5 @@
 "use client";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Link } from "lucide-react";
 import { useMarketplaceStore } from "@/stores/useMarketplaceStore";
 import { GradientButton } from "@/components/GradientButton";
 
@@ -40,7 +40,7 @@ export const CompleteStep = () => {
           </GradientButton>
         </div>
 
-        <div>
+        <Link href="/dashboard">
           <GradientButton
             gradientFrom=""
             gradientTo=""
@@ -53,7 +53,7 @@ export const CompleteStep = () => {
           >
             View Status in Dashboard
           </GradientButton>
-        </div>
+        </Link>
       </div>
     </div>
   );

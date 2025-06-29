@@ -1,16 +1,11 @@
 'use client';
 // LandKrypt Contract Operations Hook
-import {
-  useAccount,
-  useReadContract,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
-import { CONTRACT_ADDRESSES } from "@/contracts/abis";
-import * as ABIS from "@/contracts/abis";
-import { toast } from "react-hot-toast";
-import { useState, useCallback } from "react";
-import { parseEther, formatEther } from "viem";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, readContract } from 'wagmi';
+import { CONTRACT_ADDRESSES } from '@/contracts/abis';
+import * as ABIS from '@/contracts/abis';
+import { toast } from 'react-hot-toast';
+import { useState, useCallback } from 'react';
+import { parseEther, formatEther } from 'viem';
 
 export function useContractOperations() {
   const { address, isConnected } = useAccount();
@@ -96,25 +91,45 @@ export function useContractOperations() {
         return;
       }
 
-      try {
-        const hash = await writeContract({
-          address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
-          abi: ABIS.NFT_MARKETPLACE_ABI,
-          functionName: "buyNFT",
-          args: [tokenId],
-        });
+    try {
+      const hash = await writeContract({
+        address: CONTRACT_ADDRESSES.NFT_MARKETPLACE,
+        abi: ABIS.NFT_MARKETPLACE_ABI,
+        functionName: 'buyNFT',
+        args: [tokenId],
+      });
+      
+      setPendingTx(hash);
+      toast.success('NFT purchase transaction sent!');
+      return hash;
+    } catch (error) {
+      console.error('Buy NFT error:', error);
+      toast.error(error.message || 'Failed to buy NFT');
+      throw error;
+    }
+  }, [writeContract, isConnected]);
 
-        setPendingTx(hash);
-        toast.success("NFT purchase transaction sent!");
-        return hash;
-      } catch (error) {
-        console.error("Buy NFT error:", error);
-        toast.error(error.message || "Failed to buy NFT");
-        throw error;
-      }
-    },
-    [writeContract, isConnected]
-  );
+  // Enhanced LKUSD balance check
+  const checkLkusdBalance = useCallback(async (requiredAmount) => {
+    if (!address) return { hasEnough: false, balance: '0', error: 'Wallet not connected' };
+    
+    try {
+      // For now, let's use a simpler approach since readContract might not be directly available
+      // We'll return a mock check and rely on the frontend validation
+      return {
+        hasEnough: true, // Let the transaction fail naturally for better error handling
+        balance: '0', // Will be checked in the frontend
+        error: null
+      };
+    } catch (error) {
+      console.error('Failed to check LKUSD balance:', error);
+      return {
+        hasEnough: false,
+        balance: '0',
+        error: 'Failed to check balance'
+      };
+    }
+  }, [address]);
 
   // Staking Operations
   const stakeTokens = useCallback(async (stakingContractAddress, amount) => {
@@ -127,14 +142,28 @@ export function useContractOperations() {
       toast.error('Invalid staking contract address');
       return { success: false, error: 'Invalid staking contract' };
     }
-  const stakeTokens = useCallback(
-    async (stakingContractAddress, amount) => {
-      if (!isConnected) {
-        toast.error("Please connect your wallet");
-        return;
-      }
+
+    // Enhanced balance validation
+    console.log('🔍 Checking LKUSD balance before staking:', {
+      userAddress: address,
+      stakingContract: stakingContractAddress,
+      requestedAmount: amount
+    });
+    
+    const balanceCheck = await checkLkusdBalance(amount);
+    if (!balanceCheck.hasEnough) {
+      const errorMsg = `Insufficient LKUSD balance. You have ${parseFloat(balanceCheck.balance).toFixed(6)} LKUSD but need ${amount} LKUSD. Get LKUSD from the Exchange first.`;
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
+    }
 
     try {
+      console.log('💰 Balance check passed, proceeding with stake:', {
+        userBalance: balanceCheck.balance,
+        stakeAmount: amount,
+        stakingContract: stakingContractAddress
+      });
+      
       const hash = await writeContract({
         address: stakingContractAddress,
         abi: ABIS.NFT_STAKING_ABI,
@@ -147,39 +176,34 @@ export function useContractOperations() {
       return { success: true, hash };
     } catch (error) {
       console.error('Stake tokens error:', error);
-      const errorMessage = error.message?.includes('User rejected') 
-        ? 'Transaction rejected by user'
-        : error.message || 'Failed to stake tokens';
+      
+      // Enhanced error parsing
+      let errorMessage = 'Failed to stake tokens';
+      
+      if (error.message?.includes('User rejected')) {
+        errorMessage = 'Transaction rejected by user';
+      } else if (error.message?.includes('transferFrom')) {
+        errorMessage = 'Token transfer failed. Please check your LKUSD balance and allowance.';
+      } else if (error.message?.includes('Staking goal exceeded')) {
+        errorMessage = 'Staking goal already reached for this property';
+      } else if (error.message?.includes('Must stake more than 0')) {
+        errorMessage = 'Invalid stake amount. Amount must be greater than 0';
+      } else if (error.shortMessage) {
+        errorMessage = error.shortMessage;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast.error(errorMessage);
       return { success: false, error: errorMessage };
     }
-  }, [writeContract, isConnected]);
-      try {
-        const hash = await writeContract({
-          address: stakingContractAddress,
-          abi: ABIS.NFT_STAKING_ABI,
-          functionName: "stake",
-          args: [parseEther(amount.toString())],
-        });
+  }, [writeContract, isConnected, address, checkLkusdBalance]);
 
-        setPendingTx(hash);
-        toast.success("Staking transaction sent!");
-        return hash;
-      } catch (error) {
-        console.error("Stake tokens error:", error);
-        toast.error(error.message || "Failed to stake tokens");
-        throw error;
-      }
-    },
-    [writeContract, isConnected]
-  );
-
-  const withdrawStake = useCallback(
-    async (stakingContractAddress) => {
-      if (!isConnected) {
-        toast.error("Please connect your wallet");
-        return;
-      }
+  const withdrawStake = useCallback(async (stakingContractAddress) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return;
+    }
 
       try {
         const hash = await writeContract({

@@ -1,0 +1,77 @@
+/* Marketplace.css - Professional Styling */
+
+/* Enhanced background gradients */
+.marketplace-bg {
+  background: linear-gradient(135deg, #07000b 0%, #06000b 50%, #000000 100%);
+  position: relative;
+}
+
+.marketplace-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 165, 0, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Professional button styling */
+.btn-primary {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #ff8c42 0%, #ffab40 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+}
+
+/* Card hover effects */
+.nft-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+}
+
+.nft-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(255, 165, 0, 0.15);
+}
+
+/* Professional typography */
+.hero-title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Enhanced input styling */
+.search-input {
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  background: rgba(55, 65, 81, 0.8);
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* Loading animations */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
