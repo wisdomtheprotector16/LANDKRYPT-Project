@@ -7,6 +7,7 @@ import {
   Building2, Award, Target, BarChart3, DollarSign, Zap,
   ArrowUpRight, ArrowDownRight, Calendar, MapPin, Eye
 } from 'lucide-react';
+import TierBadge from '../../../components/TierBadge';
 
 // Balance Cards Component
 export function BalanceCards({ balances, staking, isLoading }) {
@@ -81,7 +82,7 @@ export function BalanceCards({ balances, staking, isLoading }) {
 }
 
 // Account Summary Component
-export function AccountSummary({ address, staking, proposals, activity, isLoading }) {
+export function AccountSummary({ address, staking, proposals, activity, tierData, isLoading }) {
   if (isLoading) {
     return (
       <div className="bg-gray-800 p-6 rounded-xl">
@@ -118,6 +119,21 @@ export function AccountSummary({ address, staking, proposals, activity, isLoadin
         <BarChart3 className="w-5 h-5 text-orange-400" />
         Account Summary
       </h3>
+
+      {/* Tier Badge - Persistent User Ranking Display */}
+      {address && tierData && (
+        <div className="mb-6">
+          <TierBadge
+            walletAddress={address}
+            totalXP={tierData.totalXP || 0}
+            currentTier={tierData.currentTier || 1}
+            tierProgress={tierData.tierProgress || 0}
+            showAnimation={tierData.showAnimation || false}
+            newXP={tierData.newXP || 0}
+            className="w-full"
+          />
+        </div>
+      )}
 
       <div className="space-y-4">
         {summaryItems.map((item, index) => (

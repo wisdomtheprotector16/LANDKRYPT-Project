@@ -169,10 +169,32 @@ CREATE INDEX IF NOT EXISTS idx_proposals_nft_id ON proposals(nft_id);
 CREATE INDEX IF NOT EXISTS idx_proposals_status ON proposals(status);
 CREATE INDEX IF NOT EXISTS idx_proposals_creator ON proposals(creator_address);
 
+-- Create user_tier_progress table (Tier System)
+CREATE TABLE IF NOT EXISTS user_tier_progress (
+  id BIGSERIAL PRIMARY KEY,
+  wallet_address VARCHAR(42) UNIQUE NOT NULL,
+  total_xp INTEGER DEFAULT 0,
+  current_tier INTEGER DEFAULT 1,
+  tier_progress INTEGER DEFAULT 0,
+  last_login TIMESTAMP WITH TIME ZONE,
+  last_daily_xp_claim TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT check_tier_range CHECK (current_tier >= 1 AND current_tier <= 5),
+  CONSTRAINT check_xp_positive CHECK (total_xp >= 0),
+  CONSTRAINT check_tier_progress_positive CHECK (tier_progress >= 0)
+);
+
+-- Create indexes for tier system
+CREATE INDEX IF NOT EXISTS idx_user_tier_progress_wallet ON user_tier_progress(wallet_address);
+CREATE INDEX IF NOT EXISTS idx_user_tier_progress_tier ON user_tier_progress(current_tier);
+CREATE INDEX IF NOT EXISTS idx_user_tier_progress_xp ON user_tier_progress(total_xp);
+
 -- Success message
 DO $$
 BEGIN
     RAISE NOTICE 'LandKrypt database tables created successfully!';
-    RAISE NOTICE 'Tables created: user_actions, nft_stakes, nft_votes, nft_ownership, proposals, developers, property_verifications, anthos_submissions';
+    RAISE NOTICE 'Tables created: user_actions, nft_stakes, nft_votes, nft_ownership, proposals, developers, property_verifications, anthos_submissions, user_tier_progress';
     RAISE NOTICE 'Indexes created for optimal performance';
+    RAISE NOTICE 'Tier system ready with XP tracking!';
 END $$;

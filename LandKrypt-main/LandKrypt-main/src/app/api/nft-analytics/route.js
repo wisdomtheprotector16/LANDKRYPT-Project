@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import DatabaseService from '@/lib/supabase';
 
 export async function GET(request) {
@@ -12,6 +13,7 @@ export async function GET(request) {
         { status: 400 }
       );
     }
+
 
     const db = new DatabaseService(true); // Use admin client for server operations
     

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import DatabaseService from '@/lib/supabase';
 
 export async function GET(request) {
@@ -6,6 +7,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const nftId = searchParams.get('nftId');
+    const creatorAddress = searchParams.get('creatorAddress');
+
 
     const db = new DatabaseService(true);
 
@@ -17,6 +20,13 @@ export async function GET(request) {
       // Get active proposals
       const proposals = await db.getActiveProposals();
       return NextResponse.json({ proposals });
+    } else if (creatorAddress) {
+      // Get proposals by creator
+      const proposals = await db.getAllProposals();
+      const filteredProposals = proposals.filter(p => 
+        p.creator_address.toLowerCase() === creatorAddress.toLowerCase()
+      );
+      return NextResponse.json({ proposals: filteredProposals });
     } else {
       // Get all proposals
       const proposals = await db.getAllProposals(status);
@@ -25,10 +35,28 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Error fetching proposals:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Return fallback mock data on error
+    return NextResponse.json({
+      proposals: [
+        {
+          id: 1,
+          nft_id: 1,
+          title: 'Fallback Proposal',
+          description: 'Mock proposal due to database error',
+          creator_address: '0x1234567890abcdef',
+          status: 'active',
+          ownership_percentage: 50,
+          timeframe: '12 months',
+          voting_deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          yes_votes: 0,
+          no_votes: 0,
+          total_votes: 0,
+          created_at: new Date().toISOString(),
+          metadata: { type: 'fallback' }
+        }
+      ],
+      error: 'Database unavailable, showing mock data'
+    });
   }
 }
 

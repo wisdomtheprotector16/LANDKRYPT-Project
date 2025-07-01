@@ -72,16 +72,25 @@ if (isServer) {
     cancelAnimationFrame: clearTimeout,
   });
 
-  // Apply polyfills safely
+// Apply polyfills safely
   const applyPolyfills = () => {
     const mockAPI = createMockAPI();
 
     Object.keys(mockAPI).forEach(key => {
       if (typeof global[key] === 'undefined') {
         try {
-          global[key] = mockAPI[key];
+          Object.defineProperty(global, key, {
+            value: mockAPI[key],
+            writable: true,
+            configurable: true
+          });
         } catch (error) {
-          // Silently ignore if we can't set the property
+          // Fallback to direct assignment
+          try {
+            global[key] = mockAPI[key];
+          } catch (fallbackError) {
+            // Silently ignore if we can't set the property
+          }
         }
       }
     });

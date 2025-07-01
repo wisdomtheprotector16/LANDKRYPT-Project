@@ -9,6 +9,7 @@ import { useProposalsList, useNftsReadyForProposals, useProposals } from "@/hook
 import { useDatabaseActions } from "@/hooks/useDatabaseActions";
 import { useDeveloperStatus } from "@/hooks/useDeveloperStatus";
 import { useContractOperations } from "@/hooks/useContractOperations";
+import { useTierSystem } from "@/hooks/useTierSystem";
 import { toast } from "react-hot-toast";
 import { parseAmount } from "../../../hooks/useContractInteraction";
 import marketplaceData from "../../../../data/marketplace-listings.json";
@@ -40,6 +41,9 @@ const ProposalsSection = () => {
   const { nfts: nftsReadyForProposals, isLoading: loadingNfts, refetch: refetchNfts } = useNftsReadyForProposals();
   const { createProposal } = useProposals();
   const { recordVoteAction } = useDatabaseActions();
+  
+  // Tier system for XP rewards
+  const { awardVotingXP } = useTierSystem();
   
   // Get user's token balance for voting
   const { data: tokenBalance } = useContractReadData(
@@ -156,6 +160,18 @@ const ProposalsSection = () => {
     try {
       await voteOnProposal?.();
       
+      // Award XP for voting
+      try {
+        const { success, xpAwarded } = await awardVotingXP(voteAmount);
+        if (success) {
+          toast.success(`${xpAwarded} XP awarded for voting!`);
+        } else {
+          console.log('XP award failed');
+        }
+      } catch (xpError) {
+        console.warn('Failed to award XP for voting:', xpError);
+      }
+
       // Record vote in database
       await fetch('/api/user-actions', {
         method: 'POST',
@@ -168,10 +184,10 @@ const ProposalsSection = () => {
           txHash: 'pending',
         }),
       });
-      
+
       setShowVoteModal(null);
       setVoteAmounts(prev => ({ ...prev, [proposalId]: '' }));
-      
+
     } catch (error) {
       console.error('Voting failed:', error);
       toast.error('Voting failed. Please try again.');

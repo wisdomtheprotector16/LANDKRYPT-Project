@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-06-29T00:00:38.412Z",
+  "environment": "production",
+  "version": "0.1.0",
+  "features": {
+    "tierSystem": true,
+    "analytics": true,
+    "notifications": true
+  },
+  "contracts": {},
+  "chainId": "11155111"
+}

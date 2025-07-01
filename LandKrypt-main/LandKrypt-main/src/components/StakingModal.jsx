@@ -20,6 +20,7 @@ import {
 import { useAccount, useBalance, useReadContract } from 'wagmi';
 import { useContractOperations, useContractReads } from '@/hooks/useContractOperations';
 import { useDatabaseActions, useUserNftData, useNftAnalytics } from '@/hooks/useDatabaseActions';
+import { useTierSystem } from '@/hooks/useTierSystem';
 import { CONTRACT_ADDRESSES, NFT_STAKING_ABI, LANDKRYPT_STABLECOIN_ABI } from '@/contracts/abis';
 import { parseEther, formatEther } from 'viem';
 import { toast } from 'react-hot-toast';
@@ -66,6 +67,9 @@ export default function StakingModal({
   const { recordStakeAction, recordUnstakeAction } = useDatabaseActions();
   const { data: userNftData, refetch: refetchUserData } = useUserNftData(property?.id);
   const { analytics: nftAnalytics, refetch: refetchAnalytics } = useNftAnalytics(property?.id);
+  
+  // Tier system for XP rewards
+  const { awardStakingXP } = useTierSystem();
 
   // Read staking contract data
   const { data: totalStaked } = useReadContract({
@@ -313,6 +317,18 @@ export default function StakingModal({
           // Refresh user data and analytics
           refetchUserData();
           refetchAnalytics();
+        
+          // Award XP for staking
+          try {
+            const { success, xpAwarded } = await awardStakingXP(amount);
+            if (success) {
+              toast.success(`${xpAwarded} XP awarded for staking!`);
+            } else {
+              console.log('XP award failed');
+            }
+          } catch (xpError) {
+            console.warn('Failed to award XP for staking:', xpError);
+          }
         } catch (dbError) {
           console.warn('Failed to record stake in database:', dbError);
           // Don't fail the main operation for database errors

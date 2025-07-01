@@ -2,7 +2,8 @@
 // React hook for fetching and managing NFT metadata from IPFS
 
 import { useState, useEffect, useCallback } from 'react';
-import { fetchTokenMetadata, convertIpfsToHttp, isIpfsUrl } from '@/utils/ipfs';
+import { convertIpfsToHttp, fetchTokenMetadata } from '@/utils/ipfs';
+import { validateMarketplaceListing, ContractDataValidator } from '@/utils/dataValidation';
 
 export function useNftMetadata(tokenURI, initialData = null) {
   const [metadata, setMetadata] = useState(initialData);
@@ -179,6 +180,22 @@ export function useMarketplaceMetadata(items = []) {
       const processed = await Promise.all(
         items.map(async (item) => {
           try {
+            // Validate the item structure first
+            try {
+              validateMarketplaceListing(item);
+            } catch (validationError) {
+              console.warn(`Item ${item.id} validation failed:`, validationError.message);
+            }
+            
+            // Validate staking contract
+            if (item.stakingContract) {
+              try {
+                ContractDataValidator.validateStakingContract(item.stakingContract);
+              } catch (contractError) {
+                console.warn(`Item ${item.id} has invalid staking contract:`, contractError.message);
+              }
+            }
+            
             // Determine the best image source
             let imageUrl = item.image;
             let metadata = null;

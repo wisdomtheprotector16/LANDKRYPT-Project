@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+
 import DatabaseService, { ACTION_TYPES } from '@/lib/supabase';
+import { validateUserAction, validateNFTStake, ContractDataValidator } from '@/utils/dataValidation';
 
 export async function POST(request) {
   try {
@@ -114,6 +116,7 @@ export async function GET(request) {
       );
     }
 
+
     const db = new DatabaseService(true); // Use admin client for server operations
     let result = {};
 
@@ -133,6 +136,7 @@ export async function GET(request) {
       // Get all active stakes for user
       const activeStakes = await db.getUserActiveStakes(userAddress);
       result = {
+        actions: [], // Add empty actions array for compatibility
         activeStakes
       };
     }
@@ -142,7 +146,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error fetching user actions:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch user actions: ' + error.message },
       { status: 500 }
     );
   }

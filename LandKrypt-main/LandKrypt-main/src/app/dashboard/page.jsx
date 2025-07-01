@@ -32,6 +32,7 @@ import {
   PortfolioPerformance 
 } from "./components/DashboardComponents";
 import { useDashboardData } from "@/hooks/useDashboard";
+import { useTierSystem } from "@/hooks/useTierSystem";
 import CustomConnectButton from "@/components/CustomConnectButton";
 import ClientOnlyWrapper from "@/components/ClientOnlyWrapper";
 
@@ -39,6 +40,7 @@ import ClientOnlyWrapper from "@/components/ClientOnlyWrapper";
 function DashboardContent() {
   const { address, isConnected } = useAccount();
   const { dashboardData, dashboardStats, isLoading, error, refetch } = useDashboardData();
+  const { tierData, loading: tierLoading, claimDailyXP } = useTierSystem();
   const [activeTab, setActiveTab] = useState("overview");
   // Handle wallet connection state
   if (!isConnected) {
@@ -181,7 +183,8 @@ function DashboardContent() {
                     staking={dashboardStats?.staking}
                     proposals={dashboardStats?.proposals}
                     activity={dashboardStats?.activity}
-                    isLoading={isLoading}
+                    tierData={tierData}
+                    isLoading={isLoading || tierLoading}
                   />
                 </div>
 

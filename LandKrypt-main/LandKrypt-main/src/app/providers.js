@@ -23,18 +23,18 @@ export default function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // Always provide WagmiProvider to avoid build errors
-  // RainbowKit will handle SSR gracefully
+  // Conditionally render both WagmiProvider and RainbowKitProvider when mounted
+  // to prevent WalletConnect double initialization
+  if (!mounted) {
+    return <div>{children}</div>;
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        {mounted ? (
-          <RainbowKitProvider>
-            {children}
-          </RainbowKitProvider>
-        ) : (
-          children
-        )}
+        <RainbowKitProvider>
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

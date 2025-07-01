@@ -7,6 +7,9 @@ import { GradientButton2 } from "./GradientButton2";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import CustomConnectButton from "./CustomConnectButton";
 import CustomConnectButtonMobile from "./CustomConnectButtonMobile";
+import TierBadge from "./TierBadge";
+import { useTierSystem } from "../hooks/useTierSystem";
+import { useAccount } from "wagmi";
 
 export const Logo = () => {
   return (
@@ -30,6 +33,36 @@ export const Logo = () => {
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [animationState, setAnimationState] = useState("closed"); // 'closed', 'opening', 'open', 'closing'
+  const [mounted, setMounted] = useState(false);
+  
+  // Prevent hydration mismatch by only using wagmi hooks after mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Always call hooks, but handle errors gracefully
+  let address = null;
+  let tierData = { totalXP: 0, currentTier: 1, tierProgress: 0, showAnimation: false, newXP: 0 };
+  let claimDailyXP = () => {};
+  
+  try {
+    const account = useAccount();
+    const tierSystem = useTierSystem();
+    if (mounted) {
+      address = account.address;
+      tierData = tierSystem.tierData;
+      claimDailyXP = tierSystem.claimDailyXP;
+    }
+  } catch (error) {
+    console.warn('Wagmi hooks not available yet:', error.message);
+  }
+
+  // Auto-claim daily XP on page load
+  useEffect(() => {
+    if (address) {
+      claimDailyXP();
+    }
+  }, [address, claimDailyXP]);
 
   const toggleMobileMenu = () => {
     if (isMobileMenuOpen) {
@@ -145,6 +178,21 @@ const Header = () => {
             </Link>
           </div>
 
+          {/* TierBadge for Desktop */}
+          {address && (
+            <div className="hidden md:flex mr-4">
+              <TierBadge 
+                walletAddress={address}
+                totalXP={tierData.totalXP}
+                currentTier={tierData.currentTier}
+                tierProgress={tierData.tierProgress}
+                showAnimation={tierData.showAnimation}
+                newXP={tierData.newXP}
+                className="scale-90"
+              />
+            </div>
+          )}
+
           <div className="hidden md:flex">
             <CustomConnectButton />
           </div>
@@ -241,6 +289,21 @@ const Header = () => {
                   Dashboard
                 </Link>
               </div>
+
+              {/* TierBadge for Mobile */}
+              {address && (
+                <div className={`px-6 py-4 ${getContentClasses(150)}`}>
+                  <TierBadge 
+                    walletAddress={address}
+                    totalXP={tierData.totalXP}
+                    currentTier={tierData.currentTier}
+                    tierProgress={tierData.tierProgress}
+                    showAnimation={tierData.showAnimation}
+                    newXP={tierData.newXP}
+                    className="scale-95"
+                  />
+                </div>
+              )}
 
               {/* Bottom Section with Wallet */}
               <div className={`mt-auto ${getContentClasses(200)}`}>
