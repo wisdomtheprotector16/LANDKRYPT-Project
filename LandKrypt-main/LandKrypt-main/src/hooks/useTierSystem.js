@@ -187,13 +187,13 @@ export const useTierSystem = () => {
             const lastClaim = localStorage.getItem(`last_daily_claim_${address}`);
             const now = Date.now();
             if (!lastClaim || now - parseInt(lastClaim) >= 24 * 60 * 60 * 1000) {
-              xpToAward = XP_RATES.DAILY_LOGIN;
+              xpToAward = actionData?.customXP || XP_RATES.DAILY_LOGIN;
               localStorage.setItem(`last_daily_claim_${address}`, now.toString());
             } else {
               return { success: false, message: 'Daily XP already claimed' };
             }
           } else {
-            xpToAward = XP_RATES.DAILY_LOGIN; // Always allow on server
+            xpToAward = actionData?.customXP || XP_RATES.DAILY_LOGIN; // Always allow on server
           }
           break;
         case 'STAKING':
@@ -346,10 +346,60 @@ export const useTierSystem = () => {
     }
   }, [address, calculateTier, isSupabaseAvailable, tierData.totalXP, isBrowser, saveToLocalStorage]);
 
-  // Check for daily login XP
+  // Check for daily login XP with enhanced rewards
   const claimDailyXP = useCallback(async () => {
-    return await awardXP('DAILY_LOGIN');
-  }, [awardXP]);
+    if (!address) return { success: false, message: 'Wallet not connected' };
+
+    try {
+      // Check if already claimed today
+      const lastClaim = localStorage.getItem(`lastDailyClaim_${address}`);
+      const today = new Date().toDateString();
+
+      if (lastClaim === today) {
+        return { success: false, message: 'Already claimed today' };
+      }
+
+      // Get login streak data
+      const loginData = JSON.parse(localStorage.getItem(`dailyLogin_${address}`) || '{}');
+      const streak = loginData.streak || 0;
+
+      // Get current tier rewards
+      const currentTier = tierData.currentTier;
+      const tierConfig = TIER_CONFIG[currentTier];
+      const baseXP = tierConfig?.rewards?.dailyXP || 10;
+      const dailyTokens = tierConfig?.rewards?.dailyTokens || 5;
+      const streakMultiplier = tierConfig?.rewards?.streakMultiplier || 1.0;
+
+      // Calculate streak bonus
+      let finalXP = baseXP;
+
+      if (streak > 0) {
+        const multiplier = Math.min(1 + (streak * 0.1), streakMultiplier);
+        finalXP = Math.floor(baseXP * multiplier);
+      }
+
+      // Award XP through the existing system
+      const result = await awardXP('DAILY_LOGIN', { customXP: finalXP });
+
+      if (result.success) {
+        // Store claim date
+        localStorage.setItem(`lastDailyClaim_${address}`, today);
+
+        return {
+          ...result,
+          tokensGained: dailyTokens,
+          streak: streak + 1,
+          message: `Claimed ${finalXP} XP and ${dailyTokens} tokens!`
+        };
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('Error claiming daily XP:', error);
+      return { success: false, message: 'Failed to claim daily XP' };
+    }
+  }, [awardXP, address, tierData.currentTier]);
 
   // Award staking XP
   const awardStakingXP = useCallback(async (amount) => {

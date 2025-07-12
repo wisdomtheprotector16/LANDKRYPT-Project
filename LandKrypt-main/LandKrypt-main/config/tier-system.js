@@ -28,6 +28,8 @@ const TIER_SYSTEM = {
       rewards: {
         dailyXP: 10,
         loginBonus: 5,
+        dailyTokens: 5,
+        streakMultiplier: 1.0,
         firstNFTBonus: 100,
         referralBonus: 50
       }
@@ -56,6 +58,8 @@ const TIER_SYSTEM = {
       rewards: {
         dailyXP: 15,
         loginBonus: 8,
+        dailyTokens: 8,
+        streakMultiplier: 1.2,
         nftMintBonus: 25,
         stakingBonus: 10,
         referralBonus: 75
@@ -85,6 +89,8 @@ const TIER_SYSTEM = {
       rewards: {
         dailyXP: 25,
         loginBonus: 12,
+        dailyTokens: 12,
+        streakMultiplier: 1.4,
         nftMintBonus: 50,
         stakingBonus: 25,
         tradingBonus: 15,
@@ -115,6 +121,8 @@ const TIER_SYSTEM = {
       rewards: {
         dailyXP: 40,
         loginBonus: 20,
+        dailyTokens: 18,
+        streakMultiplier: 1.6,
         nftMintBonus: 100,
         stakingBonus: 50,
         tradingBonus: 30,
@@ -146,6 +154,8 @@ const TIER_SYSTEM = {
       rewards: {
         dailyXP: 60,
         loginBonus: 30,
+        dailyTokens: 25,
+        streakMultiplier: 2.0,
         nftMintBonus: 200,
         stakingBonus: 100,
         tradingBonus: 60,

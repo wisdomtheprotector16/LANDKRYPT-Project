@@ -42,6 +42,7 @@ import {
 import TransactionMonitor from '../TransactionMonitor';
 import LandDocumentVerification from '../LandDocumentVerification';
 import AdminDashboard from '../AdminDashboard';
+import DailyLoginBonus from '../tier/DailyLoginBonus';
 import { useAdminAccess } from '../../hooks/useAdminAccess';
 
 export default function EnhancedDashboard() {
@@ -481,6 +482,9 @@ export default function EnhancedDashboard() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Daily Login Bonus */}
+            <DailyLoginBonus />
           </div>
         </TabsContent>
 

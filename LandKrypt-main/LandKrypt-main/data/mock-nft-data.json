@@ -1,0 +1,142 @@
+[
+  {
+    "tokenId": 1,
+    "name": "Luxury Villa Property",
+    "description": "Beautiful luxury villa with ocean view",
+    "image": "property1.jpg",
+    "attributes": [
+      {
+        "trait_type": "Property Type",
+        "value": "Villa"
+      },
+      {
+        "trait_type": "Location",
+        "value": "Lagos, Nigeria"
+      },
+      {
+        "trait_type": "Size",
+        "value": "500 sqm"
+      },
+      {
+        "trait_type": "Bedrooms",
+        "value": "5"
+      },
+      {
+        "trait_type": "Bathrooms",
+        "value": "4"
+      }
+    ]
+  },
+  {
+    "tokenId": 2,
+    "name": "Modern Apartment Complex",
+    "description": "Contemporary apartment in city center",
+    "image": "property2.jpg",
+    "attributes": [
+      {
+        "trait_type": "Property Type",
+        "value": "Apartment"
+      },
+      {
+        "trait_type": "Location",
+        "value": "Abuja, Nigeria"
+      },
+      {
+        "trait_type": "Size",
+        "value": "150 sqm"
+      },
+      {
+        "trait_type": "Bedrooms",
+        "value": "3"
+      },
+      {
+        "trait_type": "Bathrooms",
+        "value": "2"
+      }
+    ]
+  },
+  {
+    "tokenId": 3,
+    "name": "Executive Villa Estate",
+    "description": "Premium villa in gated community",
+    "image": "villa1.jpg",
+    "attributes": [
+      {
+        "trait_type": "Property Type",
+        "value": "Villa"
+      },
+      {
+        "trait_type": "Location",
+        "value": "Port Harcourt, Nigeria"
+      },
+      {
+        "trait_type": "Size",
+        "value": "750 sqm"
+      },
+      {
+        "trait_type": "Bedrooms",
+        "value": "6"
+      },
+      {
+        "trait_type": "Bathrooms",
+        "value": "5"
+      }
+    ]
+  },
+  {
+    "tokenId": 4,
+    "name": "Downtown Apartment",
+    "description": "Stylish apartment in business district",
+    "image": "apartment1.jpg",
+    "attributes": [
+      {
+        "trait_type": "Property Type",
+        "value": "Apartment"
+      },
+      {
+        "trait_type": "Location",
+        "value": "Kano, Nigeria"
+      },
+      {
+        "trait_type": "Size",
+        "value": "120 sqm"
+      },
+      {
+        "trait_type": "Bedrooms",
+        "value": "2"
+      },
+      {
+        "trait_type": "Bathrooms",
+        "value": "2"
+      }
+    ]
+  },
+  {
+    "tokenId": 5,
+    "name": "Agricultural Land Plot",
+    "description": "Fertile agricultural land for farming",
+    "image": "land1.jpg",
+    "attributes": [
+      {
+        "trait_type": "Property Type",
+        "value": "Land"
+      },
+      {
+        "trait_type": "Location",
+        "value": "Kaduna, Nigeria"
+      },
+      {
+        "trait_type": "Size",
+        "value": "2000 sqm"
+      },
+      {
+        "trait_type": "Land Use",
+        "value": "Agricultural"
+      },
+      {
+        "trait_type": "Soil Type",
+        "value": "Fertile"
+      }
+    ]
+  }
+]

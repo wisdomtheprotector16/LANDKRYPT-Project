@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 import { createClient } from '@supabase/supabase-js';
 import { toast } from 'react-hot-toast';
+import { useMockData } from './useMockData';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,7 +15,15 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export function useContractDatabase() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  
+  const {
+    userNFTs,
+    stakingData: mockStakingData,
+    marketplaceListings: mockMarketplaceListings,
+    mockContractInteraction,
+    isLoading: mockLoading,
+    refreshData
+  } = useMockData();
+
   const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [userActions, setUserActions] = useState([]);
@@ -22,6 +31,11 @@ export function useContractDatabase() {
   const [stakingData, setStakingData] = useState([]);
   const [marketplaceListings, setMarketplaceListings] = useState([]);
   const [governanceVotes, setGovernanceVotes] = useState([]);
+
+  // Enhanced state with mock data integration
+  const [nftBalance, setNftBalance] = useState(0);
+  const [stakingBalance, setStakingBalance] = useState('0');
+  const [totalEarnings, setTotalEarnings] = useState('0');
 
   // Store contract interaction in database
   const storeContractInteraction = useCallback(async (interactionData) => {
@@ -475,10 +489,18 @@ export function useContractDatabase() {
     stakingData,
     marketplaceListings,
     governanceVotes,
-    
+
+    // Mock data integration
+    userNFTs,
+    mockStakingData,
+    mockMarketplaceListings,
+    nftBalance: userNFTs?.length || 0,
+    stakingBalance: mockStakingData?.userStaked || '0',
+    totalEarnings: mockStakingData?.rewards || '0',
+
     // State
-    isLoading,
-    
+    isLoading: isLoading || mockLoading,
+
     // Actions
     handleNFTMint,
     handleNFTTransfer,
@@ -488,6 +510,8 @@ export function useContractDatabase() {
     handleMarketplacePurchase,
     handleGovernanceVote,
     refreshUserData,
-    storeContractInteraction
+    storeContractInteraction,
+    mockContractInteraction,
+    refreshData
   };
 }

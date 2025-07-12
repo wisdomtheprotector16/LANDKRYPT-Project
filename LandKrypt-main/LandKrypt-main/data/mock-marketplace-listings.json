@@ -1,0 +1,24 @@
+[
+  {
+    "listingId": 1,
+    "tokenId": 1,
+    "seller": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "price": "1.5",
+    "currency": "ETH",
+    "status": "active",
+    "listingType": "fixed_price",
+    "createdAt": "2025-07-12T14:46:40.197Z",
+    "expiresAt": "2025-08-11T14:46:40.198Z"
+  },
+  {
+    "listingId": 2,
+    "tokenId": 2,
+    "seller": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "price": "0.8",
+    "currency": "ETH",
+    "status": "active",
+    "listingType": "fixed_price",
+    "createdAt": "2025-07-12T14:46:40.198Z",
+    "expiresAt": "2025-08-11T14:46:40.198Z"
+  }
+]
