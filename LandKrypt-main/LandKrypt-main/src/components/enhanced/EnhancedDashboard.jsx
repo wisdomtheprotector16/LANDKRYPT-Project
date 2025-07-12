@@ -40,9 +40,13 @@ import {
   RefreshCw
 } from 'lucide-react';
 import TransactionMonitor from '../TransactionMonitor';
+import LandDocumentVerification from '../LandDocumentVerification';
+import AdminDashboard from '../AdminDashboard';
+import { useAdminAccess } from '../../hooks/useAdminAccess';
 
 export default function EnhancedDashboard() {
   const { address } = useAccount();
+  const { isAdmin } = useAdminAccess();
   const { nft, marketplace, staking, tier, capabilities, isLoading } = useMockEnhancedLandKrypt();
   const {
     userActions,
@@ -378,8 +382,10 @@ export default function EnhancedDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
+          <TabsTrigger value="land-verification">Land Verification</TabsTrigger>
           <TabsTrigger value="milestones">Milestones</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -610,6 +616,16 @@ export default function EnhancedDashboard() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="admin" className="space-y-4">
+            <AdminDashboard />
+          </TabsContent>
+        )}
+
+        <TabsContent value="land-verification" className="space-y-4">
+          <LandDocumentVerification />
         </TabsContent>
       </Tabs>
 

@@ -2,24 +2,21 @@
   "name": "wtf",
   "version": "0.1.0",
   "private": true,
-"scripts": {
+  "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-
     "deploy:contracts": "hardhat run contracts/scripts/deploy-unified.js",
     "deploy:localhost": "hardhat run contracts/scripts/deploy-unified.js --network localhost",
     "deploy:sepolia": "hardhat run contracts/scripts/deploy-unified.js --network sepolia",
-    "deploy:mainnet": "hardhat run contracts/scripts/deploy-unified.js --network mainnet",
-
+    "deploy:mainnet": "next build && next export",
     "db:test": "node scripts/database/database-unified.js test",
     "db:setup": "node scripts/database/database-unified.js setup",
     "db:health": "node scripts/database/database-unified.js health",
     "db:stats": "node scripts/database/database-unified.js stats",
     "db:backup": "node scripts/database/database-unified.js backup",
     "db:sync": "node scripts/database/sync-data.js all",
-
     "nft:mint": "node scripts/metadata/nft-unified.js mint",
     "nft:next-id": "node scripts/metadata/nft-unified.js next-id",
     "nft:metadata": "node scripts/metadata/nft-unified.js metadata",
@@ -31,16 +28,13 @@
     "nft:locations": "node tools/generators/nft-generator.js locations",
     "nft:rarities": "node tools/generators/nft-generator.js rarities",
     "nft:preview": "node tools/generators/nft-generator.js preview",
-
     "marketplace:generate": "node scripts/metadata/generateMarketplaceData.js",
     "marketplace:store": "node scripts/database/store-marketplace-listings.js",
     "marketplace:store-all": "node scripts/database/store-marketplace-listings.js --include-unlisted true",
-
     "env:validate": "node scripts/deployment/validateEnv.js",
     "setup:dev": "npm run env:validate && npm run marketplace:generate",
     "postdeploy": "npm run marketplace:generate",
     "predev": "npm run env:validate",
-
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -48,30 +42,28 @@
     "test:e2e": "jest tests/e2e/user-flows.test.js",
     "test:validation": "jest src/utils/__tests__/dataValidation.test.js",
     "test:all": "npm run test:validation && npm run test:contracts && npm run test:e2e",
-
     "test:upgrades": "npx hardhat test tests/upgrades/*.test.js",
     "test:upgrades:access": "npx hardhat test tests/upgrades/AccessControlUpgrade.test.js",
     "test:upgrades:nft": "npx hardhat test tests/upgrades/GasOptimizedNFT.test.js",
     "test:upgrades:marketplace": "npx hardhat test tests/upgrades/EnhancedMarketplace.test.js",
     "test:upgrades:core": "npx hardhat test tests/upgrades/CoreFunctionality.test.js",
     "test:gas": "npx hardhat test tests/upgrades/GasOptimizedNFT.test.js --gas-report",
-
     "deploy:production": "node scripts/deployment/deploy-production.js deploy",
     "deploy:health": "node scripts/deployment/deploy-production.js health",
     "deploy:validate": "node scripts/deployment/deploy-production.js validate",
     "deploy:upgrades": "npx hardhat run scripts/deploy-upgrades.js --network localhost",
     "deploy:upgrades:testnet": "npx hardhat run scripts/deploy-upgrades.js --network sepolia",
-
     "health:check": "npm run db:health && npm run env:validate",
     "health:full": "npm run deploy:health",
-
     "logs:view": "tail -f logs/combined.log",
     "logs:error": "tail -f logs/error.log",
     "logs:clean": "node -e \"require('./src/lib/utils/logger').cleanup()\"",
-
     "security:audit": "npm audit && npm run test:security",
     "security:fix": "npm audit fix",
-    "test:security": "jest tests/security/*.test.js"
+    "test:security": "jest tests/security/*.test.js",
+    "start:mainnet": "NODE_ENV=production next start",
+    "build:mainnet": "NODE_ENV=production next build",
+    "test:mainnet": "NODE_ENV=production npm test"
   },
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",

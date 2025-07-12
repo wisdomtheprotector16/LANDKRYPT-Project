@@ -190,11 +190,68 @@ CREATE INDEX IF NOT EXISTS idx_user_tier_progress_wallet ON user_tier_progress(w
 CREATE INDEX IF NOT EXISTS idx_user_tier_progress_tier ON user_tier_progress(current_tier);
 CREATE INDEX IF NOT EXISTS idx_user_tier_progress_xp ON user_tier_progress(total_xp);
 
+-- Land Document Verification Tables
+CREATE TABLE IF NOT EXISTS land_document_verifications (
+  id BIGSERIAL PRIMARY KEY,
+  document_hash VARCHAR(66) UNIQUE NOT NULL,
+  owner_address VARCHAR(42) NOT NULL,
+  location TEXT NOT NULL,
+  size VARCHAR(100) NOT NULL,
+  land_type VARCHAR(50) NOT NULL,
+  verification_status BOOLEAN DEFAULT FALSE,
+  verified_by VARCHAR(42) NOT NULL,
+  verification_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  document_metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Land NFTs Table
+CREATE TABLE IF NOT EXISTS land_nfts (
+  id BIGSERIAL PRIMARY KEY,
+  token_id INTEGER UNIQUE NOT NULL,
+  owner_address VARCHAR(42) NOT NULL,
+  document_hash VARCHAR(66) NOT NULL,
+  location TEXT NOT NULL,
+  size VARCHAR(100) NOT NULL,
+  land_type VARCHAR(50) NOT NULL,
+  image_url TEXT,
+  metadata_uri TEXT,
+  tx_hash VARCHAR(66) NOT NULL,
+  minted_by VARCHAR(42) NOT NULL,
+  mint_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  is_listed BOOLEAN DEFAULT FALSE,
+  listing_price DECIMAL(36,18),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Image Usage Tracking Table
+CREATE TABLE IF NOT EXISTS nft_image_usage (
+  id BIGSERIAL PRIMARY KEY,
+  image_filename VARCHAR(255) UNIQUE NOT NULL,
+  token_id INTEGER,
+  used_by VARCHAR(42),
+  used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  ipfs_hash VARCHAR(100),
+  image_url TEXT
+);
+
+-- Create indexes for land verification system
+CREATE INDEX IF NOT EXISTS idx_land_verifications_owner ON land_document_verifications(owner_address);
+CREATE INDEX IF NOT EXISTS idx_land_verifications_status ON land_document_verifications(verification_status);
+CREATE INDEX IF NOT EXISTS idx_land_verifications_verified_by ON land_document_verifications(verified_by);
+CREATE INDEX IF NOT EXISTS idx_land_nfts_owner ON land_nfts(owner_address);
+CREATE INDEX IF NOT EXISTS idx_land_nfts_token ON land_nfts(token_id);
+CREATE INDEX IF NOT EXISTS idx_land_nfts_listed ON land_nfts(is_listed);
+CREATE INDEX IF NOT EXISTS idx_image_usage_filename ON nft_image_usage(image_filename);
+
 -- Success message
 DO $$
 BEGIN
     RAISE NOTICE 'LandKrypt database tables created successfully!';
-    RAISE NOTICE 'Tables created: user_actions, nft_stakes, nft_votes, nft_ownership, proposals, developers, property_verifications, anthos_submissions, user_tier_progress';
+    RAISE NOTICE 'Tables created: user_actions, nft_stakes, nft_votes, nft_ownership, proposals, developers, property_verifications, anthos_submissions, user_tier_progress, land_document_verifications, land_nfts, nft_image_usage';
     RAISE NOTICE 'Indexes created for optimal performance';
     RAISE NOTICE 'Tier system ready with XP tracking!';
+    RAISE NOTICE 'Land verification system ready!';
 END $$;
