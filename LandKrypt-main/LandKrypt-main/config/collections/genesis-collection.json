@@ -1,0 +1,149 @@
+{
+  "name": "LandKrypt Genesis Collection",
+  "description": "The inaugural collection of premium real estate NFTs in the LandKrypt ecosystem, featuring diverse property types across major Nigerian cities.",
+  "recipient": "0x0000000000000000000000000000000000000000",
+  "batches": [
+    {
+      "name": "Lagos Premium Villas",
+      "count": 25,
+      "templates": "residential.villa",
+      "locations": "lagos",
+      "rarities": ["common", "uncommon", "rare", "epic"],
+      "baseValueRange": {
+        "min": 800000,
+        "max": 2500000
+      },
+      "customAttributes": [
+        {
+          "trait_type": "Collection",
+          "value": "Genesis"
+        },
+        {
+          "trait_type": "Batch",
+          "value": "Lagos Premium Villas"
+        }
+      ]
+    },
+    {
+      "name": "Abuja Executive Offices",
+      "count": 15,
+      "templates": "commercial.office",
+      "locations": "abuja",
+      "rarities": ["uncommon", "rare", "epic"],
+      "baseValueRange": {
+        "min": 1200000,
+        "max": 4000000
+      },
+      "customAttributes": [
+        {
+          "trait_type": "Collection",
+          "value": "Genesis"
+        },
+        {
+          "trait_type": "Batch",
+          "value": "Abuja Executive Offices"
+        }
+      ]
+    },
+    {
+      "name": "Mixed Residential Portfolio",
+      "count": 30,
+      "templates": ["residential.apartment", "residential.townhouse", "residential.villa"],
+      "locations": ["lagos", "abuja", "port_harcourt"],
+      "rarities": ["common", "uncommon", "rare"],
+      "baseValueRange": {
+        "min": 300000,
+        "max": 1500000
+      },
+      "customAttributes": [
+        {
+          "trait_type": "Collection",
+          "value": "Genesis"
+        },
+        {
+          "trait_type": "Batch",
+          "value": "Mixed Residential Portfolio"
+        }
+      ]
+    },
+    {
+      "name": "Commercial Development Plots",
+      "count": 10,
+      "templates": "land.commercial_plot",
+      "locations": ["lagos", "abuja"],
+      "rarities": ["rare", "epic", "legendary"],
+      "baseValueRange": {
+        "min": 2000000,
+        "max": 8000000
+      },
+      "customAttributes": [
+        {
+          "trait_type": "Collection",
+          "value": "Genesis"
+        },
+        {
+          "trait_type": "Batch",
+          "value": "Commercial Development Plots"
+        },
+        {
+          "trait_type": "Development Ready",
+          "value": "Yes"
+        }
+      ]
+    },
+    {
+      "name": "Industrial Warehouses",
+      "count": 8,
+      "templates": "commercial.warehouse",
+      "locations": ["lagos", "port_harcourt", "kano"],
+      "rarities": ["uncommon", "rare"],
+      "baseValueRange": {
+        "min": 1500000,
+        "max": 6000000
+      },
+      "customAttributes": [
+        {
+          "trait_type": "Collection",
+          "value": "Genesis"
+        },
+        {
+          "trait_type": "Batch",
+          "value": "Industrial Warehouses"
+        },
+        {
+          "trait_type": "Logistics Access",
+          "value": "Premium"
+        }
+      ]
+    },
+    {
+      "name": "Agricultural Investment Lands",
+      "count": 12,
+      "templates": "land.agricultural",
+      "locations": ["kano", "port_harcourt"],
+      "rarities": ["common", "uncommon"],
+      "baseValueRange": {
+        "min": 100000,
+        "max": 800000
+      },
+      "customAttributes": [
+        {
+          "trait_type": "Collection",
+          "value": "Genesis"
+        },
+        {
+          "trait_type": "Batch",
+          "value": "Agricultural Investment Lands"
+        },
+        {
+          "trait_type": "Soil Quality",
+          "value": "Premium"
+        },
+        {
+          "trait_type": "Water Access",
+          "value": "Available"
+        }
+      ]
+    }
+  ]
+}

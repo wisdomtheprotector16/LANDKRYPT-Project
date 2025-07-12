@@ -13,13 +13,23 @@ module.exports = {
   solidity: {
     compilers: [
       {
+        version: "0.8.19",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200 // Balanced optimization for upgrades
+          },
+          viaIR: true // Use intermediate representation for better optimization
+        }
+      },
+      {
         version: "0.8.17",
         settings: {
           optimizer: {
             enabled: true,
             runs: 1000 // Higher optimization for gas efficiency
           },
-          viaIR: true // Use intermediate representation for better optimization
+          viaIR: true
         }
       },
       {
@@ -36,11 +46,20 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 31337,
-      allowUnlimitedContractSize: true
+      gas: 12000000,
+      blockGasLimit: 12000000,
+      allowUnlimitedContractSize: true,
+      accounts: {
+        count: 20,
+        accountsBalance: "10000000000000000000000", // 10,000 ETH
+      },
     },
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
+      gas: 12000000,
+      blockGasLimit: 12000000,
+      allowUnlimitedContractSize: true,
     },
     sepolia: {
       url: process.env.ALCHEMY_SEPOLIA_URL || `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
@@ -60,14 +79,15 @@ module.exports = {
       timeout: 60000
     }
   },
+
   paths: {
     sources: "./contracts",
-    tests: "./test",
+    tests: "./tests",
     cache: "./cache",
     artifacts: "./artifacts"
   },
-  defaultNetwork: "sepolia",
+  defaultNetwork: "hardhat",
   mocha: {
-    timeout: 60000
+    timeout: 120000 // 2 minutes for complex tests
   }
 };

@@ -1,0 +1,51 @@
+{
+  "name": "Abuja Commercial Complex",
+  "description": "Modern 8-floor commercial building in Abuja's Central Business District. Features 24 office spaces, modern elevators, and premium location for business operations.",
+  "image": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+  "external_url": "https://landkrypt.com/property/1",
+  "attributes": [
+    {
+      "trait_type": "Property Type",
+      "value": "Commercial"
+    },
+    {
+      "trait_type": "Location",
+      "value": "Abuja"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Epic"
+    },
+    {
+      "trait_type": "Floors",
+      "value": 8
+    },
+    {
+      "trait_type": "Offices",
+      "value": 24
+    },
+    {
+      "trait_type": "Area",
+      "value": "2500 sqm"
+    },
+    {
+      "trait_type": "Year Built",
+      "value": 2023
+    },
+    {
+      "trait_type": "Parking Spaces",
+      "value": 50
+    }
+  ],
+  "properties": {
+    "category": "Real Estate",
+    "creator": "LandKrypt",
+    "network": "Sepolia",
+    "contract_type": "Enhanced NFT",
+    "gas_optimized": true,
+    "batch_mintable": true,
+    "date": "2025-07-12T12:36:10.232Z",
+    "ipfs_cid": "QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+    "http_converted": true
+  }
+}

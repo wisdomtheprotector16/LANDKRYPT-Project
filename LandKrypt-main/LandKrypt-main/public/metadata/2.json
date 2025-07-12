@@ -1,0 +1,51 @@
+{
+  "name": "Port Harcourt Apartment",
+  "description": "Modern 2-bedroom apartment in GRA Phase 2, Port Harcourt. Well-designed living space with contemporary finishes and excellent neighborhood amenities.",
+  "image": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+  "external_url": "https://landkrypt.com/property/2",
+  "attributes": [
+    {
+      "trait_type": "Property Type",
+      "value": "Apartment"
+    },
+    {
+      "trait_type": "Location",
+      "value": "Port Harcourt"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Uncommon"
+    },
+    {
+      "trait_type": "Bedrooms",
+      "value": 2
+    },
+    {
+      "trait_type": "Bathrooms",
+      "value": 2
+    },
+    {
+      "trait_type": "Area",
+      "value": "120 sqm"
+    },
+    {
+      "trait_type": "Year Built",
+      "value": 2021
+    },
+    {
+      "trait_type": "Furnished",
+      "value": "Yes"
+    }
+  ],
+  "properties": {
+    "category": "Real Estate",
+    "creator": "LandKrypt",
+    "network": "Sepolia",
+    "contract_type": "Enhanced NFT",
+    "gas_optimized": true,
+    "batch_mintable": true,
+    "date": "2025-07-12T12:36:10.237Z",
+    "ipfs_cid": "QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+    "http_converted": true
+  }
+}

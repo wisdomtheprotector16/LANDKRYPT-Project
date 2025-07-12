@@ -1,0 +1,85 @@
+{
+  "timestamp": "2025-07-12T12:35:03.130Z",
+  "status": "HTTP_CONVERSION_COMPLETE",
+  "summary": {
+    "totalConversions": 5,
+    "gatewaysUsed": 5,
+    "primaryGateway": "https://gateway.pinata.cloud/ipfs/"
+  },
+  "conversions": [
+    {
+      "tokenId": 0,
+      "originalImageUrl": "ipfs://QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "httpImageUrl": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "originalMetadataUrl": "ipfs://QmcwHhhma6EGLTKVkjtW25FQt5zLkfmM52LMNzCEWK5nBn",
+      "httpMetadataUrl": "https://gateway.pinata.cloud/ipfs/QmcwHhhma6EGLTKVkjtW25FQt5zLkfmM52LMNzCEWK5nBn",
+      "localMetadataPath": "C:\\Users\\USER\\Downloads\\LANDKRYPT\\LandKrypt-main\\LandKrypt-main\\public\\metadata\\0.json"
+    },
+    {
+      "tokenId": 1,
+      "originalImageUrl": "ipfs://QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "httpImageUrl": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "originalMetadataUrl": "ipfs://QmT55bZ9NdXnvwsmpfbsCM8n7bpBPeNpCCuf3sc4VFKXaN",
+      "httpMetadataUrl": "https://gateway.pinata.cloud/ipfs/QmT55bZ9NdXnvwsmpfbsCM8n7bpBPeNpCCuf3sc4VFKXaN",
+      "localMetadataPath": "C:\\Users\\USER\\Downloads\\LANDKRYPT\\LandKrypt-main\\LandKrypt-main\\public\\metadata\\1.json"
+    },
+    {
+      "tokenId": 2,
+      "originalImageUrl": "ipfs://QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "httpImageUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "originalMetadataUrl": "ipfs://QmQSoXfMgNR1RwBVid3p51BTvTBM94ZLActLL4AH35XBGb",
+      "httpMetadataUrl": "https://gateway.pinata.cloud/ipfs/QmQSoXfMgNR1RwBVid3p51BTvTBM94ZLActLL4AH35XBGb",
+      "localMetadataPath": "C:\\Users\\USER\\Downloads\\LANDKRYPT\\LandKrypt-main\\LandKrypt-main\\public\\metadata\\2.json"
+    },
+    {
+      "tokenId": 3,
+      "originalImageUrl": "ipfs://QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "httpImageUrl": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "originalMetadataUrl": "ipfs://QmUuRunZbBB59W7M46F2nzYJ5hu34an3n9oBrkKx8pSxJ9",
+      "httpMetadataUrl": "https://gateway.pinata.cloud/ipfs/QmUuRunZbBB59W7M46F2nzYJ5hu34an3n9oBrkKx8pSxJ9",
+      "localMetadataPath": "C:\\Users\\USER\\Downloads\\LANDKRYPT\\LandKrypt-main\\LandKrypt-main\\public\\metadata\\3.json"
+    },
+    {
+      "tokenId": 4,
+      "originalImageUrl": "ipfs://QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "httpImageUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "originalMetadataUrl": "ipfs://QmaPNqF9R2imfX3WJgqFKQHuQReQhgGasimE8TSnhZvQxz",
+      "httpMetadataUrl": "https://gateway.pinata.cloud/ipfs/QmaPNqF9R2imfX3WJgqFKQHuQReQhgGasimE8TSnhZvQxz",
+      "localMetadataPath": "C:\\Users\\USER\\Downloads\\LANDKRYPT\\LandKrypt-main\\LandKrypt-main\\public\\metadata\\4.json"
+    }
+  ],
+  "gateways": [
+    "https://gateway.pinata.cloud/ipfs/",
+    "https://ipfs.io/ipfs/",
+    "https://cloudflare-ipfs.com/ipfs/",
+    "https://gateway.ipfs.io/ipfs/",
+    "https://dweb.link/ipfs/"
+  ],
+  "workingUrls": [
+    {
+      "tokenId": 0,
+      "imageUrl": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "metadataUrl": "https://gateway.pinata.cloud/ipfs/QmcwHhhma6EGLTKVkjtW25FQt5zLkfmM52LMNzCEWK5nBn"
+    },
+    {
+      "tokenId": 1,
+      "imageUrl": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "metadataUrl": "https://gateway.pinata.cloud/ipfs/QmT55bZ9NdXnvwsmpfbsCM8n7bpBPeNpCCuf3sc4VFKXaN"
+    },
+    {
+      "tokenId": 2,
+      "imageUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "metadataUrl": "https://gateway.pinata.cloud/ipfs/QmQSoXfMgNR1RwBVid3p51BTvTBM94ZLActLL4AH35XBGb"
+    },
+    {
+      "tokenId": 3,
+      "imageUrl": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "metadataUrl": "https://gateway.pinata.cloud/ipfs/QmUuRunZbBB59W7M46F2nzYJ5hu34an3n9oBrkKx8pSxJ9"
+    },
+    {
+      "tokenId": 4,
+      "imageUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "metadataUrl": "https://gateway.pinata.cloud/ipfs/QmaPNqF9R2imfX3WJgqFKQHuQReQhgGasimE8TSnhZvQxz"
+    }
+  ]
+}

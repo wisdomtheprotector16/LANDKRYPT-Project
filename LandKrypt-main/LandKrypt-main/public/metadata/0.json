@@ -1,0 +1,51 @@
+{
+  "name": "Lagos Premium Villa",
+  "description": "Luxury 4-bedroom villa in Victoria Island, Lagos. This premium property features modern amenities, ocean views, and is located in one of Lagos' most prestigious neighborhoods.",
+  "image": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+  "external_url": "https://landkrypt.com/property/0",
+  "attributes": [
+    {
+      "trait_type": "Property Type",
+      "value": "Villa"
+    },
+    {
+      "trait_type": "Location",
+      "value": "Lagos"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Rare"
+    },
+    {
+      "trait_type": "Bedrooms",
+      "value": 4
+    },
+    {
+      "trait_type": "Bathrooms",
+      "value": 3
+    },
+    {
+      "trait_type": "Area",
+      "value": "350 sqm"
+    },
+    {
+      "trait_type": "Year Built",
+      "value": 2022
+    },
+    {
+      "trait_type": "Ocean View",
+      "value": "Yes"
+    }
+  ],
+  "properties": {
+    "category": "Real Estate",
+    "creator": "LandKrypt",
+    "network": "Sepolia",
+    "contract_type": "Enhanced NFT",
+    "gas_optimized": true,
+    "batch_mintable": true,
+    "date": "2025-07-12T12:36:10.227Z",
+    "ipfs_cid": "QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+    "http_converted": true
+  }
+}

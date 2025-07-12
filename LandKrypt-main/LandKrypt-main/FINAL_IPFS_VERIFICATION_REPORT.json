@@ -1,0 +1,86 @@
+{
+  "timestamp": "2025-07-12T12:44:41.187Z",
+  "status": "ALL_URLS_WORKING",
+  "summary": {
+    "totalTested": 5,
+    "successful": 5,
+    "failed": 0,
+    "successRate": 100
+  },
+  "gateway": "https://gateway.pinata.cloud/ipfs/",
+  "testResults": [
+    {
+      "tokenId": 0,
+      "name": "Lagos Premium Villa",
+      "url": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "status": "SUCCESS",
+      "responseTime": 580,
+      "contentType": "image/jpeg"
+    },
+    {
+      "tokenId": 1,
+      "name": "Abuja Commercial Complex",
+      "url": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "status": "SUCCESS",
+      "responseTime": 390,
+      "contentType": "image/jpeg"
+    },
+    {
+      "tokenId": 2,
+      "name": "Port Harcourt Apartment",
+      "url": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "status": "SUCCESS",
+      "responseTime": 445,
+      "contentType": "image/jpeg"
+    },
+    {
+      "tokenId": 3,
+      "name": "Kano Industrial Land",
+      "url": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "status": "SUCCESS",
+      "responseTime": 483,
+      "contentType": "image/jpeg"
+    },
+    {
+      "tokenId": 4,
+      "name": "Lagos Waterfront Estate",
+      "url": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "status": "SUCCESS",
+      "responseTime": 231,
+      "contentType": "image/jpeg"
+    }
+  ],
+  "workingUrls": [
+    {
+      "tokenId": 0,
+      "name": "Lagos Premium Villa",
+      "url": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "responseTime": 580
+    },
+    {
+      "tokenId": 1,
+      "name": "Abuja Commercial Complex",
+      "url": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "responseTime": 390
+    },
+    {
+      "tokenId": 2,
+      "name": "Port Harcourt Apartment",
+      "url": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "responseTime": 445
+    },
+    {
+      "tokenId": 3,
+      "name": "Kano Industrial Land",
+      "url": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "responseTime": 483
+    },
+    {
+      "tokenId": 4,
+      "name": "Lagos Waterfront Estate",
+      "url": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "responseTime": 231
+    }
+  ],
+  "failedUrls": []
+}

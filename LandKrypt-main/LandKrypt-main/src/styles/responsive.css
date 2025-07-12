@@ -1,0 +1,409 @@
+/* Responsive Utilities and Mobile-First Styles */
+/* Ensures proper display across all devices down to 320px */
+
+/* Base responsive utilities */
+@layer utilities {
+  /* Container queries for fine-grained responsive control */
+  .container-xs { max-width: 320px; }
+  .container-sm { max-width: 640px; }
+  .container-md { max-width: 768px; }
+  .container-lg { max-width: 1024px; }
+  .container-xl { max-width: 1280px; }
+  .container-2xl { max-width: 1536px; }
+
+  /* Responsive text sizes */
+  .text-responsive-xs { font-size: 0.75rem; line-height: 1rem; }
+  .text-responsive-sm { font-size: 0.875rem; line-height: 1.25rem; }
+  .text-responsive-base { font-size: 1rem; line-height: 1.5rem; }
+  .text-responsive-lg { font-size: 1.125rem; line-height: 1.75rem; }
+  .text-responsive-xl { font-size: 1.25rem; line-height: 1.75rem; }
+
+  /* Mobile-first spacing */
+  .space-mobile { padding: 1rem; }
+  .space-tablet { padding: 1.5rem; }
+  .space-desktop { padding: 2rem; }
+
+  /* Responsive grid utilities */
+  .grid-responsive-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .grid-responsive-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-responsive-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-responsive-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  /* Safe area utilities for mobile devices */
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-left { padding-left: env(safe-area-inset-left); }
+  .safe-right { padding-right: env(safe-area-inset-right); }
+}
+
+/* Mobile-first base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  /* Improve text rendering */
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  /* Improve touch scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive images and media */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  min-width: 600px;
+}
+
+/* Mobile navigation improvements */
+.mobile-nav {
+  /* Ensure mobile nav is above other content */
+  z-index: 9999;
+  /* Smooth transitions */
+  transition: transform 0.3s ease-in-out;
+}
+
+.mobile-nav-backdrop {
+  /* Backdrop for mobile navigation */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Touch-friendly interactive elements */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive card layouts */
+.card-responsive {
+  /* Ensure cards don't break on small screens */
+  min-width: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Mobile-optimized form elements */
+.form-responsive input,
+.form-responsive select,
+.form-responsive textarea {
+  /* Prevent zoom on iOS */
+  font-size: 16px;
+  /* Full width on mobile */
+  width: 100%;
+  /* Touch-friendly sizing */
+  min-height: 44px;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 320px) {
+  /* Extra small devices */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .text-responsive {
+    font-size: 0.75rem;
+  }
+  
+  .button-responsive {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .card-responsive {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+@media (min-width: 321px) and (max-width: 640px) {
+  /* Small devices */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .button-responsive {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .card-responsive {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Two-column layout for small screens */
+  .grid-responsive {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  /* Medium devices (tablets) */
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .text-responsive {
+    font-size: 1rem;
+  }
+  
+  .button-responsive {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .card-responsive {
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  /* Three-column layout for tablets */
+  .grid-responsive {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Large tablets and small desktops */
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .text-responsive {
+    font-size: 1rem;
+  }
+  
+  .button-responsive {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .card-responsive {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Four-column layout for larger screens */
+  .grid-responsive {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* Desktop and larger */
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .text-responsive {
+    font-size: 1.125rem;
+  }
+  
+  .button-responsive {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+  
+  .card-responsive {
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Full grid layout for desktop */
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Crisp borders and shadows on retina displays */
+  .card-responsive {
+    border-width: 0.5px;
+  }
+  
+  .shadow-responsive {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* Dark mode responsive adjustments */
+@media (prefers-color-scheme: dark) {
+  .card-responsive {
+    background-color: rgb(31, 41, 55);
+    border-color: rgb(55, 65, 81);
+  }
+  
+  .text-responsive {
+    color: rgb(243, 244, 246);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-full-width {
+    width: 100% !important;
+  }
+  
+  .card-responsive {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .mobile-landscape-adjust {
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .mobile-nav {
+    height: 100vh;
+  }
+}
+
+/* Focus management for accessibility */
+.focus-visible:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Skip to content link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive utilities for specific components */
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* NFT card responsive layout */
+.nft-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .nft-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .nft-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .nft-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .nft-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

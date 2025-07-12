@@ -2,8 +2,10 @@
 // Reusable component for displaying images from IPFS with automatic fallbacks
 
 import React, { useState, useEffect } from 'react';
-import { convertIpfsToHttp, IPFS_GATEWAYS, isIpfsUrl } from '@/utils/ipfs';
+import { convertIpfsToHttp, IPFS_GATEWAYS, isIpfsUrl } from '../utils/ipfs';
 import NftPlaceholder from './NftPlaceholder';
+
+// IPFS Gateway fallback system for production reliability
 
 const IpfsImage = ({ 
   src, 
@@ -51,7 +53,7 @@ const IpfsImage = ({
     
     // If this is an IPFS URL and we haven't tried all gateways yet
     if (isIpfsUrl(src) && gatewayIndex < IPFS_GATEWAYS.length - 1) {
-      console.log(`Trying next IPFS gateway (${gatewayIndex + 1}/${IPFS_GATEWAYS.length})`);
+      // Trying next IPFS gateway
       const nextIndex = gatewayIndex + 1;
       const fallbackUrl = convertIpfsToHttp(src, nextIndex);
       
@@ -63,7 +65,7 @@ const IpfsImage = ({
     }
     
     // All gateways failed or not an IPFS URL, use placeholder
-    console.log('All IPFS gateways failed, using placeholder');
+    // All IPFS gateways failed, using placeholder
     setCurrentSrc(placeholder);
     setIsLoading(false);
     setHasError(true);

@@ -1,0 +1,47 @@
+{
+  "name": "Kano Industrial Land",
+  "description": "Prime industrial land in Kano Industrial Zone. Perfect for manufacturing, warehousing, or logistics operations with excellent transport connectivity.",
+  "image": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+  "external_url": "https://landkrypt.com/property/3",
+  "attributes": [
+    {
+      "trait_type": "Property Type",
+      "value": "Land"
+    },
+    {
+      "trait_type": "Location",
+      "value": "Kano"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    },
+    {
+      "trait_type": "Area",
+      "value": "5000 sqm"
+    },
+    {
+      "trait_type": "Zoning",
+      "value": "Industrial"
+    },
+    {
+      "trait_type": "Road Access",
+      "value": "Yes"
+    },
+    {
+      "trait_type": "Utilities",
+      "value": "Available"
+    }
+  ],
+  "properties": {
+    "category": "Real Estate",
+    "creator": "LandKrypt",
+    "network": "Sepolia",
+    "contract_type": "Enhanced NFT",
+    "gas_optimized": true,
+    "batch_mintable": true,
+    "date": "2025-07-12T12:36:10.247Z",
+    "ipfs_cid": "QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+    "http_converted": true
+  }
+}

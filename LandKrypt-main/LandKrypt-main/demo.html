@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LandKrypt Enhanced Platform - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            600: '#9333ea',
+                            700: '#7c3aed',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0,-30px,0); }
+            70% { transform: translate3d(0,-15px,0); }
+            90% { transform: translate3d(0,-4px,0); }
+        }
+        .animate-bounce { animation: bounce 1s ease infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin { animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Loading Screen -->
+    <div id="loading" class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+            <h2 class="text-2xl font-bold text-white mb-2">Loading Enhanced LandKrypt</h2>
+            <p class="text-purple-200">Initializing upgraded smart contracts...</p>
+            <div class="mt-4 space-y-1 text-sm text-purple-300">
+                <p>✅ Gas Optimized NFTs</p>
+                <p>✅ Advanced Marketplace</p>
+                <p>✅ Multi-Asset Staking</p>
+                <p>✅ Quadratic Governance</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                LandKrypt
+                            </h1>
+                        </div>
+                        <div class="ml-4 flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                ⚡ Enhanced Platform
+                            </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                30-56% Gas Savings
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            🎭 Demo Mode
+                        </span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-600">Enhanced Features Active</span>
+                        </div>
+                        <button class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105">
+                            Connect Wallet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Enhanced Features Banner -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div class="flex items-center justify-center space-x-8 text-sm">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <span>Batch NFT Minting</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <span>Dutch & English Auctions</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <span>Multi-Asset Staking</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <span>Quadratic Governance</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <span>Enhanced Tier System</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- XP Animation -->
+        <div id="xp-animation" class="fixed top-20 right-4 z-50 hidden">
+            <div class="animate-bounce bg-yellow-500 text-white text-lg px-3 py-1 rounded-lg shadow-lg">
+                +150 XP
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Tier Progress Card -->
+            <div class="relative mb-6">
+                <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Enhanced Dashboard</h1>
+                            <p class="text-purple-100">Welcome to your upgraded LandKrypt experience</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-white text-purple-600 font-semibold px-3 py-1 rounded-full text-sm">
+                                    ⭐ Tier 3
+                                </span>
+                                <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm">
+                                    ⚡ Enhanced
+                                </span>
+                            </div>
+                            <div class="text-2xl font-bold">2,750 XP</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-sm mb-2">
+                            <span>Tier Progress</span>
+                            <span>75%</span>
+                        </div>
+                        <div class="w-full bg-purple-400 rounded-full h-2">
+                            <div class="bg-white h-2 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-lg p-4 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Portfolio Value</p>
+                            <p class="text-2xl font-bold">12.5 ETH</p>
+                        </div>
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            💰
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 mt-2 text-sm">
+                        <span class="text-green-500">↗</span>
+                        <span class="text-green-500">+8.3%</span>
+                        <span class="text-gray-500">this week</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">NFTs Owned</p>
+                            <p class="text-2xl font-bold">5</p>
+                        </div>
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            ✨
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                            Batch Enabled
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Active Listings</p>
+                            <p class="text-2xl font-bold">3</p>
+                        </div>
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                            🔨
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                            Auctions Available
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Staked Value</p>
+                            <p class="text-2xl font-bold">2.5K LKST</p>
+                        </div>
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            🔒
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 mt-2 text-sm">
+                        <span class="text-green-500">📈</span>
+                        <span class="text-green-500">1.3x</span>
+                        <span class="text-gray-500">multiplier</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Gas Saved</p>
+                            <p class="text-2xl font-bold">15,420</p>
+                        </div>
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            ⚡
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 mt-2 text-sm">
+                        <span class="text-yellow-500">%</span>
+                        <span class="text-yellow-500">30-56%</span>
+                        <span class="text-gray-500">savings</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Features Demo -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Enhanced Features -->
+                <div class="bg-white rounded-lg p-6 shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                        ✨ Enhanced Features
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-blue-500">⚡</span>
+                                <span>Batch Minting</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Available</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-orange-500">🔨</span>
+                                <span>Auction Creation</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Available</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-500">❤️</span>
+                                <span>Make Offers</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Available</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-500">🔒</span>
+                                <span>NFT Staking</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Available</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-purple-500">📈</span>
+                                <span>Staking Boosters</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Available</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg p-6 shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                        🎯 Quick Actions
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="simulateAction('Batch Mint NFTs')" class="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <span>✨</span>
+                                <span>Batch Mint NFTs</span>
+                            </div>
+                        </button>
+                        <button onclick="simulateAction('Create Auction')" class="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <span>🔨</span>
+                                <span>Create Auction</span>
+                            </div>
+                        </button>
+                        <button onclick="simulateAction('Stake NFT')" class="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <span>🔒</span>
+                                <span>Stake NFT</span>
+                            </div>
+                        </button>
+                        <button onclick="simulateAction('View Governance')" class="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <span>🗳️</span>
+                                <span>View Governance</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2 text-green-700">
+                    ⚡ Gas Optimization Results
+                </h3>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl font-bold text-green-600">56%</div>
+                        <div class="text-sm text-gray-600">Batch Mint Savings</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-blue-600">33%</div>
+                        <div class="text-sm text-gray-600">Single Mint Savings</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-purple-600">15,420</div>
+                        <div class="text-sm text-gray-600">Total Gas Saved</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t mt-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        LandKrypt Enhanced Platform
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Showcasing upgraded smart contracts with industry-leading features and optimizations
+                    </p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm text-gray-500">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600">30-56%</div>
+                            <div>Gas Savings</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">5</div>
+                            <div>Enhanced Contracts</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">25+</div>
+                            <div>New Features</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600">100%</div>
+                            <div>Backward Compatible</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600">8</div>
+                            <div>Security Layers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Simulate loading
+        setTimeout(() => {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+        }, 3000);
+
+        // Simulate actions
+        function simulateAction(action) {
+            // Show XP animation
+            const xpAnimation = document.getElementById('xp-animation');
+            xpAnimation.classList.remove('hidden');
+            
+            // Hide after animation
+            setTimeout(() => {
+                xpAnimation.classList.add('hidden');
+            }, 2000);
+
+            // Show notification
+            alert(`🎉 ${action} simulated successfully!\n\n✅ Transaction completed\n⚡ Gas optimized\n🎯 XP earned: +150`);
+        }
+
+        // Auto-trigger XP animation every 10 seconds
+        setInterval(() => {
+            const xpAnimation = document.getElementById('xp-animation');
+            xpAnimation.classList.remove('hidden');
+            setTimeout(() => {
+                xpAnimation.classList.add('hidden');
+            }, 2000);
+        }, 10000);
+    </script>
+</body>
+</html>

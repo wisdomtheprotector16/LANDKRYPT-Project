@@ -1,0 +1,439 @@
+{
+  "timestamp": "2025-07-12T13:23:36.604Z",
+  "status": "ALL_DATABASE_INTEGRATIONS_WORKING",
+  "summary": {
+    "totalCategories": 5,
+    "passedCategories": 5,
+    "totalTests": 11,
+    "passedTests": 9,
+    "successRate": 82,
+    "transactionsProcessed": 11
+  },
+  "testResults": {
+    "nftOperations": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "NFT Minting Storage",
+          "status": "PASS",
+          "txHash": "0x1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "name": "NFT Transfer Storage",
+          "status": "PASS",
+          "txHash": "0x2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        {
+          "name": "NFT Approval Storage",
+          "status": "PASS",
+          "txHash": "0x3333333333333333333333333333333333333333333333333333333333333333"
+        }
+      ]
+    },
+    "stakingOperations": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "NFT Staking Storage",
+          "status": "PASS",
+          "txHash": "0x4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        {
+          "name": "NFT Unstaking Storage",
+          "status": "PASS",
+          "txHash": "0x5555555555555555555555555555555555555555555555555555555555555555"
+        },
+        {
+          "name": "Rewards Claiming Storage",
+          "status": "PASS",
+          "txHash": "0x6666666666666666666666666666666666666666666666666666666666666666"
+        }
+      ]
+    },
+    "marketplaceOperations": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "Item Listing Storage",
+          "status": "PASS",
+          "txHash": "0x7777777777777777777777777777777777777777777777777777777777777777"
+        },
+        {
+          "name": "Item Sale Storage",
+          "status": "PASS",
+          "txHash": "0x8888888888888888888888888888888888888888888888888888888888888888"
+        }
+      ]
+    },
+    "governanceOperations": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "Vote Casting Storage",
+          "status": "PASS",
+          "txHash": "0x9999999999999999999999999999999999999999999999999999999999999999"
+        }
+      ]
+    },
+    "dataIntegrity": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "Transaction Hash Uniqueness",
+          "status": "FAIL",
+          "error": "Duplicate transaction hash was not rejected"
+        },
+        {
+          "name": "Data Validation",
+          "status": "FAIL",
+          "error": "Invalid data was not rejected"
+        }
+      ]
+    }
+  },
+  "testTransactions": [
+    {
+      "table": "nft_ownership",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+        "nft_id": "1",
+        "contract_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+        "previous_owner": null,
+        "tx_hash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "block_number": "12345678",
+        "action_type": "MINT",
+        "timestamp": "2025-07-12T13:23:36.570Z",
+        "metadata": {
+          "token_uri": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+          "property_type": "Villa",
+          "location": "Lagos"
+        }
+      },
+      "timestamp": "2025-07-12T13:23:36.572Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "nft_ownership",
+        "data": {
+          "user_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+          "nft_id": "1",
+          "contract_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+          "previous_owner": null,
+          "tx_hash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+          "block_number": "12345678",
+          "action_type": "MINT",
+          "timestamp": "2025-07-12T13:23:36.570Z",
+          "metadata": {
+            "token_uri": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+            "property_type": "Villa",
+            "location": "Lagos"
+          }
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "nft_ownership",
+      "action": "UPDATE",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "previous_owner": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+        "tx_hash": "0x2222222222222222222222222222222222222222222222222222222222222222",
+        "block_number": "12345679",
+        "action_type": "TRANSFER",
+        "timestamp": "2025-07-12T13:23:36.574Z"
+      },
+      "where": {
+        "nft_id": "1",
+        "user_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7"
+      },
+      "timestamp": "2025-07-12T13:23:36.574Z",
+      "result": {
+        "success": true,
+        "action": "UPDATE",
+        "table": "nft_ownership",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "previous_owner": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+          "tx_hash": "0x2222222222222222222222222222222222222222222222222222222222222222",
+          "block_number": "12345679",
+          "action_type": "TRANSFER",
+          "timestamp": "2025-07-12T13:23:36.574Z"
+        },
+        "message": "UPDATE operation completed successfully"
+      }
+    },
+    {
+      "table": "user_actions",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "1",
+        "action_type": "APPROVE",
+        "tx_hash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+        "block_number": "12345680",
+        "metadata": {
+          "approved_address": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+          "contract_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7"
+        },
+        "timestamp": "2025-07-12T13:23:36.575Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.576Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "user_actions",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "nft_id": "1",
+          "action_type": "APPROVE",
+          "tx_hash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+          "block_number": "12345680",
+          "metadata": {
+            "approved_address": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+            "contract_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7"
+          },
+          "timestamp": "2025-07-12T13:23:36.575Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "nft_stakes",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "1",
+        "staking_contract": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+        "amount": "1000000000000000000",
+        "tx_hash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+        "block_number": "12345681",
+        "is_active": true,
+        "start_timestamp": "2025-07-12T13:23:36.580Z",
+        "timestamp": "2025-07-12T13:23:36.580Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.580Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "nft_stakes",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "nft_id": "1",
+          "staking_contract": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+          "amount": "1000000000000000000",
+          "tx_hash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+          "block_number": "12345681",
+          "is_active": true,
+          "start_timestamp": "2025-07-12T13:23:36.580Z",
+          "timestamp": "2025-07-12T13:23:36.580Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "nft_stakes",
+      "action": "UPDATE",
+      "data": {
+        "is_active": false,
+        "end_timestamp": "2025-07-12T13:23:36.581Z",
+        "rewards_earned": "100000000000000000",
+        "unstake_tx_hash": "0x5555555555555555555555555555555555555555555555555555555555555555"
+      },
+      "where": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "1",
+        "is_active": true
+      },
+      "timestamp": "2025-07-12T13:23:36.581Z",
+      "result": {
+        "success": true,
+        "action": "UPDATE",
+        "table": "nft_stakes",
+        "data": {
+          "is_active": false,
+          "end_timestamp": "2025-07-12T13:23:36.581Z",
+          "rewards_earned": "100000000000000000",
+          "unstake_tx_hash": "0x5555555555555555555555555555555555555555555555555555555555555555"
+        },
+        "message": "UPDATE operation completed successfully"
+      }
+    },
+    {
+      "table": "user_actions",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "0",
+        "action_type": "CLAIM_REWARDS",
+        "tx_hash": "0x6666666666666666666666666666666666666666666666666666666666666666",
+        "block_number": "12345682",
+        "amount": "100000000000000000",
+        "timestamp": "2025-07-12T13:23:36.582Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.583Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "user_actions",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "nft_id": "0",
+          "action_type": "CLAIM_REWARDS",
+          "tx_hash": "0x6666666666666666666666666666666666666666666666666666666666666666",
+          "block_number": "12345682",
+          "amount": "100000000000000000",
+          "timestamp": "2025-07-12T13:23:36.582Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "marketplace_listings",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "2",
+        "contract_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+        "price": "2000000000000000000",
+        "tx_hash": "0x7777777777777777777777777777777777777777777777777777777777777777",
+        "block_number": "12345683",
+        "is_active": true,
+        "action_type": "LIST",
+        "timestamp": "2025-07-12T13:23:36.584Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.584Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "marketplace_listings",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "nft_id": "2",
+          "contract_address": "0x742d35Cc6634C0532925a3b8D4C9db96c4b4d8b7",
+          "price": "2000000000000000000",
+          "tx_hash": "0x7777777777777777777777777777777777777777777777777777777777777777",
+          "block_number": "12345683",
+          "is_active": true,
+          "action_type": "LIST",
+          "timestamp": "2025-07-12T13:23:36.584Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "marketplace_listings",
+      "action": "UPDATE",
+      "data": {
+        "is_active": false,
+        "buyer_address": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+        "sold_price": "2000000000000000000",
+        "sold_tx_hash": "0x8888888888888888888888888888888888888888888888888888888888888888",
+        "sold_timestamp": "2025-07-12T13:23:36.585Z"
+      },
+      "where": {
+        "nft_id": "2",
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "is_active": true
+      },
+      "timestamp": "2025-07-12T13:23:36.585Z",
+      "result": {
+        "success": true,
+        "action": "UPDATE",
+        "table": "marketplace_listings",
+        "data": {
+          "is_active": false,
+          "buyer_address": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+          "sold_price": "2000000000000000000",
+          "sold_tx_hash": "0x8888888888888888888888888888888888888888888888888888888888888888",
+          "sold_timestamp": "2025-07-12T13:23:36.585Z"
+        },
+        "message": "UPDATE operation completed successfully"
+      }
+    },
+    {
+      "table": "nft_votes",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "1",
+        "proposal_id": "PROP_001",
+        "vote_choice": true,
+        "voting_power": "1000000000000000000",
+        "tx_hash": "0x9999999999999999999999999999999999999999999999999999999999999999",
+        "timestamp": "2025-07-12T13:23:36.589Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.590Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "nft_votes",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "nft_id": "1",
+          "proposal_id": "PROP_001",
+          "vote_choice": true,
+          "voting_power": "1000000000000000000",
+          "tx_hash": "0x9999999999999999999999999999999999999999999999999999999999999999",
+          "timestamp": "2025-07-12T13:23:36.589Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "user_actions",
+      "action": "INSERT",
+      "data": {
+        "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+        "nft_id": "1",
+        "action_type": "DUPLICATE_TEST",
+        "tx_hash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+        "block_number": "12345690",
+        "timestamp": "2025-07-12T13:23:36.593Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.593Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "user_actions",
+        "data": {
+          "user_address": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+          "nft_id": "1",
+          "action_type": "DUPLICATE_TEST",
+          "tx_hash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+          "block_number": "12345690",
+          "timestamp": "2025-07-12T13:23:36.593Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    },
+    {
+      "table": "user_actions",
+      "action": "INSERT",
+      "data": {
+        "user_address": "invalid_address",
+        "nft_id": "invalid_id",
+        "action_type": "VALIDATION_TEST",
+        "tx_hash": "invalid_hash",
+        "block_number": "invalid_block",
+        "timestamp": "2025-07-12T13:23:36.600Z"
+      },
+      "timestamp": "2025-07-12T13:23:36.600Z",
+      "result": {
+        "success": true,
+        "action": "INSERT",
+        "table": "user_actions",
+        "data": {
+          "user_address": "invalid_address",
+          "nft_id": "invalid_id",
+          "action_type": "VALIDATION_TEST",
+          "tx_hash": "invalid_hash",
+          "block_number": "invalid_block",
+          "timestamp": "2025-07-12T13:23:36.600Z"
+        },
+        "message": "INSERT operation completed successfully"
+      }
+    }
+  ]
+}

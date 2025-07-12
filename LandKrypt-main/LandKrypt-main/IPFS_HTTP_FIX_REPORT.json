@@ -1,0 +1,33 @@
+{
+  "timestamp": "2025-07-12T12:36:10.286Z",
+  "status": "IPFS_URLS_FIXED",
+  "gateway": "https://gateway.pinata.cloud/ipfs/",
+  "totalFixed": 5,
+  "fixedUrls": [
+    {
+      "tokenId": 0,
+      "name": "Lagos Premium Villa",
+      "httpUrl": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui"
+    },
+    {
+      "tokenId": 1,
+      "name": "Abuja Commercial Complex",
+      "httpUrl": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H"
+    },
+    {
+      "tokenId": 2,
+      "name": "Port Harcourt Apartment",
+      "httpUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7"
+    },
+    {
+      "tokenId": 3,
+      "name": "Kano Industrial Land",
+      "httpUrl": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF"
+    },
+    {
+      "tokenId": 4,
+      "name": "Lagos Waterfront Estate",
+      "httpUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7"
+    }
+  ]
+}

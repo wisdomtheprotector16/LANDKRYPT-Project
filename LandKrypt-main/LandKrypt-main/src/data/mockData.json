@@ -1,0 +1,98 @@
+{
+  "nfts": [
+    {
+      "id": 0,
+      "name": "Lagos Premium Villa",
+      "description": "Luxury 4-bedroom villa in Victoria Island, Lagos",
+      "image": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "price": "2.5",
+      "currency": "ETH",
+      "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "propertyType": 1,
+      "location": 1,
+      "rarity": 3,
+      "attributes": {
+        "bedrooms": 4,
+        "bathrooms": 3,
+        "area": "350 sqm",
+        "yearBuilt": 2022
+      },
+      "royalty": 2.5,
+      "listed": true,
+      "listingType": "fixed_price"
+    },
+    {
+      "id": 1,
+      "name": "Abuja Commercial Complex",
+      "description": "Modern commercial building in Central Business District",
+      "image": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "price": "5.0",
+      "currency": "ETH",
+      "owner": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "propertyType": 3,
+      "location": 2,
+      "rarity": 4,
+      "attributes": {
+        "floors": 8,
+        "offices": 24,
+        "area": "2500 sqm",
+        "yearBuilt": 2023
+      },
+      "royalty": 3,
+      "listed": true,
+      "listingType": "dutch_auction",
+      "startPrice": "5.0",
+      "endPrice": "3.0",
+      "currentPrice": "4.2"
+    },
+    {
+      "id": 2,
+      "name": "Port Harcourt Apartment",
+      "description": "2-bedroom apartment in GRA Phase 2",
+      "image": "/api/placeholder/400/300",
+      "price": "1.8",
+      "currency": "ETH",
+      "owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "propertyType": 2,
+      "location": 4,
+      "rarity": 2,
+      "attributes": {
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "area": "120 sqm",
+        "yearBuilt": 2021
+      },
+      "royalty": 2,
+      "listed": false
+    }
+  ],
+  "marketplace": {
+    "totalListings": 15,
+    "totalVolume": "45.7",
+    "averagePrice": "2.8",
+    "activeAuctions": 3
+  },
+  "staking": {
+    "totalStaked": "125000",
+    "totalRewards": "8750",
+    "apy": 12.5,
+    "userStaked": "2500",
+    "userRewards": "175"
+  },
+  "governance": {
+    "totalProposals": 8,
+    "activeProposals": 2,
+    "totalVotes": 1250,
+    "userVotingPower": 850
+  },
+  "user": {
+    "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "tier": 3,
+    "xp": 2750,
+    "nftsOwned": 5,
+    "totalStaked": "2500",
+    "marketplaceTransactions": 12,
+    "governanceParticipation": 6,
+    "gasSaved": 15420
+  }
+}

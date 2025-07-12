@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-07-12T12:18:05.251Z",
+  "status": "IPFS_IMAGES_FIXED",
+  "summary": {
+    "imagesUploaded": 5,
+    "metadataGenerated": 5,
+    "totalNFTs": 5
+  },
+  "uploadedImages": [
+    {
+      "tokenId": 0,
+      "filename": "nft1.jpg",
+      "ipfsCid": "QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "ipfsUrl": "ipfs://QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui",
+      "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmeCudzkVhFkA62cXTGw8t9jtjmzf3ifncRTCLkDaVAvui"
+    },
+    {
+      "tokenId": 1,
+      "filename": "nft2.jpg",
+      "ipfsCid": "QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "ipfsUrl": "ipfs://QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H",
+      "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmV6JAGq9PcTh9XXwTHzi3AYwrpYUTAjnF6UVFydH6EG2H"
+    },
+    {
+      "tokenId": 2,
+      "filename": "nft3.jpg",
+      "ipfsCid": "QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "ipfsUrl": "ipfs://QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7"
+    },
+    {
+      "tokenId": 3,
+      "filename": "nft4.jpg",
+      "ipfsCid": "QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "ipfsUrl": "ipfs://QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF",
+      "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmerWSwoBHJrwU8kt4WwozQXreuxHsVYtUMK6EqmZ2MkGF"
+    },
+    {
+      "tokenId": 4,
+      "filename": "nft5.jpg",
+      "ipfsCid": "QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "ipfsUrl": "ipfs://QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7",
+      "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmbXdmtks6Dhxr5pHiLpfnisKn5jA9dneuuvTCJ8CKjue7"
+    }
+  ],
+  "generatedMetadata": [
+    {
+      "tokenId": 0,
+      "metadataCid": "QmcwHhhma6EGLTKVkjtW25FQt5zLkfmM52LMNzCEWK5nBn",
+      "metadataUrl": "ipfs://QmcwHhhma6EGLTKVkjtW25FQt5zLkfmM52LMNzCEWK5nBn",
+      "name": "Lagos Premium Villa"
+    },
+    {
+      "tokenId": 1,
+      "metadataCid": "QmT55bZ9NdXnvwsmpfbsCM8n7bpBPeNpCCuf3sc4VFKXaN",
+      "metadataUrl": "ipfs://QmT55bZ9NdXnvwsmpfbsCM8n7bpBPeNpCCuf3sc4VFKXaN",
+      "name": "Abuja Commercial Complex"
+    },
+    {
+      "tokenId": 2,
+      "metadataCid": "QmQSoXfMgNR1RwBVid3p51BTvTBM94ZLActLL4AH35XBGb",
+      "metadataUrl": "ipfs://QmQSoXfMgNR1RwBVid3p51BTvTBM94ZLActLL4AH35XBGb",
+      "name": "Port Harcourt Apartment"
+    },
+    {
+      "tokenId": 3,
+      "metadataCid": "QmUuRunZbBB59W7M46F2nzYJ5hu34an3n9oBrkKx8pSxJ9",
+      "metadataUrl": "ipfs://QmUuRunZbBB59W7M46F2nzYJ5hu34an3n9oBrkKx8pSxJ9",
+      "name": "Kano Industrial Land"
+    },
+    {
+      "tokenId": 4,
+      "metadataCid": "QmaPNqF9R2imfX3WJgqFKQHuQReQhgGasimE8TSnhZvQxz",
+      "metadataUrl": "ipfs://QmaPNqF9R2imfX3WJgqFKQHuQReQhgGasimE8TSnhZvQxz",
+      "name": "Lagos Waterfront Estate"
+    }
+  ]
+}

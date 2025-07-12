@@ -1,0 +1,83 @@
+{
+  "timestamp": "2025-07-12T13:06:36.173Z",
+  "summary": {
+    "total": 15,
+    "passed": 13,
+    "failed": 0,
+    "warnings": 2,
+    "successRate": 87
+  },
+  "results": {
+    "passed": [
+      {
+        "component": "page.js",
+        "path": "src/app/page.js"
+      },
+      {
+        "component": "providers.js",
+        "path": "src/app/providers.js"
+      },
+      {
+        "component": "wagmi.js",
+        "path": "src/app/wagmi.js"
+      },
+      {
+        "component": "card.jsx",
+        "path": "src/components/ui/card.jsx"
+      },
+      {
+        "component": "button.jsx",
+        "path": "src/components/ui/button.jsx"
+      },
+      {
+        "component": "badge.jsx",
+        "path": "src/components/ui/badge.jsx"
+      },
+      {
+        "component": "tabs.jsx",
+        "path": "src/components/ui/tabs.jsx"
+      },
+      {
+        "component": "progress.jsx",
+        "path": "src/components/ui/progress.jsx"
+      },
+      {
+        "component": "EnhancedDashboard.jsx",
+        "path": "src/components/enhanced/EnhancedDashboard.jsx"
+      },
+      {
+        "component": "NftPlaceholder.jsx",
+        "path": "src/components/NftPlaceholder.jsx"
+      },
+      {
+        "component": "useMockEnhancedSystem.js",
+        "path": "src/hooks/useMockEnhancedSystem.js"
+      },
+      {
+        "component": "ipfs.js",
+        "path": "src/utils/ipfs.js"
+      },
+      {
+        "component": "utils.js",
+        "path": "src/lib/utils.js"
+      }
+    ],
+    "failed": [],
+    "warnings": [
+      {
+        "component": "layout.js",
+        "path": "src/app/layout.js",
+        "issues": [
+          "JSX without React import or use client directive"
+        ]
+      },
+      {
+        "component": "IpfsImage.jsx",
+        "path": "src/components/IpfsImage.jsx",
+        "issues": [
+          "Contains console.log statements"
+        ]
+      }
+    ]
+  }
+}
